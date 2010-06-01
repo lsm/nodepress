@@ -3,6 +3,7 @@ var settings = {
     lib_paths: [baseDir+"/lib/genji/lib", baseDir+'/lib/muju', baseDir+'/lib/mongodb/lib', baseDir+'/lib/fuze'],
     baseDir: baseDir,
     urls: './blog',
+    staticUrl: 'http://nodepress.com:8080/static',
     servers: [{port:8000, host: '127.0.0.1'}],
     db: {host: '127.0.0.1', port: 27017},
     handler: 'genji.web.handler.SimpleHandler',

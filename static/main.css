@@ -1,0 +1,32 @@
+/* 
+    Document   : main
+    Created on : Jun 1, 2010, 11:28:32 AM
+    Author     : zai
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+.info2 {
+	background-image:initial;
+	background-repeat-x:initial;
+	background-repeat-y:initial;
+	background-repeat:no-repeat;
+	background-attachment:initial;
+	background-position:initial initial;
+	background-position-x:initial;
+	background-position-y:initial;
+	background-origin:initial;
+	background-clip:initial;
+	background-color:#F0F0F0;
+	font-family:Verdana, Arial, sans-serif;
+	font-size:14px;
+	color:#444444;
+	border:1px dashed #CCCCCC;
+	margin:10px;
+	padding:10px;
+}
