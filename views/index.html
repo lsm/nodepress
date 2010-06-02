@@ -2,51 +2,129 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-        <title>Examples of Web Layouts - For more info visit: www.elasticss.com</title>
+        <title>Nodepress.com | a blogging tool built on top of nodejs</title>
         <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-        <link rel="stylesheet" type="text/css" media="all" href="{{staticUrl}}/elastic/elastic.css" />
-        <link rel="stylesheet" type="text/css" media="all" href="{{staticUrl}}/main.css" />
-        <script src="{{staticUrl}}/elastic/elastic.js" type="text/javascript" language="javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" media="screen" href="{{staticUrl}}/css/screen.css" />
+        <script src="{{staticUrl}}/js/rightjs/rightjs-1.5.6.js" type="text/javascript" language="javascript"></script>
+        <script src="{{staticUrl}}/js/rightjs/right-tabs-min.js" type="text/javascript" language="javascript"></script>
+        <!--<script src="{{staticUrl}}/js/jquery-1.4.2.min.js" type="text/javascript" language="javascript" charset="utf-8"></script>-->
+        <!--<script src="{{staticUrl}}/js/jquery-ui-1.8.1.custom.min.js" type="text/javascript" language="javascript" charset="utf-8"></script>-->
+
+        <style type="text/css">
+        </style>
+        <script type="text/javascript" language="javascript">
+            document.onReady(function() {
+                var tabs = new Tabs('np-toolbar');
+                tabs.onClick(function(tab) {
+                    if (tab.id === 'np-toolbar-editor' && wmd.length === 0) {
+                        createWMD();
+                    }
+                });
+                tabs.onHide(function(tab) {
+                   if (tab.id !== 'np-toolbar-editor') {
+                       destroyWMD();
+                   }
+                });
+            });
+
+            wmd_options = { autostart: false };
+
+            var wmd = [];
+
+            function createWMD() {
+
+                /***** Make sure WMD has finished loading *****/
+                if (!Attacklab || !Attacklab.wmd) {
+                    alert("WMD hasn't finished loading!");
+                    return;
+                }
+
+                var textarea = new Element('textarea', {id: 'np-mdEditor','class': 'np-full-width', rows: 25})
+                $('np-editor').insert(textarea);
+
+                var previewDiv = new Element('div', {'class': 'np-preview'});
+                $('np-toolbar-editor').insert(previewDiv);
+
+                /***** build the preview manager *****/
+                var panes = {input:textarea, preview:previewDiv, output:null};
+                var previewManager = new Attacklab.wmd.previewManager(panes);
+
+                /***** build the editor and tell it to refresh the preview after commands *****/
+                var editor = new Attacklab.wmd.editor(textarea,previewManager.refresh);
+
+                // save everything so we can destroy it all later
+                wmd.push({ta:textarea, div:previewDiv, ed:editor, pm:previewManager});
+            }
+
+            function destroyWMD() {
+                var inst = wmd.pop();
+
+                if (inst) {
+
+                    /***** destroy the editor and preview manager *****/
+                    inst.pm.destroy();
+                    inst.ed.destroy();
+
+                    // remove the dom elements
+                    inst.ta.parentNode.removeChild(inst.ta);
+                    inst.div.parentNode.removeChild(inst.div);
+
+                }
+            }
+
+        </script>
     </head>
     <body>
-        <div class="columns on-2">
-            <div class="container">
-                <div class="column">
-                    <div class="container">
-                        <div class="info2">
-		    	  			Simple Two columns layout
-                        </div>
-                        <div class="unit header">
-                            <div class="container">
-                                <p><strong>HEADER</strong></p>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                            </div>
-                        </div>
-                        <div class="unit body">
-                            <div class="columns on-4 same-height">
-                                <div class="column span-3 content ">
-                                    <div class="container full-height">
-                                        <p><strong>MAIN</strong></p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                                    </div>
-                                </div>
-                                <div class="column sidebar">
-                                    <div class="container full-height">
-                                        <p><strong>SIDEBAR</strong></p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="unit footer">
-                            <div class="container" >
-                                <p><strong>FOOTER</strong></p>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                            </div>
-                        </div>
+        <div class="np-main">
+            <div class="np-full-width">
+                <div class="np-info np-logo">
+		    	  nodepress.com
+                </div>
+                <div class="np-delimiter"></div>
+                <div class="np-info np-header">
+                    a blogging tool built on top of nodejs
+                </div>
+            </div>
+            <div id="np-toolbar" class="np-full-width np-toolbar right-tabs">
+                <ul>
+                    <li><a href="#np-toolbar-comments">Recent comments</a></li>
+                    <li><a href="#np-toolbar-editor">New post</a></li>
+                </ul>
+                <div id="np-toolbar-comments" class="np-full-width np-toolbar-item">
+                    <p>Here you can see the lastest comments on your blog</p>
+                </div>
+                <div id="np-toolbar-editor" class="np-full-width np-toolbar-item">
+                    <div id="np-editor" class="np-editor"></div>
+                </div>
+            </div>
+
+            <div class="np-full-width">
+                <div class="np-content">
+                    <div class="np-post">
+                        <h3>Blog title</h3>
+                        <h4>12, Mar, 2009</h4>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    </div>
+                    <div class="np-post">
+                        <h3>Blog title</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    </div>
+                </div>
+                <!--<div class="fixed column np-delimiter vertical-center"></div>-->
+                <div class="np-sidebar">
+                    <div class="np-sidebar-item">
+                        <p><strong>SIDEBAR</strong></p>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
                     </div>
                 </div>
             </div>
+            <div class="unit footer">
+                <div class="np-footer container" >
+                    <p><strong>FOOTER</strong></p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                </div>
+            </div>
         </div>
+        <script type="text/javascript" src="{{staticUrl}}/js/wmd-1.0.1/wmd/wmd.js"></script>
     </body>
 </html>

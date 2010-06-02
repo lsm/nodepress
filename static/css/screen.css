@@ -1,0 +1,138 @@
+/* 
+    Document   : main
+    Created on : Jun 1, 2010, 11:28:32 AM
+    Author     : zai
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+/*** MEYER RESET v1.0 ***/
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outline:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+/*** Default styles ***/
+
+div {
+    float: left;
+}
+
+/*** Classes ***/
+
+.np-full-width {
+    width: 100%;
+}
+
+.np-main {
+    float: none;
+    margin: 0 auto;
+    width: 974px;
+}
+
+.np-logo {
+    width: 139px;
+    min-height: 14px;
+}
+
+.np-header {
+    width: 777px;
+}
+
+.np-dashed {
+    border: 1px dashed #333333;
+}
+
+.np-delimiter {
+    border: 2px double maroon;
+    float: left;
+    width: 0px;
+    min-height: 55px;
+    margin:0px 5px;
+}
+
+.np-info {
+	background-image:initial;
+	background-repeat-x:initial;
+	background-repeat-y:initial;
+	background-repeat:no-repeat;
+	background-attachment:initial;
+	background-position:initial initial;
+	background-position-x:initial;
+	background-position-y:initial;
+	background-origin:initial;
+	background-clip:initial;
+	background-color:#F0F0F0;
+	font-family:Verdana, Arial, sans-serif;
+	font-size:14px;
+	color:#444444;
+	border:1px dashed #CCCCCC;
+	margin:10px auto;
+	padding:10px;
+}
+
+.np-content {
+    width: 66%;
+}
+
+.np-post {
+    padding: 10px;
+    margin-bottom: 10px;
+	border:1px dashed #CCCCCC;
+}
+
+.np-post h3 {
+    font-size: 18px;
+    font-family: Geneva,Arial,Helvetica,sans-serif;
+}
+
+.np-post h4 {
+    font-style: italic;
+    font-size: 12px;
+    font-weight: normal;
+    color: #666666;
+}
+
+.np-toolbar {
+    margin: 5px 0px !important;
+}
+
+.np-toolbar-item {
+    margin: 5px 0px;
+}
+
+.np-editor {
+    padding: 5px;
+    width: 477px;
+}
+
+#np-mdEditor {
+    max-width: 476px;
+}
+
+.np-preview {
+    padding: 10px;
+    margin: 5px 0 5px 5px;
+    width: 462px;
+    background-color: #EEEEEE;
+    word-wrap:break-word;
+    height: 386px;
+    overflow: scroll;
+}
+
+.np-sidebar {
+    width: 34%;
+}
+
+.np-sidebar-item {
+    margin-left: 10px;
+    padding: 10px;
+    border-bottom:1px dotted #CCCCCC;
+    border-right:1px dotted #CCCCCC;
+}
+
+.np-footer {
+    padding: 10px;
+    background-color:#CCCCCC;
+}
