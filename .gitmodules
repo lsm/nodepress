@@ -7,3 +7,6 @@
 [submodule "lib/node-mongodb-native"]
 	path = lib/node-mongodb-native
 	url = git://github.com/christkv/node-mongodb-native.git
+[submodule "static/js/mustache.js"]
+	path = static/js/mustache.js
+	url = http://github.com/janl/mustache.js.git

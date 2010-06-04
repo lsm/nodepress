@@ -5,7 +5,7 @@ var settings = {
     urls: './blog',
     staticUrl: 'http://nodepress.com:8080/static',
     servers: [{port:8000, host: '127.0.0.1'}],
-    db: {host: '127.0.0.1', port: 27017},
+    db: {host: '127.0.0.1', port: 27017, name: 'nodepress'},
     handler: 'genji.web.handler.SimpleHandler',
     secureKey: 'c00kie-key-4-hmac',
     level: 2,

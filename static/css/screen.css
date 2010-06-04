@@ -11,8 +11,8 @@
    Syntax recommendation http://www.w3.org/TR/REC-CSS2/
 */
 /*** MEYER RESET v1.0 ***/
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outline:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
-
+/*html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outline:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+*/
 /*** Default styles ***/
 
 div {
@@ -52,6 +52,10 @@ div {
     margin:0px 5px;
 }
 
+.np-hide {
+    display: none;
+}
+
 .np-info {
 	background-image:initial;
 	background-repeat-x:initial;
@@ -72,11 +76,12 @@ div {
 	padding:10px;
 }
 
-.np-content {
+#np-posts {
     width: 66%;
 }
 
 .np-post {
+    width: 611px;
     padding: 10px;
     margin-bottom: 10px;
 	border:1px dashed #CCCCCC;
@@ -102,23 +107,55 @@ div {
     margin: 5px 0px;
 }
 
+#np-toolbar-editor {
+    height: 507px;
+}
+
 .np-editor {
     padding: 5px;
     width: 477px;
 }
 
+.np-editor input {
+  float: left;
+  font-size: 1.2em;
+  margin: 5px 0;
+  padding: 5px;
+  display: block;
+  width: 98%;
+  background-repeat: no-repeat;
+  border: .1em solid #AAAAAA;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+}
+
 #np-mdEditor {
     max-width: 476px;
+    font-size: 14px;
+    max-height: 360px;
+}
+
+#np-editor-preview {
+    height: 98%;
+    padding: 5px;
+    width: 477px;
+}
+
+#np-editor-preview button {
+    margin: 0 5px;
+    height: 5%;
+    width: 20%;
+    float: right;
 }
 
 .np-preview {
+    background-color: #EEEEEE;
+    word-wrap:break-word;
     padding: 10px;
     margin: 5px 0 5px 5px;
     width: 462px;
-    background-color: #EEEEEE;
-    word-wrap:break-word;
-    height: 386px;
-    overflow: scroll;
+    height: 85%;
+    overflow: auto;
 }
 
 .np-sidebar {

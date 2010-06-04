@@ -7,71 +7,106 @@
         <link rel="stylesheet" type="text/css" media="screen" href="{{staticUrl}}/css/screen.css" />
         <script src="{{staticUrl}}/js/rightjs/rightjs-1.5.6.js" type="text/javascript" language="javascript"></script>
         <script src="{{staticUrl}}/js/rightjs/right-tabs-min.js" type="text/javascript" language="javascript"></script>
-        <!--<script src="{{staticUrl}}/js/jquery-1.4.2.min.js" type="text/javascript" language="javascript" charset="utf-8"></script>-->
-        <!--<script src="{{staticUrl}}/js/jquery-ui-1.8.1.custom.min.js" type="text/javascript" language="javascript" charset="utf-8"></script>-->
+        <script src="{{staticUrl}}/js/mustache.js/mustache.js" type="text/javascript" language="javascript"></script>
 
         <style type="text/css">
         </style>
         <script type="text/javascript" language="javascript">
             document.onReady(function() {
                 var tabs = new Tabs('np-toolbar');
-                tabs.onClick(function(tab) {
+                tabs.onShow(function(tab) {
                     if (tab.id === 'np-toolbar-editor' && wmd.length === 0) {
                         createWMD();
                     }
                 });
                 tabs.onHide(function(tab) {
-                   if (tab.id !== 'np-toolbar-editor') {
-                       destroyWMD();
-                   }
+                    if (tab.id === 'np-toolbar-editor') {
+                        destroyWMD();
+                    }
                 });
+
+                // wmd editor
+                var wmd = [];
+                var textarea, previewDiv, title, tags;
+
+                function createWMD() {
+                    /***** Make sure WMD has finished loading *****/
+                    if (!Attacklab || !Attacklab.wmd) {
+                        alert("WMD hasn't finished loading!");
+                        return;
+                    }
+                    title = title || new Element('input', {id: 'np-title', name:'title'});
+                    tags = tags || new Element('input', {id:'np-tags', name:'tags'});
+                    textarea = textarea || new Element('textarea', {id: 'np-mdEditor','class': 'np-full-width', rows: 25})
+                    previewDiv = previewDiv || new Element('div', {'class': 'np-preview'});
+                    $('np-editor').insert(textarea);
+                    $('np-mdEditor').insert({before: title});
+                    $('np-mdEditor').insert({after: tags});
+                    $('np-editor-preview').insert({top:previewDiv});
+
+                    /***** build the preview manager *****/
+                    var panes = {input:textarea, preview:previewDiv, output:null};
+                    var previewManager = new Attacklab.wmd.previewManager(panes);
+
+                    /***** build the editor and tell it to refresh the preview after commands *****/
+                    var editor = new Attacklab.wmd.editor(textarea,previewManager.refresh);
+
+                    // save everything so we can destroy it all later
+                    wmd.push({ta:textarea, div:previewDiv, ed:editor, pm:previewManager});
+                }
+
+                function destroyWMD() {
+                    var inst = wmd.pop();
+                    if (inst) {
+                        /***** destroy the editor and preview manager *****/
+                        inst.pm.destroy();
+                        inst.ed.destroy();
+                        // remove the dom elements
+                        inst.ta.parentNode.removeChild(inst.ta);
+                        inst.div.parentNode.removeChild(inst.div);
+                    }
+                }
+
+                // save post
+                var post_id;
+                function new2update(id) {
+                   $('np-editor').set('action', '/update/');
+                   post_id = id;
+                }
+                var post = {};
+                $('np-save').onClick(function() {
+                    post.title = $('np-title').value;
+                    post.tags = $('np-tags').value.split(',');
+                    post.content = $('np-mdEditor').value;
+                    if (post_id) post._id = post_id;
+                    new Xhr($('np-editor').get('action'), {
+                        onSuccess: function(request) {
+                            new2update(this.text);
+                        },
+                        onFailure: function(request) {
+                            // show error
+                        }
+                    }).send(JSON.stringify(post));
+                });
+
+                function loadPostList() {
+                
+                }
+
+                // load template
+                var sections = {posts: '{{& posts}}'};
+                new Xhr('/list/', {
+                    method: 'get',
+                    onSuccess: function(request) {
+                        var views = {"posts": request.responseJSON};
+                        var r = Mustache.to_html(sections.posts, views);
+                        $('np-posts').insert(r);
+                    }
+                }).send();
+
             });
 
             wmd_options = { autostart: false };
-
-            var wmd = [];
-
-            function createWMD() {
-
-                /***** Make sure WMD has finished loading *****/
-                if (!Attacklab || !Attacklab.wmd) {
-                    alert("WMD hasn't finished loading!");
-                    return;
-                }
-
-                var textarea = new Element('textarea', {id: 'np-mdEditor','class': 'np-full-width', rows: 25})
-                $('np-editor').insert(textarea);
-
-                var previewDiv = new Element('div', {'class': 'np-preview'});
-                $('np-toolbar-editor').insert(previewDiv);
-
-                /***** build the preview manager *****/
-                var panes = {input:textarea, preview:previewDiv, output:null};
-                var previewManager = new Attacklab.wmd.previewManager(panes);
-
-                /***** build the editor and tell it to refresh the preview after commands *****/
-                var editor = new Attacklab.wmd.editor(textarea,previewManager.refresh);
-
-                // save everything so we can destroy it all later
-                wmd.push({ta:textarea, div:previewDiv, ed:editor, pm:previewManager});
-            }
-
-            function destroyWMD() {
-                var inst = wmd.pop();
-
-                if (inst) {
-
-                    /***** destroy the editor and preview manager *****/
-                    inst.pm.destroy();
-                    inst.ed.destroy();
-
-                    // remove the dom elements
-                    inst.ta.parentNode.removeChild(inst.ta);
-                    inst.div.parentNode.removeChild(inst.div);
-
-                }
-            }
-
         </script>
     </head>
     <body>
@@ -85,7 +120,7 @@
                     a blogging tool built on top of nodejs
                 </div>
             </div>
-            <div id="np-toolbar" class="np-full-width np-toolbar right-tabs">
+            <div id="np-toolbar" class="np-full-width np-toolbar">
                 <ul>
                     <li><a href="#np-toolbar-comments">Recent comments</a></li>
                     <li><a href="#np-toolbar-editor">New post</a></li>
@@ -94,22 +129,18 @@
                     <p>Here you can see the lastest comments on your blog</p>
                 </div>
                 <div id="np-toolbar-editor" class="np-full-width np-toolbar-item">
-                    <div id="np-editor" class="np-editor"></div>
+                        <div class="np-editor">
+                            <form id="np-editor" method="post" action="/new/"></form>
+                        </div>
+                            <div id="np-editor-preview">
+                                <button id="np-save">Save</button>
+                                <button id="np-publish">Publish</button>
+                            </div>
                 </div>
             </div>
 
             <div class="np-full-width">
-                <div class="np-content">
-                    <div class="np-post">
-                        <h3>Blog title</h3>
-                        <h4>12, Mar, 2009</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                    </div>
-                    <div class="np-post">
-                        <h3>Blog title</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                    </div>
-                </div>
+                <div id="np-posts"></div>
                 <!--<div class="fixed column np-delimiter vertical-center"></div>-->
                 <div class="np-sidebar">
                     <div class="np-sidebar-item">
