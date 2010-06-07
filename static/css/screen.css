@@ -108,7 +108,7 @@ div {
 }
 
 #np-toolbar-editor {
-    height: 507px;
+    height: 100%;
 }
 
 .np-editor {
@@ -129,32 +129,30 @@ div {
   -moz-border-radius: 6px;
 }
 
-#np-mdEditor {
+#np-save-to {
+    display: none;
+}
+
+#np-textarea {
     max-width: 476px;
     font-size: 14px;
     max-height: 360px;
 }
 
-#np-editor-preview {
-    height: 98%;
-    padding: 5px;
-    width: 477px;
-}
-
-#np-editor-preview button {
+.np-editor button {
     margin: 0 5px;
     height: 5%;
     width: 20%;
     float: right;
 }
 
-.np-preview {
+#np-preview {
     background-color: #EEEEEE;
     word-wrap:break-word;
-    padding: 10px;
-    margin: 5px 0 5px 5px;
+    padding: 5px;
+    margin: 5px;
     width: 462px;
-    height: 85%;
+    height: 432px;
     overflow: auto;
 }
 

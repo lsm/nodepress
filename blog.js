@@ -6,12 +6,12 @@ mongo = require('./lib/node-mongodb-native/lib/mongodb');
 var dbServer = new mongo.Server(settings.db.host, settings.db.port, {});
 
 var sections = {
-    posts: '{{#posts}}<div class="np-post"><h2>{{title}}</h2><h4>{{created}}</h4>{{content}}</div>{{/posts}}'
+    posts: '{{#posts}}<div class="np-post"><h2>{{title}}</h2><h4>{{created}}</h4>{{{content}}}</div>{{/posts}}'
 }
 
 function index(handler) {
     var ctx = {staticUrl: settings.staticUrl, posts: sections.posts};
-    nun.render(path.join(__dirname, '/views/index.html'), ctx, {}, function (err, output) {
+    nun.render(path.join(__dirname, '/views/index2.html'), ctx, {}, function (err, output) {
         if (err) {
             throw err;
         }
