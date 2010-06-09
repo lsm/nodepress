@@ -1,0 +1,51 @@
+
+/* root element for tabs  */
+ul.np-tabs {
+	margin:0 !important;
+	padding:0;
+	height:30px;
+	border-bottom:1px solid #666;
+}
+
+/* single tab */
+ul.np-tabs li {
+	float:left;
+	padding:0;
+	margin:0;
+	list-style-type:none;
+}
+
+/* link inside the tab. uses a background image */
+ul.np-tabs a {
+	float:left;
+	font-size:13px;
+	display:block;
+	padding:5px 30px;
+	text-decoration:none;
+	border:1px solid #666;
+	border-bottom:0px;
+	height:18px;
+	background-color:#efefef;
+	color:#777;
+	margin-right:2px;
+	-moz-border-radius-topleft: 4px;
+	-moz-border-radius-topright:4px;
+	-webkit-border-radius: 3px;
+	position:relative;
+	top:1px;
+}
+
+ul.np-tabs a:hover {
+	background-color:#F7F7F7;
+	color:#333;
+}
+
+/* selected tab */
+ul.np-tabs a.current {
+	background-color:#ddd;
+	border-bottom:2px solid #ddd;
+	color:#000;
+	cursor:default;
+}
+
+

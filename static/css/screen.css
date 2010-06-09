@@ -22,7 +22,12 @@ div {
 /*** Classes ***/
 
 .np-full-width {
+    margin: 5px 0;
     width: 100%;
+}
+
+.np-right {
+    float: right;
 }
 
 .np-main {
@@ -76,35 +81,73 @@ div {
 	padding:10px;
 }
 
+#np-search {
+    background-color: #CCCCCC;
+    min-height: 36px;
+}
+
+#np-search input {
+    float: right;
+    margin: 7px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+}
+
 #np-posts {
     width: 66%;
 }
 
 .np-post {
     width: 611px;
-    padding: 10px;
+    padding: 5px;
     margin-bottom: 10px;
 	border:1px dashed #CCCCCC;
 }
 
-.np-post h3 {
-    font-size: 18px;
-    font-family: Geneva,Arial,Helvetica,sans-serif;
+.np-post-title {
+    float: left;
+    padding-left: 15px;
+    font-size: 1.5em;
+    text-decoration: underline;
+    font-family: Arial,Helvetica,sans-serif;
 }
 
-.np-post h4 {
+.np-post-date {
+    margin: 5px 0;
     font-style: italic;
     font-size: 12px;
     font-weight: normal;
     color: #666666;
 }
 
-.np-toolbar {
-    margin: 5px 0px !important;
+.np-post-content {
+    margin: 0 15px;
+    min-width: 581px;
 }
 
-.np-toolbar-item {
-    margin: 5px 0px;
+.np-post-content p {
+    margin: 3px 0;
+}
+
+.np-post-tags {
+    margin: 3px;
+    padding: 2px;
+    float: right;
+}
+
+.np-post-tag {
+    margin: 3px;
+    padding: 4px;
+    background-color: #AAAAAA;
+    border: .1em dotted #333333;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    cursor: pointer;
+}
+
+.np-toolbar {
+    margin: 5px 0px !important;
+    min-width: 974px !important;
 }
 
 #np-toolbar-editor {
@@ -112,7 +155,7 @@ div {
 }
 
 .np-editor {
-    padding: 5px;
+    padding: 1px;
     width: 477px;
 }
 
@@ -156,6 +199,8 @@ div {
     overflow: auto;
 }
 
+
+
 .np-sidebar {
     width: 34%;
 }
@@ -168,6 +213,7 @@ div {
 }
 
 .np-footer {
+    margin: 5px 0;
     padding: 10px;
     background-color:#CCCCCC;
 }

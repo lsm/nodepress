@@ -5,74 +5,80 @@
         <title>Nodepress.com | a blogging tool built on top of nodejs</title>
         <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
         <link rel="stylesheet" type="text/css" media="screen" href="{{staticUrl}}/css/screen.css" />
-        <link rel="stylesheet" type="text/css" media="screen" href="{{staticUrl}}/css/tabs.css" />
-        <script src="{{staticUrl}}/js/jquery-1.4.2.js" type="text/javascript" language="javascript"></script>
+        <script src="{{staticUrl}}/js/rightjs/right-1.5.6.js" type="text/javascript" language="javascript"></script>
+        <script src="{{staticUrl}}/js/rightjs/right-tabs.js" type="text/javascript" language="javascript"></script>
+        <script src="{{staticUrl}}/js/mustache.min.js" type="text/javascript" language="javascript"></script>
+        <script src="{{staticUrl}}/js/showdown.js" type="text/javascript" language="javascript"></script>
+        <script src="{{staticUrl}}/js/nodepress.js" type="text/javascript" language="javascript"></script>
 
+        <style type="text/css">
+        </style>
         <script type="text/javascript" language="javascript">
-            $(function() {
-                $("ul.np-tabs").tabs("div.np-tab");
-                var lastContent, converted, escaped,
+            document.onReady(function() {
+                var tabs = new Tabs('np-toolbar'), lastContent, converted, escaped,
                 showdown = new Showdown.converter();
                 //var log = console.log; // for debugging
                 // convert markdown and show the converted in preview div
                 function convert() {
-                    var content = $('#np-textarea').attr('value');
+                    var content = $('np-textarea').value;
                     content = content === lastContent ? false : content;
                     if (content !== false) {
                         lastContent = content;
                         converted = showdown.makeHtml(content);
-                        $('#np-preview').attr('innerHTML', converted);
+                        $('np-preview').set('innerHTML', converted);
                     }
                 }
 
                 // editor
                 convert(); // convert once onload
-                $('#np-textarea').bind('input', function() {
+                $('np-textarea').on('input', function() {
                     convert();
                 });
-
+                
                 // save post
                 var post_id;
                 function newOrUpdate(id) {
                     if (id) {
-                        $('#np-save-to').attr('value', '/update/');
+                        $('np-save-to').set('value', '/update/');
                         post_id = id;
                     } else {
-                        $('#np-save-to').attr('value', '/new/');
+                        $('np-save-to').set('value', '/new/');
                         post_id = null;
                     }
                 }
                 function resetEditor() {
-                    $.each(['np-title', 'np-tags', 'np-textarea'], function(idx, item) {
-                        //console.log(item)
-                       $(item).attr('value', '');
+                    ['np-title', 'np-tags', 'np-textarea'].each(function(item) {
+                       $(item).value = '';
                     });
-                    $('#np-preview').attr('innerHTML', '');
+                    $('np-preview').innerHTML = '';
                     newOrUpdate();
                 }
                 var post = {};
                 function onSave(publish, callback) {
-                    post.title = $('#np-title').attr('value');
+                    post.title = $('np-title').value;
                     post.tags = [];
-                    $.each($('#np-tags').attr('value').split(','), function(idx, tag) {
-                        if (tag) post.tags.push($.trim(tag));
+                    $('np-tags').value.split(',').each(function(tag) {
+                        if (tag) post.tags.push(tag.trim());
                     });
-                    post.content = $('#np-textarea').attr('value');
+                    post.content = $('np-textarea').value;
                     if (post_id) post._id = post_id;
                     if (publish) post.published = 1;
-                    $.post($('#np-save-to').attr('value'), 
-                        JSON.stringify(post),
-                        function(request) {
+                    new Xhr($('np-save-to').get('value'), {
+                        onSuccess: function(request) {
                             newOrUpdate(this.text);
                             callback && callback();
-                    });
+                        },
+                        onFailure: function(request) {
+                            // show error
+                        }
+                    }).send(JSON.stringify(post));
                 }
 
-                $('#np-save').click(onSave);
-                $('#np-publish').click(function() {
+                $('np-save').onClick(onSave);
+                $('np-publish').onClick(function() {
                     onSave(true, resetEditor);
                 });
-
+                
 
                 // load template, post list
                 var sections = {posts: '{{& posts}}'},
@@ -82,44 +88,48 @@
                     if (tags.length > 0) {
                         url += tags.join(',') + '/';
                     }
-                    $.getJSON(url, function(json) {
-                        if (json) {
-                            var views = {posts: $.each(json, function(idx, view) {
-                                    if (view.content) view.content = showdown.makeHtml(view.content);
-                                    view.published = new Date(parseInt(view.published)).toLocaleDateString();
-                                    if (view.hasOwnProperty("tags")) {
-                                        $.each(view.tags, function(idx, tag) {
-                                            view.tags[idx] = {name: tag};
-                                        });
+                    new Xhr(url, {
+                        method: 'get',
+                        onSuccess: function(request) {
+                            var json = request.responseJSON;
+                            if (isArray(json)) {
+                                var views = {posts: json.each(function(view) {
+                                        view.content = showdown.makeHtml(view.content);
+                                        view.published = new Date(parseInt(view.published)).toLocaleDateString();
+                                        if (view.hasOwnProperty("tags")) {
+                                            view.tags.each(function(tag, idx) {
+                                                view.tags[idx] = {name: tag};
+                                            });
+                                        }
+                                    })};
+                                var post = Mustache.to_html(tpl, views);
+                                $('np-posts').innerHTML = post;
+                                // bind event to tags
+                                $$('.np-post-tag').each('onClick', function(event) {
+                                    if (tags.indexOf(event.currentTarget.innerHTML) < 0) {
+                                        tags.push(event.currentTarget.innerHTML);
+                                        tagSelected = tags;
                                     }
-                                })};
-                            var post = Mustache.to_html(tpl, views);
-                            $('#np-posts').attr('innerHTML', post);
-                            // bind event to tags
-                            $('.np-post-tag').click(function(event) {
-                                console.log(event);
-                                if (tags.indexOf(event.currentTarget.innerHTML) < 0) {
-                                    tags.push(event.currentTarget.innerHTML);
-                                    tagSelected = tags;
-                                }
-                                getList(tpl, skip, limit, tags);
-                            });
-                        } // @todo popup error
-                    }
-                    );
+                                    getList(tpl, skip, limit, tags);
+                                });
+                            } // @todo popup error
+                        }
+                    }).send();
                 }
 
                 function updateTagsFilter() {
-
+                
                 }
 
                 getList(sections.posts, skip, limit, tagSelected);
+                new Tabs('simple-tabs');
             });
 
         </script>
     </head>
     <body>
         <div class="np-main">
+
             <!-- header -->
             <div class="np-full-width">
                 <div class="np-info np-logo">
@@ -132,21 +142,21 @@
             </div>
             <!-- toolbar -->
             <div id="np-toolbar" class="np-full-width np-toolbar">
-                <ul class="np-tabs">
+                <ul>
                     <li><a href="#np-toolbar-comments">Recent comments</a></li>
                     <li><a href="#np-toolbar-editor">New post</a></li>
                 </ul>
-                <div id="np-toolbar-comments" class="np-full-width np-tab">
+                <div id="np-toolbar-comments" class="np-full-width">
                     <p>Here you can see the lastest comments on your blog</p>
                 </div>
-                <div id="np-toolbar-editor" class="np-full-width np-tab">
+                <div id="np-toolbar-editor" class="np-full-width">
                     <div class="np-editor">
                         <input id="np-save-to" value="/new/"></input>
                         <input id="np-title"></input>
                         <textarea id="np-textarea" class="np-full-width" rows="25"></textarea>
                         <input id="np-tags"></input>
                     </div>
-                    <div class="np-editor np-right">
+                    <div class="np-editor">
                         <div id="np-preview"></div>
                         <button id="np-save">Save</button>
                         <button id="np-publish">Publish</button>
@@ -157,7 +167,7 @@
             <!-- search and tags filter -->
             <div class="np-full-width" id="np-search">
                 <!--<input id="np-search-input"></input>-->
-
+                
             </div>
 
             <!-- posts list and sidebar -->
@@ -179,10 +189,5 @@
                 </div>
             </div>
         </div>
-        <script src="{{staticUrl}}/js/jquery.tools.min.js" type="text/javascript" language="javascript"></script>
-        <script src="{{staticUrl}}/js/jquery.gritter.min.js" type="text/javascript" language="javascript"></script>
-        <script src="{{staticUrl}}/js/mustache.min.js" type="text/javascript" language="javascript"></script>
-        <script src="{{staticUrl}}/js/showdown.js" type="text/javascript" language="javascript"></script>
-        <script src="{{staticUrl}}/js/nodepress.js" type="text/javascript" language="javascript"></script>
     </body>
 </html>
