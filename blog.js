@@ -8,7 +8,7 @@ var dbServer = new mongo.Server(settings.db.host, settings.db.port, {});
 var sections = {
     posts: '{{#posts}}<div class="np-post"><h2 class="np-post-title">{{title}}</h2>'
         +'<h4 class="np-post-date np-right">{{published}}</h4><div class="np-post-content">{{{content}}}</div>'
-        +'<div class="np-post-tags">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
+        +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
 }
 
 function index(handler) {
@@ -45,8 +45,8 @@ function save(handler) {
         }
         db.open(function(err, db) {
             db.collection('posts', function(err, posts) {
-                posts.insert(data, function(err, res) {
-                    handler.send(res[0]._id);
+                posts.save(data, function(err, doc) {
+                    handler.send(doc._id);
                     db.close();
                 });
             });
@@ -99,19 +99,22 @@ function debug(handler) {
     handler.staticFile(settings.baseDir+"/views/debugger.html");
 }
 function rightjs(handler) {
-    handler.staticFile(path.join(settings.baseDir, '/static/js/rightjs/rightjs-1.5.6.js'), null, function(err) {
+    handler.staticFile(path.join(settings.baseDir, '/static/js/rightjs/right-1.5.6.js'), null, function(err) {
         if (err) handler.error(404, 'File not found');
     });
 }
 
+var apis = [
+    ['save/$', save, 'post'],
+    ['list/([0-9])+/([0-9])+/([^/.]+)/$', list, 'get'],
+    ['list/([0-9])+/([0-9])+/$', list, 'get'],
+    ['list/$', list, 'get'],
+];
+
 module.exports = [
     ['^/$', index],
+    ['^/_api/', apis, null, [_jsonHeader]],
     ["^/debug$", debug],
     ["^/right\.js$", rightjs],
     ['^/hello/$', hello_world],
-    ['^/update/$', save, 'post'],
-    ['^/list/([0-9])+/([0-9])+/([^/.]+)/$', list, 'get', [_jsonHeader]],
-    ['^/list/([0-9])+/([0-9])+/$', list, 'get', [_jsonHeader]],
-    ['^/list/$', list, 'get', [_jsonHeader]],
-    ['^/new/$', save, 'post']
 ];

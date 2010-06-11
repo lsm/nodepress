@@ -6,142 +6,31 @@
         <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
         <link rel="stylesheet" type="text/css" media="screen" href="{{staticUrl}}/css/screen.css" />
         <link rel="stylesheet" type="text/css" media="screen" href="{{staticUrl}}/css/tabs.css" />
-        <script src="{{staticUrl}}/js/jquery-1.4.2.js" type="text/javascript" language="javascript"></script>
-
-        <script type="text/javascript" language="javascript">
-            $(function() {
-                $("ul.np-tabs").tabs("div.np-tab");
-                var lastContent, converted, escaped,
-                showdown = new Showdown.converter();
-                //var log = console.log; // for debugging
-                // convert markdown and show the converted in preview div
-                function convert() {
-                    var content = $('#np-textarea').attr('value');
-                    content = content === lastContent ? false : content;
-                    if (content !== false) {
-                        lastContent = content;
-                        converted = showdown.makeHtml(content);
-                        $('#np-preview').attr('innerHTML', converted);
-                    }
-                }
-
-                // editor
-                convert(); // convert once onload
-                $('#np-textarea').bind('input', function() {
-                    convert();
-                });
-
-                // save post
-                var post_id;
-                function newOrUpdate(id) {
-                    if (id) {
-                        $('#np-save-to').attr('value', '/update/');
-                        post_id = id;
-                    } else {
-                        $('#np-save-to').attr('value', '/new/');
-                        post_id = null;
-                    }
-                }
-                function resetEditor() {
-                    $.each(['np-title', 'np-tags', 'np-textarea'], function(idx, item) {
-                        //console.log(item)
-                       $(item).attr('value', '');
-                    });
-                    $('#np-preview').attr('innerHTML', '');
-                    newOrUpdate();
-                }
-                var post = {};
-                function onSave(publish, callback) {
-                    post.title = $('#np-title').attr('value');
-                    post.tags = [];
-                    $.each($('#np-tags').attr('value').split(','), function(idx, tag) {
-                        if (tag) post.tags.push($.trim(tag));
-                    });
-                    post.content = $('#np-textarea').attr('value');
-                    if (post_id) post._id = post_id;
-                    if (publish) post.published = 1;
-                    $.post($('#np-save-to').attr('value'), 
-                        JSON.stringify(post),
-                        function(request) {
-                            newOrUpdate(this.text);
-                            callback && callback();
-                    });
-                }
-
-                $('#np-save').click(onSave);
-                $('#np-publish').click(function() {
-                    onSave(true, resetEditor);
-                });
-
-
-                // load template, post list
-                var sections = {posts: '{{& posts}}'},
-                skip = 0, limit = 5, tagSelected = [];
-                function getList(tpl, skip, limit, tags) {
-                    var url = '/list/' + skip + '/' + limit + '/';
-                    if (tags.length > 0) {
-                        url += tags.join(',') + '/';
-                    }
-                    $.getJSON(url, function(json) {
-                        if (json) {
-                            var views = {posts: $.each(json, function(idx, view) {
-                                    if (view.content) view.content = showdown.makeHtml(view.content);
-                                    view.published = new Date(parseInt(view.published)).toLocaleDateString();
-                                    if (view.hasOwnProperty("tags")) {
-                                        $.each(view.tags, function(idx, tag) {
-                                            view.tags[idx] = {name: tag};
-                                        });
-                                    }
-                                })};
-                            var post = Mustache.to_html(tpl, views);
-                            $('#np-posts').attr('innerHTML', post);
-                            // bind event to tags
-                            $('.np-post-tag').click(function(event) {
-                                console.log(event);
-                                if (tags.indexOf(event.currentTarget.innerHTML) < 0) {
-                                    tags.push(event.currentTarget.innerHTML);
-                                    tagSelected = tags;
-                                }
-                                getList(tpl, skip, limit, tags);
-                            });
-                        } // @todo popup error
-                    }
-                    );
-                }
-
-                function updateTagsFilter() {
-
-                }
-
-                getList(sections.posts, skip, limit, tagSelected);
-            });
-
-        </script>
+        <link rel="stylesheet" type="text/css" media="screen" href="{{staticUrl}}/css/jquery.gritter.css" />
     </head>
     <body>
         <div class="np-main">
             <!-- header -->
-            <div class="np-full-width">
+            <div id="np-header" class="np-full-width">
                 <div class="np-info np-logo">
-		    	  nodepress.com
+		    	  Nodepress.com
                 </div>
                 <div class="np-delimiter"></div>
-                <div class="np-info np-header">
+                <div class="np-info np-head-info">
                     a blogging tool built on top of nodejs
                 </div>
             </div>
             <!-- toolbar -->
             <div id="np-toolbar" class="np-full-width np-toolbar">
-                <ul class="np-tabs">
-                    <li><a href="#np-toolbar-comments">Recent comments</a></li>
-                    <li><a href="#np-toolbar-editor">New post</a></li>
+                <ul id="np-tabs" class="np-tabs">
+                    <li><a id="np-tab-comments" href="#np-toolbar-comments">Recent comments</a></li>
+                    <li><a id="np-tab-editor" href="#np-toolbar-editor">New post</a></li>
                 </ul>
                 <div id="np-toolbar-comments" class="np-full-width np-tab">
                     <p>Here you can see the lastest comments on your blog</p>
                 </div>
                 <div id="np-toolbar-editor" class="np-full-width np-tab">
                     <div class="np-editor">
-                        <input id="np-save-to" value="/new/"></input>
                         <input id="np-title"></input>
                         <textarea id="np-textarea" class="np-full-width" rows="25"></textarea>
                         <input id="np-tags"></input>
@@ -163,6 +52,7 @@
             <!-- posts list and sidebar -->
             <div class="np-full-width">
                 <div id="np-posts">
+                    <div class="np-full-width"></div>
                 </div>
                 <!--<div class="fixed column np-delimiter vertical-center"></div>-->
                 <div class="np-sidebar">
@@ -179,10 +69,49 @@
                 </div>
             </div>
         </div>
+        <script src="{{staticUrl}}/js/jquery-1.4.2.js" type="text/javascript" language="javascript"></script>
         <script src="{{staticUrl}}/js/jquery.tools.min.js" type="text/javascript" language="javascript"></script>
         <script src="{{staticUrl}}/js/jquery.gritter.min.js" type="text/javascript" language="javascript"></script>
         <script src="{{staticUrl}}/js/mustache.min.js" type="text/javascript" language="javascript"></script>
         <script src="{{staticUrl}}/js/showdown.js" type="text/javascript" language="javascript"></script>
         <script src="{{staticUrl}}/js/nodepress.js" type="text/javascript" language="javascript"></script>
+        <script type="text/javascript" language="javascript">
+            $(function() {
+                $("#np-tabs").tabs("div.np-tab", { history: true , effect: 'default'});
+                // store the jquery object for later usage
+                var np = {};
+                np.tabs = $('#np-tabs').tabs(),
+                np.title = $('#np-title'),
+                np.tags = $('#np-tags'),
+                np.input = $('#np-textarea'),
+                np.previewDiv = $('#np-preview'),
+                np.editor = $('.np-editor'),
+                np.tabComments = $('#np-tab-comments');
+
+                function convert() {
+                    $.np.preview(np.input, np.previewDiv);
+                }
+
+                // convert once onload
+                convert(); 
+
+                // bind events
+                np.input.bind('input', function() {
+                    convert();
+                });
+
+                $('#np-save').click(function(event) {
+                    $.np.onSave(event, np);
+                });
+                $('#np-publish').click(function(event) {
+                    $.np.onSave(event, np, true, $.np.resetEditor);
+                });
+
+                // load template, post list
+                var skip = 0, limit = 5, tagSelected = [];
+                $.np.getList(skip, limit, tagSelected);
+            });
+
+        </script>
     </body>
 </html>
