@@ -10,6 +10,20 @@
     </head>
     <body>
         <div class="np-main">
+            <!-- sign in/out -->
+            <div class="np-full-width">
+                {{#is_owner}}
+                    <a id="np-signout" href="#signout" class="np-right">Sign out</a>
+                {{/is_owner}}
+                {{^is_owner}}
+                    <div class="np-signin np-right">
+                        Username: <input id="np-username"></input> 
+                        Password: <input id="np-password" type="password"></input>
+                        <button id="np-signin">Sign in</button>
+                    </div>
+                {{/is_owner}}
+            </div>
+
             <!-- header -->
             <div id="np-header" class="np-full-width">
                 <div class="np-info np-logo">
@@ -20,6 +34,7 @@
                     a blogging tool built on top of nodejs
                 </div>
             </div>
+            {{#is_owner}}
             <!-- toolbar -->
             <div id="np-toolbar" class="np-full-width np-toolbar">
                 <ul id="np-tabs" class="np-tabs">
@@ -42,11 +57,11 @@
                     </div>
                 </div>
             </div>
+            {{/is_owner}}
 
             <!-- search and tags filter -->
-            <div class="np-full-width" id="np-search">
+            <div class="np-full-width" id="np-filter">
                 <!--<input id="np-search-input"></input>-->
-
             </div>
 
             <!-- posts list and sidebar -->
@@ -86,7 +101,14 @@
                 np.input = $('#np-textarea'),
                 np.previewDiv = $('#np-preview'),
                 np.editor = $('.np-editor'),
+                np.filter = $('#np-filter'),
                 np.tabComments = $('#np-tab-comments');
+                // for login
+                np.username = $('#np-username'),
+                np.password = $('#np-password'),
+                np.signin = $('#np-signin'),
+                np.signout = $('#np-signout');
+                $.np.dom = np;
 
                 function convert() {
                     $.np.preview(np.input, np.previewDiv);
@@ -100,16 +122,23 @@
                     convert();
                 });
 
+                np.signin.click($.np.signIn);
+                np.signout.click(function() {
+                    document.cookie = "_npc=" + ";path=/" + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
+                    location.href = '/';
+                });
+
                 $('#np-save').click(function(event) {
-                    $.np.onSave(event, np);
+                    $.np.api.save();
                 });
                 $('#np-publish').click(function(event) {
-                    $.np.onSave(event, np, true, $.np.resetEditor);
+                    $.np.api.save(true);
                 });
 
                 // load template, post list
-                var skip = 0, limit = 5, tagSelected = [];
-                $.np.getList(skip, limit, tagSelected);
+                var skip = 0, limit = 5;
+                $.np.api.list(skip, limit, []);
+
             });
 
         </script>

@@ -8,6 +8,7 @@ var settings = {
     db: {host: '127.0.0.1', port: 27017, name: 'nodepress'},
     handler: 'genji.web.handler.SimpleHandler',
     secureKey: 'c00kie-key-4-hmac',
+    cookieName: '_npc',
     level: 2,
     debug: true
 };
@@ -25,4 +26,4 @@ settings.lib_paths.forEach(function(path) {
     require.paths.unshift(path);
 });
 
-exports.settings = settings;
+module.exports = settings;

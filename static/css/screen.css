@@ -41,6 +41,12 @@
     float :left;
 }
 
+.np-signin input {
+    width: 96px;
+}
+.np-signin button {
+}
+
 .np-logo {
     width: 139px;
     min-height: 14px;
@@ -86,9 +92,11 @@
 	padding:10px;
 }
 
-#np-search {
+#np-filter {
     background-color: #CCCCCC;
     min-height: 36px;
+    padding:0 20px;
+    width:934px;
 }
 
 #np-search input {
@@ -96,6 +104,15 @@
     margin: 7px;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
+}
+
+.np-filter-tag {
+    border:1px solid #999999;
+    height:18px;
+    margin:5px;
+    padding:3px 5px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
 }
 
 #np-posts {

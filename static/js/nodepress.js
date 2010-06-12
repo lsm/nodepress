@@ -1,21 +1,129 @@
 ;
 (function($) {
     $.np = {};
-
-    $.np.showdown = new Showdown.converter();
-    $.np.tpl = {
+    var emitter = $.np.emitter = $({});
+    var showdown = $.np.showdown = new Showdown.converter();
+    var tpl = $.np.tpl = {
         posts: '{{#posts}}<div class="np-post"><h2 class="np-post-title">{{title}}</h2>'
     +'<h4 class="np-post-date np-right">{{published}}</h4><div class="np-post-content">{{{content}}}</div>'
     +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
     };
-    $.np.api = (function(prefix) {
-        return {
-            save: prefix + 'save/',
-            list: prefix + 'list/'
+    var growl = $.gritter.add;
+    
+    var postId;
+    var np = $.np.dom;
+    var api = {
+        list: function(skip, limit, tags) {
+            var url = '/_api/list/' + skip + '/' + limit + '/';
+            if (tags.length > 0) {
+                url += encodeURIComponent(tags.join(',')) + '/';
+            }
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function(data, status) {
+                    emitter.trigger('ApiListed', [data, {
+                        skip: skip,
+                        limit: limit,
+                        tags: tags
+                    }]);
+                },
+                error: function(xhr, status) {
+                    emitter.trigger('ApiListError', [xhr, status]);
+                }
+            });
+        },
+        save: function(publish) {
+            var post = {};
+            var np = $.np.dom;
+            post.title = np.title.attr('value');
+            post.tags = [];
+            $.each(np.tags.attr('value').split(','), function(idx, tag) {
+                if (tag) post.tags.push($.trim(tag));
+            });
+            post.content = np.input.attr('value');
+            if (postId) post._id = postId;
+            if (publish) post.published = 1;
+            $.post('/_api/save/', JSON.stringify(post),
+                function(id) {
+                    emitter.trigger('ApiSaved', [id, publish]);
+                });
         }
-    })('/_api/');
-    $.np.init = function() {
+    };
+    $.np.api = api;
 
+    emitter.bind('LoginError', function(event, xhr, status) {
+        $.gritter.add({
+            title: "Login error",
+            time: 3000,
+            text: xhr.responseText
+        });
+    });
+
+    emitter.bind('ApiListed', function(event, data, params) {
+        var tpl = $.np.tpl.posts;
+        var views = {
+            posts: $.each(data, function(idx, view) {
+                if (view.content) {
+                    view.content = $.np.showdown.makeHtml(view.content);
+                }
+                view.published = new Date(parseInt(view.published)).toLocaleDateString();
+                if (view.hasOwnProperty("tags")) {
+                    $.each(view.tags, function(idx, tag) {
+                        view.tags[idx] = {
+                            name: tag
+                        };
+                    });
+                }
+            })
+        };
+        //emitter.trigger('PostContentBeforeMU', [tpl, views]); // event <=> hook ?
+        var post = Mustache.to_html(tpl, views);
+        //emitter.trigger('PostContentAfterMU', [tpl, views]);
+        $('#np-posts').attr('innerHTML', post);
+        // bind event to tags
+        $('.np-post-tag').click(function(event) {
+            if (params.tags.indexOf(event.currentTarget.innerHTML) < 0) {
+                params.tags.push(event.currentTarget.innerHTML);
+                buildTagsFilter(params);
+            }
+            api.list(params.skip, params.limit, params.tags);
+        });
+    });
+
+    emitter.bind('ApiSaved', function(event, id, publish) {
+        postId = id;
+        growl({title: publish ? 'Published successfully' : 'Saved successfully', text: ' '});
+        publish && $.np.resetEditor();
+    });
+
+    function buildTagsFilter(params) {
+        //np.filter.attr('innerHTML', '');
+        $.each(params.tags, function(idx, tag) {
+            if ($.np.tagSelected.indexOf(tag) < 0)
+                np.filter.prepend('<div class="np-filter-tag">'+ tag +'</div>');
+        });
+        $.np.tagSelected = params.tags;
+        $('#np-filter div').click(function(event) {
+            var tag = event.currentTarget.innerHTML;
+            $.np.tagSelected = $.map($.np.tagSelected, function(t, idx) {
+                if (tag != t) return t;
+            });
+            buildTagsFilter(np, $.np.tagSelected);
+            getList(params.skip, params.limit, $.np.tagSelected);
+        });
+    }
+
+    $.np.signIn = function() {
+        $.ajax({url: '/signin/', type: 'POST', dataType: 'text'
+        , data: {username: $.np.dom.username.attr('value'), password: $.np.dom.password.attr('value')}
+        , success: function() {
+            location.href = '/';
+        }
+       , error: function(xhr, status) {
+           emitter.trigger('LoginError', [xhr, status]);
+       }});
     }
 
     var lastContent;
@@ -36,68 +144,8 @@
         }
     }
 
-    $.np.getList = function getList(skip, limit, tags) {
-        var url = $.np.api.list + skip + '/' + limit + '/';
-        if (tags.length > 0) {
-            url += tags.join(',') + '/';
-        }
-        $.getJSON(url, function(json) {
-            var tpl = $.np.tpl.posts;
-            if (json) {
-                var views = {
-                    posts: $.each(json, function(idx, view) {
-                        if (view.content) view.content = $.np.showdown.makeHtml(view.content);
-                        view.published = new Date(parseInt(view.published)).toLocaleDateString();
-                        if (view.hasOwnProperty("tags")) {
-                            $.each(view.tags, function(idx, tag) {
-                                view.tags[idx] = {
-                                    name: tag
-                                };
-                            });
-                        }
-                    })
-                };
-                var post = Mustache.to_html(tpl, views);
-                $('#np-posts').attr('innerHTML', post);
-                // bind event to tags
-                $('.np-post-tag').click(function(event) {
-                    if (tags.indexOf(event.currentTarget.innerHTML) < 0) {
-                        tags.push(event.currentTarget.innerHTML);
-                        $.np.tagSelected = tags;
-                    }
-                    getList(skip, limit, tags);
-                });
-            } // @todo popup error
-        });
-    }
-
-    var postId;
-    $.np.onSave = function(event, np, publish, callback) {
-        var post = {};
-        post.title = np.title.attr('value');
-        post.tags = [];
-        $.each(np.tags.attr('value').split(','), function(idx, tag) {
-            if (tag) post.tags.push($.trim(tag));
-        });
-        post.content = np.input.attr('value');
-        if (postId) post._id = postId;
-        if (publish) post.published = 1;
-        $.post($.np.api.save,
-            JSON.stringify(post),
-            function(id) {
-                postId = id;
-                var growlTitle = publish ? 'Published successfully' : 'Saved successfully';
-//                $.gritter.add({
-//                    // (string | mandatory) the heading of the notification
-//                    title: growlTitle,
-//                    // (string | mandatory) the text inside the notification
-//                    text: ' '
-//                });
-                callback && callback(np);
-            });
-    }
-
-    $.np.resetEditor = function (np) {
+    $.np.resetEditor = function() {
+        np = $.np.dom;
         hideEditor(np);
         $.each([np.title, np.tags, np.input], function(idx, item) {
             item.attr('value', '');
@@ -106,8 +154,8 @@
         postId = null;
     }
 
-    function hideEditor(np) {
-        np.tabs.click(0);
+    function hideEditor() {
+        $.np.dom.tabs.click(0);
     }
 
 })(jQuery);

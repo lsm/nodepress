@@ -1,18 +1,85 @@
 var nun = require("./lib/nun"),
 settings = genji.settings,
+base64 = genji.utils.base64,
+auth = genji.web.auth,
 path = require('path'),
+querystring = require("querystring"),
 mongo = require('./lib/node-mongodb-native/lib/mongodb');
 
 var dbServer = new mongo.Server(settings.db.host, settings.db.port, {});
 
-var sections = {
-    posts: '{{#posts}}<div class="np-post"><h2 class="np-post-title">{{title}}</h2>'
-        +'<h4 class="np-post-date np-right">{{published}}</h4><div class="np-post-content">{{{content}}}</div>'
-        +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
+
+// functions for user authentication
+function _checkCookie(handler, serverKey) {
+    var cookie = handler.getCookie(settings.cookieName);
+    if (cookie) {
+        return auth.verify(base64.decode(cookie), serverKey);
+    }
+    return false;
 }
 
+function _checkLogin(handler) {
+    if ((handler.user = _checkCookie(handler, settings.secureKey)[0])) {
+        return true;
+    }
+    handler.error(401);
+    return false;
+}
+
+function _signin(handler, user, credential, serverKey, data) {
+    if (auth.checkPassword(credential, user["password"])) {
+        var expire =new Date(+ new Date + 7*24*3600*1000);
+        var c = auth.sign(user['username'], expire, data, serverKey);
+        handler.setCookie(settings.cookieName, base64.encode(c), {expires: expire, path: "/"});
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function signin(handler) {
+    if (_checkCookie(handler, settings.secureKey)) {
+        // already logged in
+        handler.send("ok", 200, {'Content-Type': 'text/plain'});
+        return;
+    }
+    handler.on('end', function(data) {
+        var p = querystring.parse(data);
+        if (p.hasOwnProperty("username") && p.hasOwnProperty("password")) {
+            var db = new mongo.Db(settings.db.name, dbServer, {});
+            db.open(function(err, db) {
+                db.collection('users', function(err, users) {
+                    users.findOne({
+                        "username": p['username']
+                        }, function(err, res) {
+                        if (res && _signin(handler, p, res["password"], settings.secureKey)) {
+                            handler.send("ok", 200, {'Content-Type': 'text/plain'});
+                        } else {
+                            handler.error(401, 'Wrong username/password pair.');
+                        }
+                        db.close();
+                    });
+                });
+            });
+        } else {
+            handler.error(403);
+        }
+    });
+}
+
+// on client side?
+function signout(handler) {
+    handler.clearCookie(settings.cookieName, {path: "/"});
+}
+
+
 function index(handler) {
-    var ctx = {staticUrl: settings.staticUrl, posts: sections.posts};
+    var user = _checkCookie(handler, settings.secureKey)[0];
+    var is_owner;
+    if (user) {
+        is_owner = [{name: user}];
+    }
+    var ctx = {staticUrl: settings.staticUrl, is_owner: is_owner};
     nun.render(path.join(__dirname, '/views/index.html'), ctx, {}, function (err, output) {
         if (err) {
             throw err;
@@ -33,7 +100,7 @@ function _now() {
 
 function save(handler) {
     handler.on('end', function(data) {
-        data = JSON.parse(data);
+        data = JSON.parse(data); // @todo SyntaxError: Unexpected token ILLEGAL
         var db = new mongo.Db(settings.db.name, dbServer, {});
         if (!data.hasOwnProperty('_id')) {
             data.created = _now();
@@ -80,16 +147,6 @@ function hello_world(handler) {
     handler.send('Hello world!');
 }
 
-function section(handler, args) {
-    var sectionName = args[1];
-    if (sections.hasOwnProperty(sectionName)) {
-        handler.setHeader('Content-Type', 'text/html');
-        handler.send(sections[sectionName]);
-    } else {
-        handler.error(404, 'Section "' + sectionName + '" not found');
-    }
-}
-
 function _jsonHeader(handler) {
     handler.setHeader("Content-Type", "application/json; charset=utf-8");
     return true;
@@ -105,16 +162,17 @@ function rightjs(handler) {
 }
 
 var apis = [
-    ['save/$', save, 'post'],
-    ['list/([0-9])+/([0-9])+/([^/.]+)/$', list, 'get'],
+    ['save/$', save, 'post', [_checkLogin]],
+    ['list/([0-9])+/([0-9])+/(.*)/$', list, 'get'],
     ['list/([0-9])+/([0-9])+/$', list, 'get'],
     ['list/$', list, 'get'],
 ];
 
 module.exports = [
     ['^/$', index],
-    ['^/_api/', apis, null, [_jsonHeader]],
+    ['^/_api/', apis, [_jsonHeader]],
     ["^/debug$", debug],
+    ["^/signin/$", signin],
     ["^/right\.js$", rightjs],
     ['^/hello/$', hello_world],
 ];
