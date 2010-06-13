@@ -26,7 +26,7 @@
             tags = tags || [];
             var url = '/_api/list/' + skip + '/' + limit + '/';
             if (tags.length > 0) {
-                url += encodeURIComponent(tags.join(',')) + '/';
+                url += tags.join(',') + '/';
             }
             $.ajax({
                 url: url,
