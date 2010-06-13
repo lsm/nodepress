@@ -1,5 +1,6 @@
 ;
 (function($) {
+    // setup
     $.np = {};
     var emitter = $.np.emitter = $({});
     var showdown = $.np.showdown = new Showdown.converter();
@@ -11,7 +12,13 @@
     var growl = $.gritter.add;
     
     var postId;
-    var np = $.np.dom;
+    var np;
+
+    $.np.init = function() {
+        np = $.np.dom;
+    }
+
+    // rest apis and remote calls
     var api = {
         list: function(skip, limit, tags) {
             var url = '/_api/list/' + skip + '/' + limit + '/';
@@ -23,20 +30,19 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function(data, status) {
-                    emitter.trigger('ApiListed', [data, {
+                    emitter.trigger('@ApiList', [data, {
                         skip: skip,
                         limit: limit,
                         tags: tags
                     }]);
                 },
                 error: function(xhr, status) {
-                    emitter.trigger('ApiListError', [xhr, status]);
+                    emitter.trigger('#ApiList', [xhr, status]);
                 }
             });
         },
         save: function(publish) {
             var post = {};
-            var np = $.np.dom;
             post.title = np.title.attr('value');
             post.tags = [];
             $.each(np.tags.attr('value').split(','), function(idx, tag) {
@@ -45,23 +51,53 @@
             post.content = np.input.attr('value');
             if (postId) post._id = postId;
             if (publish) post.published = 1;
-            $.post('/_api/save/', JSON.stringify(post),
-                function(id) {
-                    emitter.trigger('ApiSaved', [id, publish]);
-                });
+
+            $.ajax({
+                url: '/_api/save/',
+                data: post,
+                dataType: 'text',
+                success: function(id) {
+                    emitter.trigger('@ApiSave', [id, publish]);
+                },
+                error: function(xhr, status) {
+                    emitter.trigger('#ApiSave', [xhr, status]);
+                }
+            });
         }
     };
     $.np.api = api;
+    
+    $.np.signIn = function() {
+        $.ajax({
+            url: '/signin/',
+            type: 'POST',
+            dataType: 'text',
+            data: {
+                username: np.username.attr('value'),
+                password: np.password.attr('value')
+            },
+            success: function(data) {
+                emitter.trigger('@Login', [data]);
+            },
+            error: function(xhr, status) {
+                emitter.trigger('#Login', [xhr, status]);
+            }
+        });
+    }
 
-    emitter.bind('LoginError', function(event, xhr, status) {
+    // events
+    emitter.bind('@Login', function(event, data) {
+        location.href = '/';
+    });
+    emitter.bind('#Login', function(event, xhr, status) {
         $.gritter.add({
-            title: "Login error",
+            title: "Failed to sign in",
             time: 3000,
             text: xhr.responseText
         });
     });
 
-    emitter.bind('ApiListed', function(event, data, params) {
+    emitter.bind('@ApiList', function(event, data, params) {
         var tpl = $.np.tpl.posts;
         var views = {
             posts: $.each(data, function(idx, view) {
@@ -85,49 +121,37 @@
         // bind event to tags
         $('.np-post-tag').click(function(event) {
             if (params.tags.indexOf(event.currentTarget.innerHTML) < 0) {
-                params.tags.push(event.currentTarget.innerHTML);
-                buildTagsFilter(params);
+                $.merge(params.tags, [event.currentTarget.innerHTML]);
+                emitter.trigger('TagSelected', [params]);
             }
-            api.list(params.skip, params.limit, params.tags);
         });
     });
 
-    emitter.bind('ApiSaved', function(event, id, publish) {
+    emitter.bind('@ApiSave', function(event, id, publish) {
         postId = id;
         growl({title: publish ? 'Published successfully' : 'Saved successfully', text: ' '});
         publish && $.np.resetEditor();
     });
 
-    function buildTagsFilter(params) {
-        //np.filter.attr('innerHTML', '');
+    emitter.bind('TagSelected', buildTagsFilter);
+
+    function buildTagsFilter(event, params) {
+        api.list(params.skip, params.limit, params.tags);
+        np.filter.attr('innerHTML', '');
         $.each(params.tags, function(idx, tag) {
-            if ($.np.tagSelected.indexOf(tag) < 0)
-                np.filter.prepend('<div class="np-filter-tag">'+ tag +'</div>');
+            np.filter.prepend('<div class="np-filter-tag">'+ tag +'</div>');
         });
-        $.np.tagSelected = params.tags;
         $('#np-filter div').click(function(event) {
             var tag = event.currentTarget.innerHTML;
-            $.np.tagSelected = $.map($.np.tagSelected, function(t, idx) {
-                if (tag != t) return t;
+            params.tags = $.grep(params.tags, function(t) {
+                return tag != t;
             });
-            buildTagsFilter(np, $.np.tagSelected);
-            getList(params.skip, params.limit, $.np.tagSelected);
+            buildTagsFilter(event, params);
+            api.list(params.skip, params.limit, params.tags);
         });
-    }
-
-    $.np.signIn = function() {
-        $.ajax({url: '/signin/', type: 'POST', dataType: 'text'
-        , data: {username: $.np.dom.username.attr('value'), password: $.np.dom.password.attr('value')}
-        , success: function() {
-            location.href = '/';
-        }
-       , error: function(xhr, status) {
-           emitter.trigger('LoginError', [xhr, status]);
-       }});
     }
 
     var lastContent;
-
     /**
      * convert markdown and show the converted in preview div
      *
@@ -145,17 +169,12 @@
     }
 
     $.np.resetEditor = function() {
-        np = $.np.dom;
-        hideEditor(np);
+        np.tabs.click(0);
         $.each([np.title, np.tags, np.input], function(idx, item) {
             item.attr('value', '');
         });
         np.previewDiv.attr('innerHTML', '');
         postId = null;
-    }
-
-    function hideEditor() {
-        $.np.dom.tabs.click(0);
     }
 
 })(jQuery);

@@ -69,7 +69,6 @@
                 <div id="np-posts">
                     <div class="np-full-width"></div>
                 </div>
-                <!--<div class="fixed column np-delimiter vertical-center"></div>-->
                 <div class="np-sidebar">
                     <div class="np-sidebar-item">
                         <p><strong>SIDEBAR</strong></p>
@@ -103,12 +102,16 @@
                 np.editor = $('.np-editor'),
                 np.filter = $('#np-filter'),
                 np.tabComments = $('#np-tab-comments');
+                // editor buttons
+                np.save = $('#np-save'),
+                np.publish = $('#np-publish'),
                 // for login
                 np.username = $('#np-username'),
                 np.password = $('#np-password'),
                 np.signin = $('#np-signin'),
                 np.signout = $('#np-signout');
                 $.np.dom = np;
+                $.np.init();
 
                 function convert() {
                     $.np.preview(np.input, np.previewDiv);
@@ -116,7 +119,6 @@
 
                 // convert once onload
                 convert(); 
-
                 // bind events
                 np.input.bind('input', function() {
                     convert();
@@ -128,10 +130,10 @@
                     location.href = '/';
                 });
 
-                $('#np-save').click(function(event) {
+                np.save.click(function(event) {
                     $.np.api.save();
                 });
-                $('#np-publish').click(function(event) {
+                np.publish.click(function(event) {
                     $.np.api.save(true);
                 });
 
