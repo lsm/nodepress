@@ -126,7 +126,7 @@
 
                 np.signin.click($.np.signIn);
                 np.signout.click(function() {
-                    document.cookie = "_npc=" + ";path=/" + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
+                    document.cookie = "{{cookieName}}=" + ";path=/" + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
                     location.href = '/';
                 });
 

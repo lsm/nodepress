@@ -79,7 +79,7 @@ function index(handler) {
     if (user) {
         is_owner = [{name: user}];
     }
-    var ctx = {staticUrl: settings.staticUrl, is_owner: is_owner};
+    var ctx = {staticUrl: settings.staticUrl, is_owner: is_owner, cookieName: settings.cookieName};
     nun.render(path.join(__dirname, '/views/index.html'), ctx, {}, function (err, output) {
         if (err) {
             throw err;
