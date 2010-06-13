@@ -152,7 +152,6 @@
                 return tag != t;
             });
             buildTagsFilter(event, params);
-            api.list(params.skip, params.limit, params.tags);
         });
     }
 
