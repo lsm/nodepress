@@ -91,10 +91,10 @@
         <script src="{{staticUrl}}/js/nodepress.js" type="text/javascript" language="javascript"></script>
         <script type="text/javascript" language="javascript">
             $(function() {
-                $("#np-tabs").tabs("div.np-tab", { history: true , effect: 'default'});
+                
                 // store the jquery object for later usage
                 var np = {};
-                np.tabs = $('#np-tabs').tabs(),
+                np.tabs = $("#np-tabs").tabs("div.np-tab", { history: true , effect: 'default'}),
                 np.title = $('#np-title'),
                 np.tags = $('#np-tags'),
                 np.input = $('#np-textarea'),

@@ -21,6 +21,9 @@
     // rest apis and remote calls
     var api = {
         list: function(skip, limit, tags) {
+            skip = skip || 0;
+            limit = limit || 5;
+            tags = tags || [];
             var url = '/_api/list/' + skip + '/' + limit + '/';
             if (tags.length > 0) {
                 url += encodeURIComponent(tags.join(',')) + '/';
@@ -54,7 +57,8 @@
 
             $.ajax({
                 url: '/_api/save/',
-                data: post,
+                type: 'POST',
+                data: JSON.stringify(post),
                 dataType: 'text',
                 success: function(id) {
                     emitter.trigger('@ApiSave', [id, publish]);
@@ -128,6 +132,7 @@
     });
 
     emitter.bind('@ApiSave', function(event, id, publish) {
+        api.list();
         postId = id;
         growl({title: publish ? 'Published successfully' : 'Saved successfully', text: ' '});
         publish && $.np.resetEditor();
