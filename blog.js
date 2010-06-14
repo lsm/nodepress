@@ -8,6 +8,7 @@ mongo = require('./lib/node-mongodb-native/lib/mongodb');
 
 var dbServer = new mongo.Server(settings.db.host, settings.db.port, {});
 
+ nun = require("./lib/nun")
 
 // functions for user authentication
 function _checkCookie(handler, serverKey) {
@@ -79,7 +80,8 @@ function index(handler) {
     if (user) {
         is_owner = [{name: user}];
     }
-    var ctx = {staticUrl: settings.staticUrl, is_owner: is_owner, cookieName: settings.cookieName};
+    var ctx = {staticUrl: settings.staticUrl, debugUrl: settings.debug ? '/debug' : ''
+        ,is_owner: is_owner, cookieName: settings.cookieName};
     nun.render(path.join(__dirname, '/views/index.html'), ctx, {}, function (err, output) {
         if (err) {
             throw err;
