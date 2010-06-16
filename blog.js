@@ -41,7 +41,7 @@ function _signin(handler, user, credential, serverKey, data) {
 function signin(handler) {
     if (_checkCookie(handler, settings.secureKey)) {
         // already logged in
-        handler.send("ok", 200, {'Content-Type': 'text/plain'});
+        handler.send("ok");
         return;
     }
     handler.on('end', function(data) {
@@ -54,7 +54,7 @@ function signin(handler) {
                         "username": p['username']
                         }, function(err, res) {
                         if (res && _signin(handler, p, res["password"], settings.secureKey)) {
-                            handler.send("ok", 200, {'Content-Type': 'text/plain'});
+                            handler.send("ok");
                         } else {
                             handler.error(401, 'Wrong username/password pair.');
                         }
@@ -91,7 +91,7 @@ function index(handler) {
             buffer += c;
         })
         .addListener('end', function () {
-            handler.send(buffer);
+            handler.sendHTML(buffer);
         });
     });
 }
@@ -115,7 +115,7 @@ function save(handler) {
         db.open(function(err, db) {
             db.collection('posts', function(err, posts) {
                 posts.save(data, function(err, doc) {
-                    handler.send(doc._id);
+                    handler.sendHTML(doc._id);
                     db.close();
                 });
             });
@@ -137,7 +137,7 @@ function list(handler, skip, limit, tags) {
            }
            cPosts.find(query, {sort:[["published", -1]], limit:limit, skip: skip}, function(err, posts) {
                posts.toArray(function(err, posts) {
-                   handler.send(posts);
+                   handler.sendJSON(posts);
                    db.close();
                });
            });
@@ -172,7 +172,7 @@ var apis = [
 
 module.exports = [
     ['^/$', index],
-    ['^/_api/', apis, [_jsonHeader]],
+    ['^/_api/', apis/*, [_jsonHeader]*/],
     ["^/debug$", debug],
     ["^/signin/$", signin],
     ["^/right\.js$", rightjs],

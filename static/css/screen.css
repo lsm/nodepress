@@ -117,6 +117,7 @@
 
 #np-posts {
     width: 643px;
+    min-height: 10px;
 }
 
 .np-post {
