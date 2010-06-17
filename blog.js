@@ -3,12 +3,15 @@ settings = genji.settings,
 base64 = genji.utils.base64,
 auth = genji.web.auth,
 path = require('path'),
+crypto = require('crypto'),
 querystring = require("querystring"),
 mongo = require('./lib/node-mongodb-native/lib/mongodb');
 
 var dbServer = new mongo.Server(settings.db.host, settings.db.port, {});
 
- nun = require("./lib/nun")
+function _md5(data) {
+    return crypto.createHash('md5').update(data).digest('hex');
+}
 
 // functions for user authentication
 function _checkCookie(handler, serverKey) {
@@ -106,16 +109,17 @@ function save(handler) {
         var db = new mongo.Db(settings.db.name, dbServer, {});
         if (!data.hasOwnProperty('_id')) {
             data.created = _now();
+            data._id = _md5(data);
         } else {
             data.modified = _now();
         }
         if (data.hasOwnProperty('published') && data.published == 1) {
-            data.published = _now();
+           data.published = _now();
         }
         db.open(function(err, db) {
             db.collection('posts', function(err, posts) {
                 posts.save(data, function(err, doc) {
-                    handler.sendHTML(doc._id);
+                    handler.sendJSON({_id: doc._id});
                     db.close();
                 });
             });
@@ -146,21 +150,12 @@ function list(handler, skip, limit, tags) {
 }
 
 function hello_world(handler) {
-    handler.send('Hello world!');
+    handler.send('Hello world');
 }
 
 function _jsonHeader(handler) {
     handler.setHeader("Content-Type", "application/json; charset=utf-8");
     return true;
-}
-
-function debug(handler) {
-    handler.staticFile(settings.baseDir+"/views/debugger.html");
-}
-function rightjs(handler) {
-    handler.staticFile(path.join(settings.baseDir, '/static/js/rightjs/right-1.5.6.js'), null, function(err) {
-        if (err) handler.error(404, 'File not found');
-    });
 }
 
 var apis = [
@@ -173,8 +168,6 @@ var apis = [
 module.exports = [
     ['^/$', index],
     ['^/_api/', apis/*, [_jsonHeader]*/],
-    ["^/debug$", debug],
     ["^/signin/$", signin],
-    ["^/right\.js$", rightjs],
     ['^/hello/$', hello_world],
 ];

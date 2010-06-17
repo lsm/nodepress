@@ -5,17 +5,23 @@
     var emitter = $.np.emitter = $({});
     var showdown = $.np.showdown = new Showdown.converter();
     var tpl = $.np.tpl = {
-        posts: '{{#posts}}<div class="np-post"><h2 class="np-post-title">{{title}}</h2>'
-    +'<h4 class="np-post-date np-right">{{published}}</h4><div class="np-post-content">{{{content}}}</div>'
+        posts: '{{#posts}}<div id="{{id}}" class="np-post"><h2 class="np-post-title">{{title}}</h2>'
+    +'<div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>'
+    +'<div class="np-post-content">{{{content}}}</div>'
     +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
     };
+    $.np.data = {};
     var growl = $.gritter.add;
     
-    var postId;
+    var postId, published, created;
     var np;
 
     $.np.init = function() {
         np = $.np.dom;
+    },
+
+    $.np.setPostId = function(id) {
+        postId = id;
     }
 
     // rest apis and remote calls
@@ -53,15 +59,22 @@
             });
             post.content = np.input.attr('value');
             if (postId) post._id = postId;
-            if (publish) post.published = 1;
+            if (publish) {
+                post.published = 1;
+            }
+            if (published) {
+                // already published post
+                post.published = published;
+                post.created = created;
+            }
 
             $.ajax({
                 url: '/_api/save/',
                 type: 'POST',
                 data: JSON.stringify(post),
-                dataType: 'text',
-                success: function(id) {
-                    emitter.trigger('@ApiSave', [id, publish]);
+                dataType: 'json',
+                success: function(data) {
+                    emitter.trigger('@ApiSave', [data, publish]);
                 },
                 error: function(xhr, status) {
                     emitter.trigger('#ApiSave', [xhr, status]);
@@ -103,25 +116,33 @@
 
     emitter.bind('@ApiList', function(event, data, params) {
         var tpl = $.np.tpl.posts;
-        var views = {
-            posts: $.each(data, function(idx, view) {
-                if (view.content) {
-                    view.content = $.np.showdown.makeHtml(view.content);
-                }
-                view.published = new Date(parseInt(view.published)).toLocaleDateString();
-                if (view.hasOwnProperty("tags")) {
-                    $.each(view.tags, function(idx, tag) {
-                        view.tags[idx] = {
-                            name: tag
-                        };
-                    });
-                }
-            })
-        };
+        // keep the original content (markdown)
+        $.np.data.posts = data;
+        var posts = [];
+        $.each(data, function(idx, post) {
+            var tmp = {};
+            tmp.id = post._id;
+            if (post.content) {
+                tmp.content = $.np.showdown.makeHtml(post.content);
+            }
+            if (post.title) {
+                tmp.title = post.title;
+            }
+            tmp.published = new Date(parseInt(post.published)).toLocaleDateString();
+            if (post.hasOwnProperty("tags")) {
+                tmp.tags = [];
+                $.each(post.tags, function(idx, tag) {
+                    tmp.tags[idx] = {
+                        name: tag
+                    };
+                });
+            }
+            posts.push(tmp);
+        });
         //emitter.trigger('PostContentBeforeMU', [tpl, views]); // event <=> hook ?
-        var post = Mustache.to_html(tpl, views);
+        var postsHTML = Mustache.to_html(tpl, {posts: posts});
         //emitter.trigger('PostContentAfterMU', [tpl, views]);
-        $('#np-posts').attr('innerHTML', post);
+        np.posts.attr('innerHTML', postsHTML);
         // bind event to tags
         $('.np-post-tag').click(function(event) {
             if (params.tags.indexOf(event.currentTarget.innerHTML) < 0) {
@@ -129,13 +150,16 @@
                 emitter.trigger('TagSelected', [params]);
             }
         });
+        emitter.trigger('PostsRendered');
     });
 
-    emitter.bind('@ApiSave', function(event, id, publish) {
-        api.list();
-        postId = id;
+    emitter.bind('@ApiSave', function(event, data, publish) {
+        postId = data._id;
         growl({title: publish ? 'Published successfully' : 'Saved successfully', text: ' '});
-        publish && $.np.resetEditor();
+        if (publish) {
+            api.list();
+            $.np.resetEditor() ;
+        }
     });
 
     emitter.bind('TagSelected', buildTagsFilter);
@@ -179,6 +203,19 @@
         });
         np.previewDiv.attr('innerHTML', '');
         postId = null;
+    }
+
+    $.np.fillEditor = function(id) {
+       $.each($.np.data.posts, function(idx, el) {
+           postId = id;
+           if (el._id === postId) {
+              published = el.published;
+              created = el.created;
+              np.title.attr('value', el.title);
+              np.input.attr('value', el.content);
+              np.tags.attr('value', el.tags.join(','));
+           }
+       });
     }
 
 })(jQuery);

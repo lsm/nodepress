@@ -101,6 +101,7 @@
                 np.previewDiv = $('#np-preview'),
                 np.editor = $('.np-editor'),
                 np.filter = $('#np-filter'),
+                np.posts = $('#np-posts'),
                 np.tabComments = $('#np-tab-comments');
                 // editor buttons
                 np.save = $('#np-save'),
@@ -144,5 +145,22 @@
             });
 
         </script>
+        {{#is_owner}}
+        <!-- only run for authorized user -->
+        <script type="text/javascript" language="javascript">
+            $(function() {
+                var emitter = $.np.emitter;
+                emitter.bind('PostsRendered', function() {
+                    $('div.np-post-info').append('<a href="#np-toolbar-editor" class="np-post-edit np-left">edit</a>');
+                    $('a.np-post-edit').bind('click', function(event) {
+                        var postId = $(event.currentTarget).parent('.np-post-info').parent('.np-post').attr('id');
+                        $.np.fillEditor(postId);
+                        //$.np.dom.tabs.click(1);
+                    });
+                });
+            });
+
+        </script>
+        {{/is_owner}}
     </body>
 </html>
