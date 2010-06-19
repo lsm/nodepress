@@ -1,16 +1,21 @@
 var baseDir = require('path').dirname(__filename);
 var settings = {
     lib_paths: [baseDir+"/lib/genji/lib"],
-    baseDir: baseDir,
-    urls: './blog',
     staticUrl: 'http://nodepress.com:8080/static',
-    servers: [{port:8000, host: '0.0.0.0'}],
     db: {host: '127.0.0.1', port: 27017, name: 'nodepress'},
-    handler: 'genji.web.handler.SimpleHandler',
     secureKey: 'c00kie-key-4-hmac',
-    cookieName: '_npc',
-    level: 2,
-    debug: true
+    cookieName: '_npc'
+    ,level: 2
+    ,env: 'development'
+    ,servers: [
+        {host: '127.0.0.1', port: 8000}
+    ]
+    ,middlewares: [
+        {name:'response-time'},
+        {name: 'error-handler'},
+        {name:'logger'},
+        {name: 'router', conf: {handler: 'genji.web.handler.SimpleHandler', urls: './app'}}
+    ]
 };
 
 try {
