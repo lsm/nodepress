@@ -94,6 +94,7 @@ function index(handler) {
             buffer += c;
         })
         .addListener('end', function () {
+            handler.middleware.emit('ResponseTime');
             handler.sendHTML(buffer);
         });
     });
@@ -119,6 +120,7 @@ function save(handler) {
         db.open(function(err, db) {
             db.collection('posts', function(err, posts) {
                 posts.save(data, function(err, doc) {
+                    handler.middleware.emit('ResponseTime');
                     handler.sendJSON({_id: doc._id});
                     db.close();
                 });
@@ -141,6 +143,7 @@ function list(handler, skip, limit, tags) {
            }
            cPosts.find(query, {sort:[["published", -1]], limit:limit, skip: skip}, function(err, posts) {
                posts.toArray(function(err, posts) {
+                   handler.middleware.emit('ResponseTime');
                    handler.sendJSON(posts);
                    db.close();
                });
