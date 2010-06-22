@@ -58,16 +58,27 @@
                 </div>
             </div>
             {{/is_owner}}
-
-            <!-- search and tags filter -->
-            <div class="np-full-width" id="np-filter">
-                <!--<input id="np-search-input"></input>-->
-            </div>
-
+            
             <!-- posts list and sidebar -->
             <div class="np-full-width">
-                <div id="np-posts">
-                    <div class="np-full-width"></div>
+                <div id="np-content">
+                    <div id="np-filter" class="np-post">
+                        <div id="np-filter-tags"></div>
+                        <div class="np-right">
+                            <div id="np-post-perpage">
+                                <a href="#10-per-page">10</a>
+                                <a href="#20-per-page">20</a>
+                                <a href="#30-per-page">30</a>
+                            </div>
+                            <div id="np-pager">
+                                <a id="np-prev-page"><<</a>
+                                <a id="np-next-page">>></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="np-posts">
+                        <div class="np-full-width"></div>
+                    </div>
                 </div>
                 <div class="np-sidebar">
                     <div class="np-sidebar-item">
@@ -101,6 +112,7 @@
                 np.previewDiv = $('#np-preview'),
                 np.editor = $('.np-editor'),
                 np.filter = $('#np-filter'),
+                np.filterTags = $('#np-filter-tags'),
                 np.posts = $('#np-posts'),
                 np.tabComments = $('#np-tab-comments');
                 // editor buttons
@@ -111,6 +123,9 @@
                 np.password = $('#np-password'),
                 np.signin = $('#np-signin'),
                 np.signout = $('#np-signout');
+                // pager
+                np.nextPage = $('#np-next-page');
+                np.prevPage = $('#np-prev-page');
                 $.np.dom = np;
                 $.np.init();
 
@@ -139,9 +154,7 @@
                 });
 
                 // load template, post list
-                var skip = 0, limit = 5;
-                $.np.api.list(skip, limit, []);
-
+                $.np.api.list();
             });
 
         </script>
@@ -159,7 +172,6 @@
                     });
                 });
             });
-
         </script>
         {{/is_owner}}
     </body>

@@ -83,7 +83,7 @@ function index(handler) {
     if (user) {
         is_owner = [{name: user}];
     }
-    var ctx = {staticUrl: settings.staticUrl, debugUrl: settings.debug ? '/debug' : ''
+    var ctx = {staticUrl: settings.staticUrl, debugUrl: settings.env === 'development' ? '/debug' : ''
         ,is_owner: is_owner, cookieName: settings.cookieName};
     nun.render(path.join(__dirname, '/views/index.html'), ctx, {}, function (err, output) {
         if (err) {
@@ -110,7 +110,7 @@ function save(handler) {
         var db = new mongo.Db(settings.db.name, dbServer, {});
         if (!data.hasOwnProperty('_id')) {
             data.created = _now();
-            data._id = _md5(data);
+            data._id = _md5(data + data.created);
         } else {
             data.modified = _now();
         }
@@ -133,7 +133,7 @@ function list(handler, skip, limit, tags) {
     var db = new mongo.Db(settings.db.name, dbServer, {});
     skip = parseInt(skip) ? skip : 0;
     limit = parseInt(limit) ? limit : 5;
-    if (limit > 10 || limit < 1) limit = 5; // default
+    if (limit > 30 || limit < 1) limit = 5; // default
     db.open(function(err, db) {
        db.collection('posts', function(err, cPosts) {
            var query = {published: {$exists: true}};
@@ -141,15 +141,21 @@ function list(handler, skip, limit, tags) {
                tags = tags.split(',');
                query.tags = {$all: tags};
            }
-           cPosts.find(query, {sort:[["published", -1]], limit:limit, skip: skip}, function(err, posts) {
+           cPosts.count(query, function(err, num) {
+              cPosts.find(query, {sort:[["published", -1]], limit:limit, skip: skip}, function(err, posts) {
                posts.toArray(function(err, posts) {
                    handler.middleware.emit('ResponseTime');
-                   handler.sendJSON(posts);
+                   handler.sendJSON({posts: posts, total: num});
                    db.close();
                });
            });
+           });
        });
     });
+}
+
+function del(handler) {
+    
 }
 
 function hello_world(handler) {
@@ -163,8 +169,8 @@ function _jsonHeader(handler) {
 
 var apis = [
     ['save/$', save, 'post', [_checkLogin]],
-    ['list/([0-9])+/([0-9])+/(.*)/$', list, 'get'],
-    ['list/([0-9])+/([0-9])+/$', list, 'get'],
+    ['list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
+    ['list/([0-9]+)/([0-9]+)/$', list, 'get'],
     ['list/$', list, 'get'],
 ];
 

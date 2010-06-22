@@ -14,6 +14,7 @@ var settings = {
         {name:'response-time'},
         {name: 'error-handler'},
         {name:'logger'},
+        {name:'conditional-get'},
         {name: 'router', conf: {handler: 'genji.web.handler.SimpleHandler', urls: './app'}}
     ]
 };

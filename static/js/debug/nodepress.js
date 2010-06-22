@@ -13,8 +13,7 @@
     $.np.data = {};
     var growl = $.gritter.add;
     
-    var postId, published, created;
-    var np;
+    var postId, published, created, params = {}, np;
 
     $.np.init = function() {
         np = $.np.dom;
@@ -26,10 +25,11 @@
 
     // rest apis and remote calls
     var api = {
-        list: function(skip, limit, tags) {
-            skip = skip || 0;
-            limit = limit || 5;
-            tags = tags || [];
+        list: function(query) {
+            params = query || params;
+            var skip = params.skip || 0;
+            var limit = params.limit || 5;
+            var tags = params.tags || [];
             var url = '/_api/list/' + skip + '/' + limit + '/';
             if (tags.length > 0) {
                 url += tags.join(',') + '/';
@@ -39,11 +39,12 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function(data, status) {
-                    emitter.trigger('@ApiList', [data, {
+                    params = {
                         skip: skip,
                         limit: limit,
                         tags: tags
-                    }]);
+                    };
+                    emitter.trigger('@ApiList', [data, params]);
                 },
                 error: function(xhr, status) {
                     emitter.trigger('#ApiList', [xhr, status]);
@@ -114,12 +115,13 @@
         });
     });
 
+    // render the posts list with content
     emitter.bind('@ApiList', function(event, data, params) {
         var tpl = $.np.tpl.posts;
         // keep the original content (markdown)
-        $.np.data.posts = data;
+        $.np.data.posts = data.posts;
         var posts = [];
-        $.each(data, function(idx, post) {
+        $.each(data.posts, function(idx, post) {
             var tmp = {};
             tmp.id = post._id;
             if (post.content) {
@@ -140,7 +142,9 @@
             posts.push(tmp);
         });
         //emitter.trigger('PostContentBeforeMU', [tpl, views]); // event <=> hook ?
-        var postsHTML = Mustache.to_html(tpl, {posts: posts});
+        var postsHTML = Mustache.to_html(tpl, {
+            posts: posts
+        });
         //emitter.trigger('PostContentAfterMU', [tpl, views]);
         np.posts.attr('innerHTML', postsHTML);
         // bind event to tags
@@ -150,33 +154,78 @@
                 emitter.trigger('TagSelected', [params]);
             }
         });
-        emitter.trigger('PostsRendered');
+        emitter.trigger('PostsRendered', [data, params]);
     });
 
     emitter.bind('@ApiSave', function(event, data, publish) {
         postId = data._id;
-        growl({title: publish ? 'Published successfully' : 'Saved successfully', text: ' '});
+        growl({
+            title: publish ? 'Published successfully' : 'Saved successfully',
+            text: ' '
+        });
         if (publish) {
-            api.list();
-            $.np.resetEditor() ;
+            $.np.resetEditor();
+            api.list(params);
         }
     });
 
     emitter.bind('TagSelected', buildTagsFilter);
 
     function buildTagsFilter(event, params) {
-        api.list(params.skip, params.limit, params.tags);
-        np.filter.attr('innerHTML', '');
+        api.list(params);
+        np.filterTags.attr('innerHTML', '');
         $.each(params.tags, function(idx, tag) {
-            np.filter.prepend('<div class="np-filter-tag">'+ tag +'</div>');
+            np.filterTags.prepend('<div class="np-filter-tag">'+ tag +'</div>');
         });
-        $('#np-filter div').click(function(event) {
+        $('#np-filter-tags div').click(function(event) {
             var tag = event.currentTarget.innerHTML;
             params.tags = $.grep(params.tags, function(t) {
                 return tag != t;
             });
             buildTagsFilter(event, params);
         });
+    }
+
+    // build pager
+    emitter.bind('@ApiList', buildPager);
+    function buildPager(event, data, params) {
+        var total = data.total;
+        $('#np-post-perpage a').each(function(idx, a) {
+            a = $(a);
+            var perPage = parseInt(a.attr('innerHTML'));
+            if (perPage > total) {
+                a.addClass('np-hide');
+            } else {
+                a.unbind('click');
+                a.bind('click', function() {
+                    params.limit = perPage;
+                    api.list(params);
+                });
+                a.removeClass('np-hide');
+            }
+        });
+        if (params.skip + params.limit < total) {
+            np.nextPage.unbind('click');
+            np.nextPage.bind('click', function() {
+                params.skip += params.limit;
+                api.list(params);
+            });
+            np.nextPage.removeClass('np-hide');
+        } else {
+            np.nextPage.addClass('np-hide');
+        }
+        if (params.skip > 0) {
+            np.prevPage.unbind('click');
+            np.prevPage.bind('click', function() {
+                var skip = params.skip - params.limit;
+                params.skip = skip > 0 ? skip : 0;
+                api.list(params);
+            });
+            np.prevPage.removeClass('np-hide');
+        } else {
+            np.prevPage.addClass('np-hide');
+        }
+        
     }
 
     var lastContent;
@@ -197,7 +246,6 @@
     }
 
     $.np.resetEditor = function() {
-        np.tabs.click(0);
         $.each([np.title, np.tags, np.input], function(idx, item) {
             item.attr('value', '');
         });
@@ -206,16 +254,16 @@
     }
 
     $.np.fillEditor = function(id) {
-       $.each($.np.data.posts, function(idx, el) {
-           postId = id;
-           if (el._id === postId) {
-              published = el.published;
-              created = el.created;
-              np.title.attr('value', el.title);
-              np.input.attr('value', el.content);
-              np.tags.attr('value', el.tags.join(','));
-           }
-       });
+        $.each($.np.data.posts, function(idx, el) {
+            postId = id;
+            if (el._id === postId) {
+                published = el.published;
+                created = el.created;
+                np.title.attr('value', el.title);
+                np.input.attr('value', el.content);
+                np.tags.attr('value', el.tags.join(','));
+            }
+        });
     }
 
 })(jQuery);
