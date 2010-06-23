@@ -70,7 +70,7 @@
             }
 
             $.ajax({
-                url: '/_api/save/',
+                url: '/_api/save/post/',
                 type: 'POST',
                 data: JSON.stringify(post),
                 dataType: 'json',
