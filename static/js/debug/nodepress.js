@@ -81,7 +81,37 @@
                     emitter.trigger('#ApiSave', [xhr, status]);
                 }
             });
+        },
+
+        getTracker: function() {
+            $.ajax({
+                url: '/_api/get/tracker/',
+                type: 'GET',
+                dataType: 'text',
+               success: function(data) {
+                    emitter.trigger('@ApiGetTracker', [data]);
+                },
+                error: function(xhr, status) {
+                    emitter.trigger('#ApiGetTracker', [xhr, status]);
+                }
+            });
+        },
+
+        saveTracker: function() {
+           $.ajax({
+                url: '/_api/save/tracker/',
+                type: 'POST',
+                data: np.tracker.attr('value'),
+                dataType: 'json',
+                success: function(data) {
+                    emitter.trigger('@ApiSaveTracker');
+                },
+                error: function(xhr, status) {
+                    emitter.trigger('#ApiSaveTracker', [xhr, status]);
+                }
+            });
         }
+
     };
     $.np.api = api;
     
@@ -172,7 +202,7 @@
     emitter.bind('TagSelected', buildTagsFilter);
 
     function buildTagsFilter(event, params) {
-        api.list(params);
+        api.list({skip:0, limit:5, tags:params.tags});
         np.filterTags.attr('innerHTML', '');
         $.each(params.tags, function(idx, tag) {
             np.filterTags.prepend('<div class="np-filter-tag">'+ tag +'</div>');
@@ -193,7 +223,7 @@
         $('#np-post-perpage a').each(function(idx, a) {
             a = $(a);
             var perPage = parseInt(a.attr('innerHTML'));
-            if (perPage > total) {
+            if (perPage == params.limit || perPage - total > 10) {
                 a.addClass('np-hide');
             } else {
                 a.unbind('click');
@@ -227,6 +257,10 @@
         }
         
     }
+
+    emitter.bind('@ApiGetTracker', function(e, data) {
+        np.tracker.attr('value', data);
+    });
 
     var lastContent;
     /**
