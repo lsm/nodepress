@@ -1,9 +1,8 @@
-0.0.2 (2010/06/??):
+0.0.2 (2010/06/23):
 -------------------
-- Authenticating stuffs
-- Simple hook system and some hooks:
-    - sidebar
-    - code syntax highligther
+- Cookie based authentication
+- Paginator
+- Allow insert code at footer to track your visits
 
 0.0.1 (2010/06/11):
 -------------------
