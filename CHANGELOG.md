@@ -1,6 +1,7 @@
 0.0.2 (2010/06/23):
 -------------------
 - Cookie based authentication
+- Edit post
 - Paginator
 - Allow insert code at footer to track your visits
 
