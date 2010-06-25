@@ -1,6 +1,7 @@
-var baseDir = require('path').dirname(__filename);
+var path = require('path'),
+baseDir = path.dirname(__filename);
 var settings = {
-    lib_paths: [baseDir+"/lib/genji/lib"],
+    lib_paths: [path.join(baseDir, "/lib/genji/lib"), path.join(baseDir, "/lib/mongoose")],
     staticUrl: 'http://nodepress.com:8080/static',
     db: {host: '127.0.0.1', port: 27017, name: 'nodepress'},
     secureKey: 'c00kie-key-4-hmac',

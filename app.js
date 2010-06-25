@@ -8,6 +8,7 @@ querystring = require("querystring"),
 mongo = require('./lib/node-mongodb-native/lib/mongodb');
 
 var dbServer = new mongo.Server(settings.db.host, settings.db.port, {});
+var tracker, npSettings;
 
 function _md5(data) {
     return crypto.createHash('md5').update(data).digest('hex');
@@ -98,10 +99,11 @@ function index(handler) {
     getTracker(handler, function(tracker) {
         var ctx = {
             staticUrl: settings.staticUrl,
-            debugUrl: settings.env === 'development' ? '/debug' : ''
-            ,
+            debugUrl: settings.env === 'development' ? '/debug' : '',
             is_owner: is_owner,
-            cookieName: settings.cookieName
+            cookieName: settings.cookieName,
+            title: npSettings.title || 'Nodepress.com',
+            intro: npSettings.intro || 'a blogging tool built on top of nodejs'
         };
         if (tracker) {
             ctx.tracker = tracker.code;
@@ -115,7 +117,6 @@ function index(handler) {
                 buffer += c;
             })
             .addListener('end', function () {
-                handler.middleware.emit('ResponseTime');
                 handler.sendHTML(buffer);
             });
         });
@@ -138,7 +139,6 @@ function savePost(handler) {
         db.open(function(err, db) {
             db.collection('posts', function(err, posts) {
                 posts.save(data, function(err, doc) {
-                    handler.middleware.emit('ResponseTime');
                     handler.sendJSON({
                         _id: doc._id
                     });
@@ -174,7 +174,6 @@ function list(handler, skip, limit, tags) {
                     skip: skip
                 }, function(err, posts) {
                     posts.toArray(function(err, posts) {
-                        handler.middleware.emit('ResponseTime');
                         handler.sendJSON({
                             posts: posts,
                             total: num
@@ -189,19 +188,26 @@ function list(handler, skip, limit, tags) {
 
 function getTracker(handler, callback) {
     var db = new mongo.Db(settings.db.name, dbServer, {});
+    function send(tracker) {
+        if (callback) {
+            callback(tracker);
+        } else {
+            handler.send(tracker.code);
+        }
+    }
+    if (tracker) {
+        send(tracker);
+        return;
+    }
     db.open(function(err, db) {
         db.collection('settings', function(err, settings) {
             settings.findOne({
                 _id: 'defaultTracker'
-            }, function(err, tracker) {
-                tracker = tracker || {
+            }, function(err, trackerObj) {
+                tracker = trackerObj || {
                     code: ''
                 };
-                if (callback) {
-                    callback(tracker);
-                } else {
-                    handler.send(tracker.code);   
-                }
+                send(tracker);
                 db.close();
             })
         });
@@ -217,6 +223,7 @@ function saveTracker(handler) {
                     _id: 'defaultTracker',
                     code: data
                 }, function() {
+                    tracker = {code: data};
                     handler.send('ok');
                     db.close();
                 });
@@ -243,9 +250,22 @@ var apis = [
 ['list/$', list, 'get'],
 ];
 
+
+var db = new mongo.Db(settings.db.name, dbServer, {});
+db.open(function(err, db) {
+    db.collection('settings', function(err, settings) {
+        settings.find({}, function(err, result) {
+            result.toArray(function(err, s) {
+                npSettings = s;
+                db.close();
+            });
+        });
+    });
+});
+
 module.exports = [
     ['^/$', index],
-    ['^/_api/', apis/*, [_jsonHeader]*/],
+    ['^/_api/', apis],
     ["^/signin/$", signin],
     ['^/hello/$', hello_world],
     ];
