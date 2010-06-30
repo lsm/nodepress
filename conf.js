@@ -3,7 +3,7 @@ baseDir = path.dirname(__filename);
 var settings = {
     lib_paths: [path.join(baseDir, "/lib/genji/lib"), path.join(baseDir, "/lib/mongoose")],
     staticUrl: 'http://nodepress.com:8080/static',
-    db: {host: '127.0.0.1', port: 27017, name: 'nodepress'},
+    db: 'mongo://127.0.0.1:27017/nodepress',
     secureKey: 'c00kie-key-4-hmac',
     cookieName: '_npc'
     ,level: 2
