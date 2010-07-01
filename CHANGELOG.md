@@ -1,4 +1,11 @@
-0.0.2 (2010/06/23):
+0.1.0 (2010/07/01):
+-------------------
+- MongoDb pooling
+- class for db and collection
+- introduce promise
+- new code structure that easy to extend
+
+0.0.2 - 0.0.3 (2010/06/23):
 -------------------
 - Cookie based authentication
 - Edit post
