@@ -5,15 +5,7 @@ settings = genji.settings,
 querystring = require("querystring"),
 auth = require('../core/auth');
 
-
-var User = Collection({
-    init: function() {
-        this._super();
-        this.name = 'users';
-    }
-});
-
-var user = new User;
+var user = new Collection('users');
 
 function signin(handler) {
     if (auth.checkCookie(handler, settings.secureKey)) {
@@ -43,7 +35,6 @@ var _view = [['^/signin/$', signin, 'post']];
 
 module.exports = {
     db: {
-        User: User,
         user: user
     },
     view: _view

@@ -1,5 +1,6 @@
 var db = require('../core/db'),
 auth = require('../core/auth'),
+management = require('./management'),
 view = require('../core/view'),
 Collection = db.Collection,
 settings = genji.settings,
@@ -81,29 +82,27 @@ var api = [
 ['blog/list/$', list, 'get']
 ];
 
+var ctx = {
+    staticUrl: settings.staticUrl,
+    debugUrl: settings.env === 'development' ? '/debug' : '',
+    cookieName: settings.cookieName,
+    title: 'Nodepress.com',
+    intro: 'a blogging tool built on top of nodejs'
+};
 
 function index(handler) {
     var user = auth.checkCookie(handler, settings.secureKey)[0];
-    var is_owner;
     if (user) {
-        is_owner = [{
+        ctx.is_owner = [{
             name: user
         }];
     }
-    var ctx = {
-        staticUrl: settings.staticUrl,
-        debugUrl: settings.env === 'development' ? '/debug' : '',
-        is_owner: is_owner,
-        cookieName: settings.cookieName,
-        title: 'Nodepress.com',
-        intro: 'a blogging tool built on top of nodejs'
-    };
-//    if (tracker) {
-//        ctx.tracker = tracker.code;
-//    }
-   view.render('/views/index.html', ctx, {}, function(html) {
-       handler.sendHTML(html);
-   });
+    management.getTracker(null, function(tracker) {
+        ctx.tracker = tracker.code;
+        view.render('/views/index.html', ctx, {}, function(html) {
+            handler.sendHTML(html);
+        });
+    });
 }
 
 var _view = [['^/$', index, 'get']];
