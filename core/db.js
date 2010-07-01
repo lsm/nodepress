@@ -2,8 +2,7 @@
 var Base = require('../lib/genji/lib/genji/core/base').Base,
 Promise = require('./promise').Promise,
 mongo = require('../lib/node-mongodb-native/lib/mongodb'),
-Pool = require('./pool').Pool,
-connPool;
+Pool = require('./pool').Pool;
 
 var sys = require('sys');
 
@@ -16,8 +15,10 @@ function getConn(num, callback) {
     }
 }
 
+var connPool = new Pool(getConn, 5);
+
 var Db = Base(function() {
-    this.pool = connPool;
+     this.pool = connPool;
 }, {
     giveDb: function(callback) {
         this.pool.give(callback);
@@ -42,6 +43,17 @@ var Db = Base(function() {
                     me.pool.emit('back', cursor.db);
                     callback(result);
                 });
+            });
+        });
+    },
+
+    _findOne: function(collectionName, selector, options, callback) {
+        var me = this;
+        this.giveCollection(collectionName, function(coll) {
+            coll.findOne(selector, options, function(err, result) {
+                if (err) throw err;
+                me.pool.emit('back', coll.db);
+                callback(result);
             });
         });
     },
@@ -89,6 +101,14 @@ var Collection = Db({
         return promise;
     },
 
+    findOne: function(selector, options) {
+        var promise = new Promise;
+        this._findOne(this.name, selector, options || {}, function(result) {
+            promise.resolve(result);
+        });
+        return promise;
+    },
+
     save: function(data) {
         var promise = new Promise;
         this._save(this.name, data, function(doc) {
@@ -116,8 +136,5 @@ var Collection = Db({
 
 module.exports = {
     Db: Db,
-    Collection: Collection,
-    makePool: function() {
-       if (connPool === undefined) connPool = new Pool(getConn, 5);
-    }
+    Collection: Collection
 }

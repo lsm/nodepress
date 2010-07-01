@@ -1,21 +1,24 @@
 var db = require('../core/db'),
+auth = require('../core/auth'),
+view = require('../core/view'),
 Collection = db.Collection,
-crypto = require('crypto');
-
-function _md5(data) {
-    return crypto.createHash('md5').update(data).digest('hex');
-}
+settings = genji.settings,
+md5 = genji.crypto.md5;
 
 function _now() {
     return (new Date()).getTime() + ''; // save as string
 }
 
 var Post = Collection({
+    init: function() {
+        this._super();
+        this.name = 'posts';
+    },
     save: function(data) {
         if (typeof data === 'string') data = JSON.parse(data);
         if (!data.hasOwnProperty('_id')) {
             data.created = _now();
-            data._id = _md5(data + data.created);
+            data._id = md5(data + data.created);
         } else {
             data.modified = _now();
         }
@@ -26,22 +29,91 @@ var Post = Collection({
     }
 });
 
-var urls;
+var post = new Post;
 
-function savePost() {
-
+function save(handler) {
+    handler.on('end', function(data) {
+        post.save(data).then(function(doc) {
+            handler.sendJSON({
+                _id: doc._id
+            });
+        });
+    });   
 }
 
-function listPost() {
-    
+function list(handler, skip, limit, tags) {
+    skip = parseInt(skip) ? skip : 0;
+    limit = parseInt(limit) ? limit : 5;
+    if (limit > 30 || limit < 1) limit = 5; // default
+    var query = {
+        published: {
+            $exists: true
+        }
+    };
+
+    if (tags) {
+        tags = decodeURIComponent(tags).split(',');
+        query.tags = {
+            $all: tags
+        };
+    }
+
+    var options = {
+        sort:[["published", -1]],
+        limit:limit,
+        skip: skip
+    }
+
+    post.count(query).then(function(num) {
+        post.find(query, null, options).then(function(result) {
+            handler.sendJSON({
+                posts: result,
+                total: num
+            });
+        });
+    });
 }
 
+var api = [
+['blog/save/', save, 'post', [auth.checkLogin]],
+['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
+['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
+['blog/list/$', list, 'get']
+];
 
-'_api/blog/save/';
-'_api/blog/list/';
 
-var rest;
+function index(handler) {
+    var user = auth.checkCookie(handler, settings.secureKey)[0];
+    var is_owner;
+    if (user) {
+        is_owner = [{
+            name: user
+        }];
+    }
+    var ctx = {
+        staticUrl: settings.staticUrl,
+        debugUrl: settings.env === 'development' ? '/debug' : '',
+        is_owner: is_owner,
+        cookieName: settings.cookieName,
+        title: 'Nodepress.com',
+        intro: 'a blogging tool built on top of nodejs'
+    };
+//    if (tracker) {
+//        ctx.tracker = tracker.code;
+//    }
+   view.render('/views/index.html', ctx, {}, function(html) {
+       handler.sendHTML(html);
+   });
+}
+
+var _view = [['^/$', index, 'get']];
+
 
 module.exports = {
-    db: {Post: Post}
+    db: {
+        Post: Post,
+        post: post
+    },
+    api: api,
+    view: _view
 }

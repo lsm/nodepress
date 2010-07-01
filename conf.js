@@ -8,6 +8,7 @@ var settings = {
     cookieName: '_npc'
     ,level: 2
     ,env: 'development'
+    ,root: baseDir
     ,servers: [
         {host: '127.0.0.1', port: 8000}
     ]
