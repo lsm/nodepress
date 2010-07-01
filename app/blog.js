@@ -96,6 +96,8 @@ function index(handler) {
         ctx.is_owner = [{
             name: user
         }];
+    } else {
+        ctx.is_owner = undefined;
     }
     management.getTracker(null, function(tracker) {
         ctx.tracker = tracker.code;
