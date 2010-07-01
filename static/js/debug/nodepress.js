@@ -30,7 +30,7 @@
             var skip = params.skip || 0;
             var limit = params.limit || 5;
             var tags = params.tags || [];
-            var url = '/_api/list/' + skip + '/' + limit + '/';
+            var url = '/_api/blog/list/' + skip + '/' + limit + '/';
             if (tags.length > 0) {
                 url += tags.join(',') + '/';
             }
@@ -70,7 +70,7 @@
             }
 
             $.ajax({
-                url: '/_api/save/post/',
+                url: '/_api/blog/save/',
                 type: 'POST',
                 data: JSON.stringify(post),
                 dataType: 'json',
