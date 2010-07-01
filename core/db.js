@@ -93,6 +93,11 @@ var Db = Base(function() {
 });
 
 var Collection = Db({
+    init: function(name) {
+        this._super();
+        this.name = name;
+    },
+    
     find: function(selector, fields, options) {
         var promise = new Promise;
         this._find(this.name, selector, fields, options, function(result) {
