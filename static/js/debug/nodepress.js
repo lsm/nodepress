@@ -85,7 +85,7 @@
 
         getTracker: function() {
             $.ajax({
-                url: '/_api/get/tracker/',
+                url: '/_api/management/tracker/get/',
                 type: 'GET',
                 dataType: 'text',
                success: function(data) {
@@ -99,7 +99,7 @@
 
         saveTracker: function() {
            $.ajax({
-                url: '/_api/save/tracker/',
+                url: '/_api/management/tracker/save/',
                 type: 'POST',
                 data: np.tracker.attr('value'),
                 dataType: 'json',
