@@ -2,7 +2,7 @@ var path = require('path'),
 baseDir = path.dirname(__filename);
 var settings = {
     lib_paths: [path.join(baseDir, "/lib/genji/lib"), path.join(baseDir, "/lib/mongoose")],
-    staticUrl: 'http://nodepress.com:8080/static',
+    staticUrl: 'http://127.0.0.1:8000/static',
     db: 'mongo://127.0.0.1:27017/nodepress',
     secureKey: 'c00kie-key-4-hmac',
     cookieName: '_npc'
@@ -12,12 +12,13 @@ var settings = {
     ,servers: [
         {host: '127.0.0.1', port: 8000}
     ]
+    ,installedApps: ['account', 'blog', 'management', 'static']
     ,middlewares: [
         {name:'response-time'},
         {name: 'error-handler'},
         {name:'logger'},
         {name:'conditional-get'},
-        {name: 'router', conf: {handler: 'genji.web.handler.SimpleHandler', urls: './app'}}
+        {name: 'router', conf: {handler: 'genji.web.handler.SimpleHandler', urls: './urls'}}
     ]
 };
 
