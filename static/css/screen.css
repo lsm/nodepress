@@ -140,7 +140,9 @@
 
 .np-post-content {
     margin: 0 15px;
-    min-width: 581px;
+    width: 581px;
+    word-break: normal;
+    overflow: auto;
 }
 
 .np-post-content p {
