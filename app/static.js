@@ -1,6 +1,6 @@
 var FileHandler = genji.web.handler.FileHandler,
 path = require('path'),
-root = path.join(genji.settings.root, '/static')
+root = path.join(genji.settings.env.root, '/static')
 
 function handleFile(handler, path) {
     handler.setRoot(root);

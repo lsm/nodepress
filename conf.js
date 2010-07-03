@@ -6,9 +6,7 @@ var settings = {
     db: 'mongo://127.0.0.1:27017/nodepress',
     secureKey: 'c00kie-key-4-hmac',
     cookieName: '_npc'
-    ,level: 2
-    ,env: 'development'
-    ,root: baseDir
+    ,env: {type: 'development', root: baseDir, level: 2}
     ,servers: [
         {host: '127.0.0.1', port: 8000}
     ]

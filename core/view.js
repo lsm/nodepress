@@ -20,7 +20,7 @@ function render(tpl, ctx, options, callback) {
 //        callback(cache.get(cacheKey));
 //        return;
 //    }
-    nun.render(path.join(settings.root, tpl), ctx, options, function (err, output) {
+    nun.render(path.join(settings.env.root, tpl), ctx, options, function (err, output) {
         if (err) {
             throw err;
         }
