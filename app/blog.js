@@ -10,12 +10,9 @@ function _now() {
     return (new Date()).getTime() + ''; // save as string
 }
 
-var Post = Collection({
-    init: function() {
-        this._super();
-        this.name = 'posts';
-    },
-    save: function(data) {
+var post = new Collection('posts');
+post.extend({
+   save: function(data) {
         if (typeof data === 'string') data = JSON.parse(data);
         if (!data.hasOwnProperty('_id')) {
             data.created = _now();
@@ -29,8 +26,6 @@ var Post = Collection({
         return this._super(data);
     }
 });
-
-var post = new Post;
 
 function save(handler) {
     handler.on('end', function(data) {
@@ -112,7 +107,6 @@ var _view = [['^/$', index, 'get']];
 
 module.exports = {
     db: {
-        Post: Post,
         post: post
     },
     api: api,
