@@ -79,7 +79,7 @@ var api = [
 
 var ctx = {
     staticUrl: settings.staticUrl,
-    debugUrl: settings.env === 'development' ? '/debug' : '',
+    debugUrl: settings.env.type === 'development' ? '/debug' : '',
     cookieName: settings.cookieName,
     title: 'Nodepress.com',
     intro: 'a blogging tool built on top of nodejs'
@@ -96,7 +96,7 @@ function index(handler) {
     }
     management.getTracker(null, function(tracker) {
         ctx.tracker = tracker.code;
-        view.render('/views/index.html', ctx, {}, function(html) {
+        view.render('/views/index.html', ctx, null, function(html) {
             handler.sendHTML(html);
         });
     });
