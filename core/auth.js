@@ -11,7 +11,7 @@ function checkCookie(handler, serverKey) {
 }
 
 function checkLogin(handler) {
-    if ((handler.user = checkCookie(handler, settings.secureKey)[0])) {
+    if ((handler.user = checkCookie(handler, settings.cookieSecret)[0])) {
         return true;
     }
     handler.error(401);

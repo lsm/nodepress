@@ -1,10 +1,10 @@
 var path = require('path'),
 baseDir = path.dirname(__filename);
 var settings = {
-    lib_paths: [path.join(baseDir, "/lib/genji/lib"), path.join(baseDir, "/lib/mongoose")],
+    libPath: [path.join(baseDir, "/lib/genji/lib"), path.join(baseDir, "/lib/mongoose")],
     staticUrl: 'http://127.0.0.1:8000/static',
     db: 'mongo://127.0.0.1:27017/nodepress',
-    secureKey: 'c00kie-key-4-hmac',
+    cookieSecret: 'c00kie-key-4-hmac',
     cookieName: '_npc'
     ,env: {type: 'development', root: baseDir, level: 2}
     ,servers: [
@@ -29,7 +29,7 @@ try {
     require('sys').puts(e);
 }
 
-settings.lib_paths.forEach(function(path) {
+settings.libPath.forEach(function(path) {
     require.paths.unshift(path);
 });
 
