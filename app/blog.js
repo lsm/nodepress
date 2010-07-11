@@ -86,7 +86,7 @@ var ctx = {
 };
 
 function index(handler) {
-    var user = auth.checkCookie(handler, settings.secureKey)[0];
+    var user = auth.checkCookie(handler, settings.cookieSecret)[0];
     if (user) {
         ctx.is_owner = [{
             name: user
@@ -96,8 +96,19 @@ function index(handler) {
     }
     management.getTracker(null, function(tracker) {
         ctx.tracker = tracker.code;
-        view.render('/views/index.html', ctx, null, function(html) {
-            handler.sendHTML(html);
+        post.find({}, null, {limit: 5, sort:[["published", -1]]}).then(function(result) {
+            result.forEach(function(item) {
+                if (item.hasOwnProperty("tags")) {
+                var tags = [];
+                for (var i = 0; i < item.tags.length; i++) {
+                    tags[i] = {name: item.tags[i]};
+                }
+                item.tags = tags;
+            }});
+            ctx.posts = result;
+            view.render('/views/index.html', ctx, null, function(html) {
+                handler.sendHTML(html);
+            });
         });
     });
 }

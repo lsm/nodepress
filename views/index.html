@@ -13,14 +13,14 @@
             <!-- sign in/out -->
             <div class="np-full-width">
                 {{#is_owner}}
-                    <a id="np-signout" href="#signout" class="np-right">Sign out</a>
+                <a id="np-signout" href="#signout" class="np-right">Sign out</a>
                 {{/is_owner}}
                 {{^is_owner}}
-                    <div class="np-signin np-right">
-                        Username: <input id="np-username"></input> 
-                        Password: <input id="np-password" type="password"></input>
-                        <button id="np-signin">Sign in</button>
-                    </div>
+                <div class="np-signin np-right">
+                    Username: <input id="np-username"></input>
+                    Password: <input id="np-password" type="password"></input>
+                    <button id="np-signin">Sign in</button>
+                </div>
                 {{/is_owner}}
             </div>
 
@@ -63,7 +63,7 @@
                 </div>
             </div>
             {{/is_owner}}
-            
+
             <!-- posts list and sidebar -->
             <div class="np-full-width">
                 <div id="np-content">
@@ -82,7 +82,10 @@
                         </div>
                     </div>
                     <div id="np-posts">
-                        <div class="np-full-width"></div>
+                        {{#posts}}<div id="{{id}}" class="np-post"><h2 class="np-post-title">{{title}}</h2>
+                            <div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>
+                            <div class="np-post-content">{{& content}}</div>
+                            <div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}
                     </div>
                 </div>
                 <div class="np-sidebar">
@@ -126,8 +129,16 @@
                     location.href = '/';
                 });
 
-                // load template, post list
-                $.np.api.list();
+                // render content/pager, bind events
+                $('.np-post-content').each(function(idx, npc) {
+                    npc.innerHTML = $.np.showdown.makeHtml(npc.innerHTML);
+                });
+                $('.np-post-date').each(function(idx, npd) {
+                    npd.innerHTML = new Date(parseInt(npd.innerHTML)).toLocaleDateString();
+                });
+                $('.np-post-tag').click(function(event) {
+                    $.np.emitter.trigger('TagSelected', [{limit: 5, skip: 0, tags: [event.currentTarget.innerHTML]}]);
+                });
             });
 
         </script>
