@@ -8,7 +8,7 @@ auth = require('../core/auth');
 var user = new Collection('users');
 
 function signin(handler) {
-    if (auth.checkCookie(handler, settings.secureKey)) {
+    if (auth.checkCookie(handler, settings.cookieSecret)) {
         // already logged in
         handler.send("ok");
         return;
@@ -19,7 +19,7 @@ function signin(handler) {
             user.findOne({
                 username: p['username']
             }).then(function(res) {
-                if (res && auth.signin(handler, p, res["password"], settings.secureKey)) {
+                if (res && auth.signin(handler, p, res["password"], settings.cookieSecret)) {
                     handler.send("ok");
                 } else {
                     handler.error(401, 'Wrong username/password pair.');
