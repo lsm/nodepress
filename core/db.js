@@ -1,8 +1,7 @@
-
 var Base = require('../lib/genji/lib/genji/core/base').Base,
 Promise = require('./promise').Promise,
 mongo = require('../lib/node-mongodb-native/lib/mongodb'),
-Pool = require('./pool').Pool;
+Pool = genji.pattern.Pool;
 
 var sys = require('sys');
 
@@ -21,7 +20,7 @@ var Db = Base(function() {
      this.pool = connPool;
 }, {
     giveDb: function(callback) {
-        this.pool.give(callback);
+        this.pool.pop(callback);
     },
 
     giveCollection: function(name, callback) {
