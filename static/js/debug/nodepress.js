@@ -4,12 +4,7 @@
     $.np = {};
     var emitter = $.np.emitter = $({});
     var showdown = $.np.showdown = new Showdown.converter();
-    var tpl = $.np.tpl = {
-        posts: '{{#posts}}<div id="{{id}}" class="np-post"><h2 class="np-post-title">{{title}}</h2>'
-    +'<div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>'
-    +'<div class="np-post-content">{{{content}}}</div>'
-    +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
-    };
+    $.np.tpl = {};
     $.np.data = {};
     var growl = $.gritter.add;
     
@@ -255,8 +250,8 @@
         } else {
             np.prevPage.addClass('np-hide');
         }
-        
     }
+    $.np.buildPager = buildPager;
 
     emitter.bind('@ApiGetTracker', function(e, data) {
         np.tracker.attr('value', data);
