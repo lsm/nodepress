@@ -3,15 +3,7 @@ auth = require('../core/auth'),
 Collection = db.Collection,
 tracker;
 
-
-var Setting = Collection({
-    init: function() {
-        this._super();
-        this.name = 'settings';
-    }
-});
-
-var setting = new Setting('settings');
+var setting = new Collection('settings');
 
 function getTracker(handler, callback) {
     function send(tracker) {

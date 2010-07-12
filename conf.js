@@ -1,7 +1,7 @@
 var path = require('path'),
 baseDir = path.dirname(__filename);
 var settings = {
-    libPath: [path.join(baseDir, "/lib/genji/lib"), path.join(baseDir, "/lib/mongoose")],
+    libPath: [path.join(baseDir, "/lib/genji/lib"), path.join(baseDir, "/lib/node-mongodb-native/lib")],
     staticUrl: 'http://127.0.0.1:8000/static',
     db: 'mongo://127.0.0.1:27017/nodepress',
     cookieSecret: 'c00kie-key-4-hmac',

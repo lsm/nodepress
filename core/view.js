@@ -1,20 +1,11 @@
-var Base = require('../lib/genji/lib/genji/core/base').Base,
-path = require('path'),
+var path = require('path'),
 nun = require("../lib/nun"),
-Cache = require('./cache').Cache,
+//Cache = require('./cache').Cache,
 settings = genji.settings,
 defaultOptions = {},
 md5 = genji.crypto.md5;
 
-var Context = Base(function() {
-
-    }, {
-    
-    });
-
-
-var cache = new Cache;
-
+//var cache = new Cache;
 
 function setOption(key, value) {
     defaultOptions[key] = value;
@@ -47,5 +38,6 @@ function render(tpl, ctx, options, callback) {
 
 module.exports = {
     render: render,
-    cache: cache
+    cache: cache,
+    setOption: setOption
 }

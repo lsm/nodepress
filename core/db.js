@@ -1,6 +1,6 @@
-var Base = require('../lib/genji/lib/genji/core/base').Base,
+var Base = genji.core.Base,
 Promise = require('./promise').Promise,
-mongo = require('../lib/node-mongodb-native/lib/mongodb'),
+mongo = require('mongodb'),
 Pool = genji.pattern.Pool;
 
 var sys = require('sys');
