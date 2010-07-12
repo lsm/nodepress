@@ -85,7 +85,7 @@ var ctx = {
     intro: 'a blogging tool built on top of nodejs',
     tplPost: '{{#posts}}<div id="{{id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{title}}/">{{title}}</a></h2>'
     +'<div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>'
-    +'<div class="np-post-content">{{& content}}}</div>'
+    +'<div class="np-post-content">{{{content}}}</div>'
     +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
 };
 
@@ -134,7 +134,7 @@ function article(handler, title) {
         post.count({}).then(function(num) {
             ctx.total = num;
             post.findOne({
-            title: title
+            title: decodeURIComponent(title)
         }).then(function(post) {
             if (post) {
                 if (post.hasOwnProperty("tags")) {
