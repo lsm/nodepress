@@ -12,7 +12,7 @@ function _now() {
 
 var post = new Collection('posts');
 post.extend({
-   save: function(data) {
+    save: function(data) {
         if (typeof data === 'string') data = JSON.parse(data);
         if (!data.hasOwnProperty('_id')) {
             data.created = _now();
@@ -82,7 +82,11 @@ var ctx = {
     debugUrl: settings.env.type === 'development' ? '/debug' : '',
     cookieName: settings.cookieName,
     title: 'Nodepress.com',
-    intro: 'a blogging tool built on top of nodejs'
+    intro: 'a blogging tool built on top of nodejs',
+    tplPost: '{{#posts}}<div id="{{id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{title}}/">{{title}}</a></h2>'
+    +'<div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>'
+    +'<div class="np-post-content">{{& content}}}</div>'
+    +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
 };
 
 function index(handler) {
@@ -96,24 +100,69 @@ function index(handler) {
     }
     management.getTracker(null, function(tracker) {
         ctx.tracker = tracker.code;
-        post.find({}, null, {limit: 5, sort:[["published", -1]]}).then(function(result) {
-            result.forEach(function(item) {
-                if (item.hasOwnProperty("tags")) {
-                var tags = [];
-                for (var i = 0; i < item.tags.length; i++) {
-                    tags[i] = {name: item.tags[i]};
-                }
-                item.tags = tags;
-            }});
-            ctx.posts = result;
-            view.render('/views/index.html', ctx, null, function(html) {
-                handler.sendHTML(html);
+        post.count({}).then(function(num) {
+            ctx.total = num;
+            post.find({}, null, {
+                limit: 5,
+                sort:[["published", -1]]
+            }).then(function(posts) {
+                posts.forEach(function(item) {
+                    if (item.hasOwnProperty("tags")) {
+                        var tags = [];
+                        for (var i = 0; i < item.tags.length; i++) {
+                            tags[i] = {
+                                name: item.tags[i]
+                            };
+                        }
+                        item.tags = tags;
+                    }
+                });
+                ctx.posts = posts;
+                ctx.page = 'index';
+                view.render('/views/index.html', ctx, null, function(html) {
+                    handler.sendHTML(html);
+                });
             });
         });
     });
+
 }
 
-var _view = [['^/$', index, 'get']];
+function article(handler, title) {
+    management.getTracker(null, function(tracker) {
+        ctx.tracker = tracker.code;
+        post.count({}).then(function(num) {
+            ctx.total = num;
+            post.findOne({
+            title: title
+        }).then(function(post) {
+            if (post) {
+                if (post.hasOwnProperty("tags")) {
+                    var tags = [];
+                    for (var i = 0; i < post.tags.length; i++) {
+                        tags[i] = {
+                            name: post.tags[i]
+                        };
+                    }
+                    post.tags = tags;
+                }
+                ctx.posts = [post];
+                ctx.page = 'article';
+                view.render('/views/article.html', ctx, null, function(html) {
+                    handler.sendHTML(html);
+                });
+            } else {
+                handler.error(404, 'Article not found');
+            }
+        });
+    });
+    });
+}
+
+var _view = [
+['^/$', index, 'get'],
+['^/article/(.*)/$', article, 'get']
+];
 
 
 module.exports = {
