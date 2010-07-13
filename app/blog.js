@@ -83,7 +83,7 @@ var ctx = {
     cookieName: settings.cookieName,
     title: 'Nodepress.com',
     intro: 'a blogging tool built on top of nodejs',
-    tplPost: '{{#posts}}<div id="{{id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{title}}/">{{title}}</a></h2>'
+    tplPost: '{{#posts}}<div id="{{_id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{_id}}/{{title}}/">{{title}}</a></h2>'
     +'<div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>'
     +'<div class="np-post-content">{{{content}}}</div>'
     +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
@@ -128,13 +128,13 @@ function index(handler) {
 
 }
 
-function article(handler, title) {
+function article(handler, id, title) {
     management.getTracker(null, function(tracker) {
         ctx.tracker = tracker.code;
         post.count({}).then(function(num) {
             ctx.total = num;
             post.findOne({
-            title: decodeURIComponent(title)
+            _id: id
         }).then(function(post) {
             if (post) {
                 if (post.hasOwnProperty("tags")) {
@@ -161,7 +161,7 @@ function article(handler, title) {
 
 var _view = [
 ['^/$', index, 'get'],
-['^/article/(.*)/$', article, 'get']
+[/^\/article\/(\w+)\/.*\/$/, article, 'get']
 ];
 
 
