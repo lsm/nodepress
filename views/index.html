@@ -65,7 +65,7 @@
                         </div>
                     </div>
                     <div id="np-posts">
-                        {{#posts}}<div id="{{id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{title}}/">{{title}}</a></h2>
+                        {{#posts}}<div id="{{_id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{_id}}/{{title}}/">{{title}}</a></h2>
                             <div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>
                             <div class="np-post-content">{{& content}}</div>
                             <div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}
