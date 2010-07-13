@@ -4,7 +4,10 @@
     $.np = {};
     var emitter = $.np.emitter = $({});
     var showdown = $.np.showdown = new Showdown.converter();
-    $.np.tpl = {};
+    $.np.tpl = {posts: '{{#posts}}<div id="{{_id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{_id}}/{{title}}/">{{title}}</a></h2>'
+    +'<div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>'
+    +'<div class="np-post-content">{{{content}}}</div>'
+    +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'};
     $.np.data = {};
     var growl = $.gritter.add;
     
@@ -148,7 +151,7 @@
         var posts = [];
         $.each(data.posts, function(idx, post) {
             var tmp = {};
-            tmp.id = post._id;
+            tmp._id = post._id;
             if (post.content) {
                 tmp.content = $.np.showdown.makeHtml(post.content);
             }
