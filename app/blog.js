@@ -82,11 +82,7 @@ var ctx = {
     debugUrl: settings.env.type === 'development' ? '/debug' : '',
     cookieName: settings.cookieName,
     title: 'Nodepress.com',
-    intro: 'a blogging tool built on top of nodejs',
-    tplPost: '{{#posts}}<div id="{{_id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{_id}}/{{title}}/">{{title}}</a></h2>'
-    +'<div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>'
-    +'<div class="np-post-content">{{{content}}}</div>'
-    +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
+    intro: 'a blogging tool built on top of nodejs'
 };
 
 function index(handler) {
@@ -128,7 +124,7 @@ function index(handler) {
 
 }
 
-function article(handler, id, title) {
+function article(handler, id) {
     management.getTracker(null, function(tracker) {
         ctx.tracker = tracker.code;
         post.count({}).then(function(num) {
