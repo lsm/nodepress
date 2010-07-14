@@ -29,6 +29,12 @@
     float :left;
 }
 
+#np-header {
+/*position:fixed;
+top:30px;
+*/
+}
+
 .np-signin input {
     width: 96px;
 }
