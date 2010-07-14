@@ -1,5 +1,6 @@
-var db = require('../core/db'),
-auth = require('../core/auth'),
+var core = require('../core'),
+db = core.db,
+auth = core.auth,
 Collection = db.Collection,
 tracker;
 

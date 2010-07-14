@@ -1,9 +1,9 @@
-var db = require('../core/db'),
+var core = require('../core'),
+db = core.db,
+auth = core.auth,
 Collection = db.Collection,
-view = require('../core/view'),
 settings = genji.settings,
-querystring = require("querystring"),
-auth = require('../core/auth');
+querystring = require("querystring");
 
 var user = new Collection('users');
 

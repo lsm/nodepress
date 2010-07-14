@@ -1,7 +1,8 @@
-var db = require('../core/db'),
-auth = require('../core/auth'),
+var core = require('../core'),
+db = core.db,
+auth = core.auth,
+view = core.view,
 management = require('./management'),
-view = require('../core/view'),
 Collection = db.Collection,
 settings = genji.settings,
 md5 = genji.crypto.md5;
