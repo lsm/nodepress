@@ -15,6 +15,7 @@ setOption('compress', true);
 setOption('cache', true);
 
 function render(tpl, ctx, options, callback) {
+    if (typeof options === 'function') callback = options;
 //    var cacheKey = md5(ctx) + '_' + tpl;
 //    if (cache.has(cacheKey)) {
 //        callback(cache.get(cacheKey));
