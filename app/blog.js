@@ -78,12 +78,20 @@ var api = [
 ['blog/list/$', list, 'get']
 ];
 
+
 var ctx = {
     staticUrl: settings.staticUrl,
     debugUrl: settings.env.type === 'development' ? '/debug' : '',
     cookieName: settings.cookieName,
-    title: 'Nodepress.com',
-    intro: 'a blogging tool built on top of nodejs'
+    get tracker() {
+       return core.cache.get('defaultTracker');
+    },
+    get title() {
+        return core.cache.get('title');
+    },
+    get intro() {
+        return core.cache.get('intro');
+    }
 };
 
 function index(handler) {
@@ -95,39 +103,33 @@ function index(handler) {
     } else {
         ctx.is_owner = undefined;
     }
-    management.getTracker(null, function(tracker) {
-        ctx.tracker = tracker.code;
-        post.count({}).then(function(num) {
-            ctx.total = num;
-            post.find({}, null, {
-                limit: 5,
-                sort:[["published", -1]]
-            }).then(function(posts) {
-                posts.forEach(function(item) {
-                    if (item.hasOwnProperty("tags")) {
-                        var tags = [];
-                        for (var i = 0; i < item.tags.length; i++) {
-                            tags[i] = {
-                                name: item.tags[i]
-                            };
-                        }
-                        item.tags = tags;
+    post.count({}).then(function(num) {
+        ctx.total = num;
+        post.find({}, null, {
+            limit: 5,
+            sort:[["published", -1]]
+        }).then(function(posts) {
+            posts.forEach(function(item) {
+                if (item.hasOwnProperty("tags")) {
+                    var tags = [];
+                    for (var i = 0; i < item.tags.length; i++) {
+                        tags[i] = {
+                            name: item.tags[i]
+                        };
                     }
-                });
-                ctx.posts = posts;
-                ctx.page = 'index';
-                view.render('/views/index.html', ctx, null, function(html) {
-                    handler.sendHTML(html);
-                });
+                    item.tags = tags;
+                }
+            });
+            ctx.posts = posts;
+            ctx.page = 'index';
+            view.render('/views/index.html', ctx, null, function(html) {
+                handler.sendHTML(html);
             });
         });
     });
-
 }
 
 function article(handler, id) {
-    management.getTracker(null, function(tracker) {
-        ctx.tracker = tracker.code;
         post.count({}).then(function(num) {
             ctx.total = num;
             post.findOne({
@@ -152,7 +154,6 @@ function article(handler, id) {
                 handler.error(404, 'Article not found');
             }
         });
-    });
     });
 }
 
