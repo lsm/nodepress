@@ -54,9 +54,11 @@
         });
         // tracker
         np.tracker = $('#np-tracker'),
+        np.saveSetting = $('#np-save-setting');
         np.saveTracker = $('#np-save-tracker');
         $.np.api.getTracker();
         np.saveTracker.click($.np.api.saveTracker);
+        np.saveSetting.click($.np.api.saveSetting);
         // after rendered post
         var emitter = $.np.emitter;
         emitter.bind('PostsRendered', function() {

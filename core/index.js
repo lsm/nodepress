@@ -38,14 +38,10 @@ process.nextTick(function() {
         cache.set('defaultTracker', tracker.code);
     });
     setting.findOne({
-        '_id': 'title'
-    }).then(function(title) {
-        cache.set('title', title || 'nodepress.com');
-    });
-    setting.findOne({
-        '_id': 'intro'
-    }).then(function(intro) {
-        cache.set('intro', intro || 'a blogging tool built on top of nodejs');
+        '_id': 'site'
+    }).then(function(site) {
+        cache.set('title', site.value || 'nodepress.com');
+        cache.set('intro', site.intro || 'a blogging tool built on top of nodejs');
     });
 });
 
