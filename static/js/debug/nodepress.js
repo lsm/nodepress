@@ -108,6 +108,21 @@
                     emitter.trigger('#ApiSaveTracker', [xhr, status]);
                 }
             });
+        },
+
+        saveSetting: function() {
+           $.ajax({
+                url: '/_api/management/setting/save/',
+                type: 'POST',
+                data: {title: np.siteTitle.attr('value'), intro: np.siteIntro.attr('value')},
+                dataType: 'json',
+                success: function(data) {
+                    emitter.trigger('@ApiSaveTracker');
+                },
+                error: function(xhr, status) {
+                    emitter.trigger('#ApiSaveTracker', [xhr, status]);
+                }
+            });
         }
 
     };
@@ -286,16 +301,34 @@
     }
 
     $.np.fillEditor = function(id) {
-        $.each($.np.data.posts, function(idx, el) {
-            postId = id;
-            if (el._id === postId) {
-                published = el.published;
-                created = el.created;
-                np.title.attr('value', el.title);
-                np.input.attr('value', el.content);
-                np.tags.attr('value', el.tags.join(','));
+        function fill(data) {
+            published = data.published;
+            created = data.created;
+            np.title.attr('value', data.title);
+            np.input.attr('value', data.content);
+            np.tags.attr('value', data.tags.join(','));
+        }
+        if ($.np.data.posts) {
+            $.each($.np.data.posts, function(idx, el) {
+                postId = id;
+                if (el._id === postId) {
+                    fill(el);
+                }
+            });
+        }
+        $.ajax({
+            url: '/_api/blog/id/' + id + '/',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data, status) {
+                fill(data);
+            },
+            error: function(xhr, status) {
+                growl({
+                    title: 'Failed to load post',
+                    text: 'id: ' + id
+                });
             }
         });
     }
-
 })(jQuery);
