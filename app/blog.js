@@ -24,6 +24,7 @@ post.extend({
         if (data.hasOwnProperty('published') && data.published == 1) {
             data.published = _now();
         }
+        core.event.emit('blog.db.post.save', data);
         return this._super(data);
     }
 });
@@ -63,6 +64,7 @@ function list(handler, skip, limit, tags) {
 
     post.count(query).then(function(num) {
         post.find(query, null, options).then(function(result) {
+            core.event.emit('blog.api.list', query, options, result);
             handler.sendJSON({
                 posts: result,
                 total: num
@@ -71,11 +73,19 @@ function list(handler, skip, limit, tags) {
     });
 }
 
+function byId(handler, id) {
+    post.findOne({_id: id}).then(function(data) {
+        core.event.emit('blog.api.id', id, data);
+        handler.sendJSON(data);
+    });
+}
+
 var api = [
-['blog/save/', save, 'post', [auth.checkLogin]],
-['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
-['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
-['blog/list/$', list, 'get']
+    ['blog/save/', save, 'post', [auth.checkLogin]],
+    ['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
+    ['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
+    ['blog/list/$', list, 'get'],
+    ['blog/id/([0-9a-fA-F]+)/$', byId, 'get']
 ];
 
 
@@ -84,7 +94,7 @@ var ctx = {
     debugUrl: settings.env.type === 'development' ? '/debug' : '',
     cookieName: settings.cookieName,
     get tracker() {
-       return core.cache.get('defaultTracker');
+        return core.cache.get('defaultTracker');
     },
     get title() {
         return core.cache.get('title');
@@ -98,8 +108,8 @@ function index(handler) {
     var user = auth.checkCookie(handler, settings.cookieSecret)[0];
     if (user) {
         ctx.is_owner = [{
-            name: user
-        }];
+                name: user
+            }];
     } else {
         ctx.is_owner = undefined;
     }
@@ -130,9 +140,17 @@ function index(handler) {
 }
 
 function article(handler, id) {
-        post.count({}).then(function(num) {
-            ctx.total = num;
-            post.findOne({
+    var user = auth.checkCookie(handler, settings.cookieSecret)[0];
+    if (user) {
+        ctx.is_owner = [{
+                name: user
+            }];
+    } else {
+        ctx.is_owner = undefined;
+    }
+    post.count({}).then(function(num) {
+        ctx.total = num;
+        post.findOne({
             _id: id
         }).then(function(post) {
             if (post) {
@@ -158,8 +176,8 @@ function article(handler, id) {
 }
 
 var _view = [
-['^/$', index, 'get'],
-[/^\/article\/(\w+)\/.*\/$/, article, 'get']
+    ['^/$', index, 'get'],
+    ['^/article/(\\w+)/.*/$', article, 'get']
 ];
 
 
