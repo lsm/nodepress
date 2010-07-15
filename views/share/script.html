@@ -25,30 +25,9 @@
             document.cookie = "{{cookieName}}=" + ";path=/" + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
             location.href = '/';
         });
-
-        // render content/pager, bind events
-        $('.np-post-content').each(function(idx, npc) {
-            npc.innerHTML = $.np.showdown.makeHtml(npc.innerHTML);
-        });
-        $('.np-post-date').each(function(idx, npd) {
-            npd.innerHTML = new Date(parseInt(npd.innerHTML)).toLocaleDateString();
-        });
-        if ($.np.page == 'index') {
-            $('.np-post-tag').click(function(event) {
-                $.np.emitter.trigger('TagSelected', [{limit: 5, skip: 0, tags: [event.currentTarget.innerHTML]}]);
-            });
-        }
-        if ('{{total}}' != '') {
-            $.np.buildPager(null, {total: parseInt('{{total}}') }, {limit: 5, skip: 0});
-        }
-    });
-
-</script>
-{{#is_owner}}
-<!-- only run for authorized user -->
-<script type="text/javascript" language="javascript">
-    $(function() {
-        var np = $.np.dom;
+        
+        {{#is_owner}}
+        // only run for authorized user
         np.tabs = $("#np-tabs").tabs("div.np-tab", { history: true , effect: 'default'}),
         // editor
         np.title = $('#np-title'),
@@ -88,6 +67,24 @@
             });
         });
 
+        {{/is_owner}}
+
+        // render content/pager, bind events
+        $('.np-post-content').each(function(idx, npc) {
+            npc.innerHTML = $.np.showdown.makeHtml(npc.innerHTML);
+        });
+        $('.np-post-date').each(function(idx, npd) {
+            npd.innerHTML = new Date(parseInt(npd.innerHTML)).toLocaleDateString();
+        });
+        if ($.np.page == 'index') {
+            $('.np-post-tag').click(function(event) {
+                $.np.emitter.trigger('TagSelected', [{limit: 5, skip: 0, tags: [event.currentTarget.innerHTML]}]);
+            });
+        }
+        if ('{{total}}' != '') {
+            // mustache rendered by server
+            $.np.buildPager(null, {total: parseInt('{{total}}') }, {limit: 5, skip: 0});
+            $.np.emitter.trigger('PostsRendered');
+        }
     });
 </script>
-{{/is_owner}}
