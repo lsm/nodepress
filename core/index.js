@@ -15,8 +15,10 @@ var event = exports.event = genji.np.event = new genji.core.Event;
 var filter = exports.filter = genji.np.filter = new genji.pattern.Filter;
 
 // error handling
-ge.addListener('error', function(exception, code, url, res) {
-    exports.view.render('/views/error/' + code + '.html', {url: url}, function(html) {
+ge.addListener('error', function(err) {
+    var code = err.code || 500;
+    exports.view.render('/views/error/' + code + '.html', {url: err.request.url}, function(html) {
+       var res =  err.response;
        res.writeHead(code, {'Content-Type': 'text/html', 'Content-Length': Buffer.byteLength(html, 'utf8')});
        res.write(html);
        res.end();
