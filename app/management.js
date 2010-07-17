@@ -42,11 +42,21 @@ function saveTracker(handler) {
     });
 }
 
+function saveSetting(handler) {
+    handler.on('end', function(data) {
+       data = JSON.parse(data);
+       setting.save(data).then(function() {
+           handler.send('Setting saved');
+       });
+    });
+}
+
 getTracker(null, function() {});
 
 var api = [
     ['management/tracker/get/$', getTracker, 'get', [auth.checkLogin]],
-    ['management/tracker/save/$', saveTracker, 'post', [auth.checkLogin]]
+    ['management/tracker/save/$', saveTracker, 'post', [auth.checkLogin]],
+    ['management/setting/save/$', saveSetting, 'post', [auth.checkLogin]]
 ]
 
 module.exports = {

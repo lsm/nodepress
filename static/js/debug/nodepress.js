@@ -114,13 +114,13 @@
            $.ajax({
                 url: '/_api/management/setting/save/',
                 type: 'POST',
-                data: {title: np.siteTitle.attr('value'), intro: np.siteIntro.attr('value')},
+                data: {_id: 'site', title: np.siteTitle.attr('value'), intro: np.siteIntro.attr('value')},
                 dataType: 'json',
                 success: function(data) {
-                    emitter.trigger('@ApiSaveTracker');
+                    emitter.trigger('@ApiSaveSetting');
                 },
                 error: function(xhr, status) {
-                    emitter.trigger('#ApiSaveTracker', [xhr, status]);
+                    emitter.trigger('#ApiSaveSetting', [xhr, status]);
                 }
             });
         }
