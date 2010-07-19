@@ -1,4 +1,5 @@
 var db = require('./core/db'),
+client = require('./core/client'),
 settings = genji.settings,
 apps = [],
 apis = [],
@@ -18,6 +19,9 @@ apps.forEach(function(app) {
     }
     if (app.hasOwnProperty('view')) {
         urls = urls.concat(app['view']);
+    }
+    if (app.hasOwnProperty('client')) {
+        client.inject(app.client);
     }
 });
 

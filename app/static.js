@@ -1,4 +1,7 @@
 var FileHandler = genji.web.handler.FileHandler,
+core = require('../core'),
+client = core.client,
+view = core.view,
 path = require('path'),
 root = path.join(genji.settings.env.root, '/static')
 
@@ -7,5 +10,13 @@ function handleFile(handler, path) {
     handler.staticFile(path);
 }
 
+function mainJs(handler) {
+    view.render('/views/js/main.js.mu', {code: client.getCode('main.js')}, null, function(js) {
+        handler.send(js , 200, {'Content-Type': 'application/javascript'});
+    });
+}
 
-exports.view = [[FileHandler, '^/static/(.*)$', handleFile, 'get']];
+exports.view = [
+    ['^/static/js/main.js$', mainJs, 'get'],
+    [FileHandler, '^/static/(.*)$', handleFile, 'get']
+];

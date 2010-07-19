@@ -33,7 +33,49 @@ function signin(handler) {
 
 var _view = [['^/signin/$', signin, 'post']];
 
+function clientCode() {
+    return function($) {
+        var np = $.np,
+        emitter = np.emitter;
+        $.np.signIn = function() {
+            $.ajax({
+                url: '/signin/',
+                type: 'POST',
+                dataType: 'text',
+                data: {
+                    username: np.username.attr('value'),
+                    password: np.password.attr('value')
+                },
+                success: function(data) {
+                    emitter.trigger('@Login', [data]);
+                },
+                error: function(xhr, status) {
+                    emitter.trigger('#Login', [xhr, status]);
+                }
+            });
+        }
+
+        // events
+        emitter.bind('@Login', function(event, data) {
+            location.href = '/';
+        });
+        emitter.bind('#Login', function(event, xhr, status) {
+            $.gritter.add({
+                title: "Failed to sign in",
+                time: 3000,
+                text: xhr.responseText
+            });
+        });
+    }
+}
+
 module.exports = {
+    client: {
+        filename: 'main.js',
+        name: 'account',
+        position: 'after#blog',
+        code: clientCode()
+    },
     db: {
         user: user
     },
