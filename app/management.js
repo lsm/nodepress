@@ -116,62 +116,6 @@ function clientCode() {
         np.tracker.attr('value', data);
     });
 
-        var lastContent;
-       /**
-        * convert markdown and show the converted in preview div
-        *
-        * @param {Object} input Input element (jQuery)
-        * @param {Object} preview Preview element (jQuery)
-        * @param {Object} showdown Instance of showdown
-        */
-        $.np.preview = function(input, preview) {
-            var content = input.attr('value');
-            content = content === lastContent ? false : content;
-            if (content !== false) {
-                lastContent = content;
-                preview.attr('innerHTML', $.np.showdown.makeHtml(content));
-            }
-        }
-
-        $.np.resetEditor = function() {
-            $.each([np.title, np.tags, np.input], function(idx, item) {
-                item.attr('value', '');
-            });
-            np.previewDiv.attr('innerHTML', '');
-            postId = null;
-        }
-
-        $.np.fillEditor = function(id) {
-            function fill(data) {
-                published = data.published;
-                created = data.created;
-                np.title.attr('value', data.title);
-                np.input.attr('value', data.content);
-                np.tags.attr('value', data.tags.join(','));
-            }
-            if (np.data.posts) {
-                $.each(np.data.posts, function(idx, el) {
-                    postId = id;
-                    if (el._id === postId) {
-                        fill(el);
-                    }
-                });
-            }
-            $.ajax({
-                url: '/_api/blog/id/' + id + '/',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data, status) {
-                    fill(data);
-                },
-                error: function(xhr, status) {
-                    growl({
-                        title: 'Failed to load post',
-                        text: 'id: ' + id
-                    });
-                }
-            });
-        }
     };
 }
 

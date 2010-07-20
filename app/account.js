@@ -37,7 +37,7 @@ function clientCode() {
     return function($) {
         var np = $.np,
         emitter = np.emitter;
-        $.np.signIn = function() {
+        np.signIn = function() {
             $.ajax({
                 url: '/signin/',
                 type: 'POST',

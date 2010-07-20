@@ -75,18 +75,20 @@ function list(handler, skip, limit, tags) {
 }
 
 function byId(handler, id) {
-    post.findOne({_id: id}).then(function(data) {
+    post.findOne({
+        _id: id
+    }).then(function(data) {
         core.event.emit('blog.api.id', id, data);
         handler.sendJSON(data);
     });
 }
 
 var api = [
-    ['blog/save/', save, 'post', [auth.checkLogin]],
-    ['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
-    ['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
-    ['blog/list/$', list, 'get'],
-    ['blog/id/([0-9a-fA-F]+)/$', byId, 'get']
+['blog/save/', save, 'post', [auth.checkLogin]],
+['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
+['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
+['blog/list/$', list, 'get'],
+['blog/id/([0-9a-fA-F]+)/$', byId, 'get']
 ];
 
 function index(handler) {
@@ -94,8 +96,8 @@ function index(handler) {
     var ctx = core.defaultContext;
     if (user) {
         ctx.is_owner = [{
-                name: user
-            }];
+            name: user
+        }];
     } else {
         ctx.is_owner = undefined;
     }
@@ -130,8 +132,8 @@ function article(handler, id) {
     var ctx = core.defaultContext;
     if (user) {
         ctx.is_owner = [{
-                name: user
-            }];
+            name: user
+        }];
     } else {
         ctx.is_owner = undefined;
     }
@@ -167,8 +169,8 @@ function mainJs(handler) {
 }
 
 var _view = [
-    ['^/$', index, 'get'],
-    ['^/article/(\\w+)/.*/$', article, 'get']
+['^/$', index, 'get'],
+['^/article/(\\w+)/.*/$', article, 'get']
 ];
 
 function clientCode() {
@@ -177,17 +179,19 @@ function clientCode() {
         $.np = {};
         var emitter = $.np.emitter = $({});
         $.np.showdown = new Showdown.converter();
-        $.np.tpl = {posts: '{{#posts}}<div id="{{_id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{_id}}/{{title}}/">{{title}}</a></h2>'
-                +'<div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>'
-                +'<div class="np-post-content">{{{content}}}</div>'
-                +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'};
+        $.np.tpl = {
+            posts: '{{#posts}}<div id="{{_id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{_id}}/{{title}}/">{{title}}</a></h2>'
+        +'<div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>'
+        +'<div class="np-post-content">{{{content}}}</div>'
+        +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
+        };
         $.np.data = {};
-        var growl = $.gritter.add;
+        $.np.growl = $.gritter.add;
 
-        var postId, published, created, params = {}, np;
+        var postId, published, created, params = {}, np = $.np, dom;
 
         $.np.init = function() {
-            np = $.np.dom;
+            dom = $.np.dom;
         },
 
         $.np.setPostId = function(id) {
@@ -224,14 +228,15 @@ function clientCode() {
                 });
             }
             // {{#is_owner}}
-            ,save: function(publish) {
+            ,
+            save: function(publish) {
                 var post = {};
-                post.title = np.title.attr('value');
+                post.title = dom.title.attr('value');
                 post.tags = [];
-                $.each(np.tags.attr('value').split(','), function(idx, tag) {
+                $.each(dom.tags.attr('value').split(','), function(idx, tag) {
                     if (tag) post.tags.push($.trim(tag));
                 });
-                post.content = np.input.attr('value');
+                post.content = dom.input.attr('value');
                 if (postId) post._id = postId;
                 if (publish) {
                     post.published = 1;
@@ -255,7 +260,7 @@ function clientCode() {
                     }
                 });
             }
-            // {{/is_owner}}
+        // {{/is_owner}}
         };
         $.extend($.np.api, api);
 
@@ -316,10 +321,14 @@ function clientCode() {
         emitter.bind('TagSelected', buildTagsFilter);
 
         function buildTagsFilter(event, params) {
-            $.np.api.list({skip:0, limit:5, tags:params.tags});
-            np.filterTags.attr('innerHTML', '');
+            $.np.api.list({
+                skip:0,
+                limit:5,
+                tags:params.tags
+                });
+            dom.filterTags.attr('innerHTML', '');
             $.each(params.tags, function(idx, tag) {
-                np.filterTags.prepend('<div class="np-filter-tag">'+ tag +'</div>');
+                dom.filterTags.prepend('<div class="np-filter-tag">'+ tag +'</div>');
             });
             $('#np-filter-tags div').click(function(event) {
                 var tag = event.currentTarget.innerHTML;
@@ -349,28 +358,85 @@ function clientCode() {
                 }
             });
             if (params.skip + params.limit < total) {
-                np.nextPage.unbind('click');
-                np.nextPage.bind('click', function() {
+                dom.nextPage.unbind('click');
+                dom.nextPage.bind('click', function() {
                     params.skip += params.limit;
                     $.np.api.list(params);
                 });
-                np.nextPage.removeClass('np-hide');
+                dom.nextPage.removeClass('np-hide');
             } else {
-                np.nextPage.addClass('np-hide');
+                dom.nextPage.addClass('np-hide');
             }
             if (params.skip > 0) {
-                np.prevPage.unbind('click');
-                np.prevPage.bind('click', function() {
+                dom.prevPage.unbind('click');
+                dom.prevPage.bind('click', function() {
                     var skip = params.skip - params.limit;
                     params.skip = skip > 0 ? skip : 0;
                     $.np.api.list(params);
                 });
-                np.prevPage.removeClass('np-hide');
+                dom.prevPage.removeClass('np-hide');
             } else {
-                np.prevPage.addClass('np-hide');
+                dom.prevPage.addClass('np-hide');
             }
         }
         $.np.buildPager = buildPager;
+
+
+        var lastContent;
+        /**
+        * convert markdown and show the converted in preview div
+        *
+        * @param {Object} input Input element (jQuery)
+        * @param {Object} preview Preview element (jQuery)
+        */
+        np.preview = function(input, preview) {
+            var content = input.attr('value');
+            content = content === lastContent ? false : content;
+            if (content !== false) {
+                lastContent = content;
+                preview.attr('innerHTML', np.showdown.makeHtml(content));
+            }
+        }
+
+        $.np.resetEditor = function() {
+            $.each([dom.title, dom.tags, dom.input], function(idx, item) {
+                item.attr('value', '');
+            });
+            np.previewDiv.attr('innerHTML', '');
+            postId = null;
+        }
+
+        np.fillEditor = function(id) {
+            function fill(data) {
+                published = data.published;
+                created = data.created;
+                dom.title.attr('value', data.title);
+                dom.input.attr('value', data.content);
+                dom.tags.attr('value', data.tags.join(','));
+            }
+            if (np.data.posts) {
+                $.each(np.data.posts, function(idx, el) {
+                    postId = id;
+                    if (el._id === postId) {
+                        fill(el);
+                    }
+                });
+            }
+            $.ajax({
+                url: '/_api/blog/id/' + id + '/',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data, status) {
+                    fill(data);
+                },
+                error: function(xhr, status) {
+                    np.growl({
+                        title: 'Failed to load post',
+                        text: 'id: ' + id
+                    });
+                }
+            });
+        }
     }
 }
 
