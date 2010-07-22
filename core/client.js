@@ -1,41 +1,36 @@
-
 var context = {};
-var posIdx = {};
 
-function inject(app) {
-    context[app.filename] = context[app.filename] || [];
-    //ctx[app.filename].push('(' + app.code.toString() + ')($)\n');
-    app.code = ';(' + app.code.toString() + ')($)\n';
-    context[app.filename].push(app);
+function inject(appClient) {
+    for (var filename in appClient) {
+        if (appClient.hasOwnProperty(filename)) {
+            var app = appClient[filename];
+            context[filename] = context[filename] || {};
+            for (var pieceName in app) {
+                if (app.hasOwnProperty(pieceName)) {
+                    context[filename][pieceName] = app[pieceName];
+                }
+            }
+        }
+    }
 }
 
 function getCode(filename) {
-    var ctx = context[filename];
-    if (Array.isArray(ctx)) {
-        var result = []
-        ctx.forEach(function(app) {
-            result.push(app.code);
-            if (app.hasOwnProperty('position')) {
-                ctx.forEach(function(refApp, idx) {
-                    if (app.position.indexOf(refApp.name) > -1) {
-                        var pos = app.position.split('#');
-                        switch(pos[0]) {
-                            case 'after':
-                                result.unshift(refApp.code);
-                            case 'before':
-                                result.push(refApp.code);
-                            case 'replace':
-                                result[result.indexOf(app.code)] = refApp.code;
-                        }
-                        delete ctx[idx];
-                    }
-                });
-                dump(ctx.length)
+    var ctx = context[filename], result = '';
+    if (ctx) {
+        var tmp = [];
+        for (var name in ctx) {
+            if (ctx.hasOwnProperty(name)) {
+                tmp.push(name);
             }
+        }
+        tmp.sort(function(a, b) {
+            return ctx[a].weight - ctx[b].weight;
         });
-        return result.join('/***/');
+        for (var i = 0; i < tmp.length; i++) {
+            result +=  '\n;(' + ctx[tmp[i]].code.toString() + ')($);';
+        }
     }
-    return '';
+    return result;
 }
 
 module.exports = {

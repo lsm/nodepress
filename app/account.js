@@ -71,10 +71,12 @@ function clientCode() {
 
 module.exports = {
     client: {
-        filename: 'main.js',
-        name: 'account',
-        position: 'after#blog',
-        code: clientCode()
+        'main.js': {
+            'account': {
+                weight: 100,
+                code: clientCode()
+            }
+        }
     },
     db: {
         user: user

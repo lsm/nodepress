@@ -446,9 +446,10 @@ module.exports = {
     },
     client: {
         'main.js': {
-            name: 'blog',
-            position: 'after#init',
-            code: clientCode()
+            'blog': {
+                weight: 20,
+                code: clientCode()
+            }
         }
     },
     api: api,

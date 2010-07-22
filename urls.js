@@ -3,11 +3,12 @@ client = require('./core/client'),
 settings = genji.settings,
 apps = [],
 apis = [],
-urls = []
+urls = [];
 
 settings.installedApps.forEach(function(app) {
     apps.push(require('./app/' + app));
 });
+
 apps.forEach(function(app) {
     if (app.hasOwnProperty('api')) {
         apis = apis.concat(app['api']);

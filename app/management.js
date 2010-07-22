@@ -113,8 +113,8 @@ function clientCode() {
             }
         });
         emitter.bind('@ApiGetTracker', function(e, data) {
-        np.tracker.attr('value', data);
-    });
+            np.tracker.attr('value', data);
+        });
 
     };
 }
@@ -124,10 +124,12 @@ module.exports = {
         setting: setting
     },
     client: {
-        filename: 'main.js',
-        name: 'management',
-        position: 'after#blog',
-        code: clientCode()
+        'main.js': {
+            'management': {
+                weight: 100,
+                code: clientCode()
+            }
+        }
     },
     api: api,
     getTracker: getTracker
