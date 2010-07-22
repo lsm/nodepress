@@ -445,10 +445,11 @@ module.exports = {
         post: post
     },
     client: {
-        filename: 'main.js',
-        name: 'blog',
-        position: 'after#init',
-        code: clientCode()
+        'main.js': {
+            name: 'blog',
+            position: 'after#init',
+            code: clientCode()
+        }
     },
     api: api,
     view: _view
