@@ -68,14 +68,14 @@ function mainJs($) {
 }
 
 function initJs($) {
-    var np = $.np.dom;
-    np.username = $('#np-username'),
-    np.password = $('#np-password'),
-    np.signin = $('#np-signin'),
-    np.signout = $('#np-signout');
-    np.signin.click($.np.signIn);
-    np.signout.click(function() {
-        document.cookie = np.cookieName + "=" + ";path=/" + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
+    var dom = $.np.dom;
+    dom.username = $('#np-username'),
+    dom.password = $('#np-password'),
+    dom.signin = $('#np-signin'),
+    dom.signout = $('#np-signout');
+    dom.signin.click($.np.signIn);
+    dom.signout.click(function() {
+        document.cookie = $.np.cookieName + "=" + ";path=/" + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
         location.href = '/';
     });
 }
