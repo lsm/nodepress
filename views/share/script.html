@@ -9,7 +9,9 @@
         $.np.totalPosts = '{{total}}';
         $.np.page = '{{page}}';
 
-        // initUser.js {{& initUserJs}}
+        //{{#is_owner}}
+        // initUser.js {{& .initUserJs}}
+        // {{/is_owner}}
         // init.js {{& initJs}}
     });
 </script>
