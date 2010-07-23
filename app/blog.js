@@ -30,6 +30,7 @@ post.extend({
     }
 });
 
+// api
 function save(handler) {
     handler.on('end', function(data) {
         post.save(data).then(function(doc) {
@@ -91,6 +92,7 @@ var api = [
 ['blog/id/([0-9a-fA-F]+)/$', byId, 'get']
 ];
 
+// views
 function index(handler) {
     var user = auth.checkCookie(handler, settings.cookieSecret)[0];
     var ctx = core.defaultContext;
@@ -101,7 +103,8 @@ function index(handler) {
     } else {
         ctx.is_owner = undefined;
     }
-    ctx.initJs = client.getCode('init.js', user),
+    ctx.initJs = client.getCode('init.js'),
+    ctx.initUserJs = client.getCode('initUser.js'),
     post.count({}).then(function(num) {
         ctx.total = num;
         post.find({}, null, {
@@ -170,8 +173,8 @@ var _view = [
 ['^/article/(\\w+)/.*/$', article, 'get']
 ];
 
-function mainJs() {
-    return function($) {
+// client code
+function mainJs($) {
         // setup
         $.np = {};
         var emitter = $.np.emitter = $({});
@@ -324,11 +327,9 @@ function mainJs() {
             }
         }
         $.np.buildPager = buildPager;
-    }
 }
 
-function blogMainUser() {
-    return function($) {
+function blogMainUser($) {
         var postId, published, created, np = $.np, dom = np.dom, emitter = np.emitter;
         $.extend($.np.api, {
             save: function(publish) {
@@ -430,11 +431,9 @@ function blogMainUser() {
                 }
             });
         }
-    };
 }
 
-function initJs() {
-    return function($) {
+function initJs($) {
         // store the jquery object for later usage
         var dom = $.np.dom;
         dom.filter = $('#np-filter'),
@@ -444,7 +443,6 @@ function initJs() {
         // pager
         dom.nextPage = $('#np-next-page');
         dom.prevPage = $('#np-prev-page');
-    }
 }
 
 module.exports = {
@@ -455,18 +453,19 @@ module.exports = {
         'main.js': {
             'blog': {
                 weight: 20,
-                code: mainJs()
-            },
+                code: mainJs
+            }
+        },
+        'user.js': {
             'blogMainUser': {
                 weight: 30,
-                code: blogMainUser(),
-                validUser: true
+                code: blogMainUser
             }
         },
         'init.js' : {
             'blog': {
                 weight: 20,
-                code: initJs()
+                code: initJs
             },
             'blogRenderPost': {
                 weight: 40,
@@ -487,10 +486,10 @@ module.exports = {
                                 }]);
                         });
                     }
-                    if (totalPosts != '') {
+                    if ($.np.totalPosts != '') {
                         // mustache rendered by server
                         $.np.buildPager(null, {
-                            total: parseInt(totalPosts)
+                            total: parseInt($.np.totalPosts)
                         }, {
                             limit: 5,
                             skip: 0
@@ -498,7 +497,9 @@ module.exports = {
                         $.np.emitter.trigger('PostsRendered');
                     }
                 }
-            },
+            }
+        },
+        'initUser.js': {
             'blogInitUser': {
                 weight: 30,
                 code: function($) {
@@ -540,8 +541,7 @@ module.exports = {
                             $.np.fillEditor(postId);
                         });
                     });
-                },
-                validUser: true
+                }
             }
         }
     },

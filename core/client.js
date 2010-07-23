@@ -14,7 +14,7 @@ function inject(appClient) {
     }
 }
 
-function getCode(filename, validUser) {
+function getCode(filename) {
     var ctx = context[filename], result = '';
     if (ctx) {
         var tmp = [];
@@ -27,9 +27,6 @@ function getCode(filename, validUser) {
             return ctx[a].weight - ctx[b].weight;
         });
         for (var i = 0; i < tmp.length; i++) {
-            if (ctx[tmp[i]].validUser === true && !validUser) {
-                continue;
-            }
             result +=  '\n;(' + ctx[tmp[i]].code.toString() + ')($);';
         }
     }

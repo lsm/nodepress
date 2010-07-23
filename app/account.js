@@ -33,55 +33,51 @@ function signin(handler) {
 
 var _view = [['^/signin/$', signin, 'post']];
 
-function mainJs() {
-    return function($) {
-        var np = $.np,
-        emitter = np.emitter;
-        np.signIn = function() {
-            $.ajax({
-                url: '/signin/',
-                type: 'POST',
-                dataType: 'text',
-                data: {
-                    username: np.dom.username.attr('value'),
-                    password: np.dom.password.attr('value')
-                },
-                success: function(data) {
-                    emitter.trigger('@Login', [data]);
-                },
-                error: function(xhr, status) {
-                    emitter.trigger('#Login', [xhr, status]);
-                }
-            });
-        }
-
-        // events
-        emitter.bind('@Login', function(event, data) {
-            location.href = '/';
-        });
-        emitter.bind('#Login', function(event, xhr, status) {
-            $.gritter.add({
-                title: "Failed to sign in",
-                time: 3000,
-                text: xhr.responseText
-            });
+function mainJs($) {
+    var np = $.np,
+    emitter = np.emitter;
+    np.signIn = function() {
+        $.ajax({
+            url: '/signin/',
+            type: 'POST',
+            dataType: 'text',
+            data: {
+                username: np.dom.username.attr('value'),
+                password: np.dom.password.attr('value')
+            },
+            success: function(data) {
+                emitter.trigger('@Login', [data]);
+            },
+            error: function(xhr, status) {
+                emitter.trigger('#Login', [xhr, status]);
+            }
         });
     }
+
+    // events
+    emitter.bind('@Login', function(event, data) {
+        location.href = '/';
+    });
+    emitter.bind('#Login', function(event, xhr, status) {
+        $.gritter.add({
+            title: "Failed to sign in",
+            time: 3000,
+            text: xhr.responseText
+        });
+    });
 }
 
-function initJs() {
-    return function($) {
-        var np = $.np.dom;
-        np.username = $('#np-username'),
-        np.password = $('#np-password'),
-        np.signin = $('#np-signin'),
-        np.signout = $('#np-signout');
-        np.signin.click($.np.signIn);
-        np.signout.click(function() {
-            document.cookie = cookieName + "=" + ";path=/" + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
-            location.href = '/';
-        });
-    }
+function initJs($) {
+    var np = $.np.dom;
+    np.username = $('#np-username'),
+    np.password = $('#np-password'),
+    np.signin = $('#np-signin'),
+    np.signout = $('#np-signout');
+    np.signin.click($.np.signIn);
+    np.signout.click(function() {
+        document.cookie = np.cookieName + "=" + ";path=/" + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
+        location.href = '/';
+    });
 }
 
 module.exports = {
@@ -89,14 +85,14 @@ module.exports = {
         'main.js': {
             'account': {
                 weight: 100,
-                code: mainJs()
+                code: mainJs
             }
         },
         'init.js': {
-           'account': {
-               weight: 100,
-               code: initJs()
-           }
+            'account': {
+                weight: 100,
+                code: initJs
+            }
         }
     },
     db: {

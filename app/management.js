@@ -59,64 +59,61 @@ var api = [
 ['management/setting/save/$', saveSetting, 'post', [auth.checkLogin]]
 ]
 
-function clientCode() {
-    return function($) {
-        var np = $.np,
-        emitter = np.emitter;
-        $.extend($.np.api, {
-            getTracker: function() {
-                $.ajax({
-                    url: '/_api/management/tracker/get/',
-                    type: 'GET',
-                    dataType: 'text',
-                    success: function(data) {
-                        emitter.trigger('@ApiGetTracker', [data]);
-                    },
-                    error: function(xhr, status) {
-                        emitter.trigger('#ApiGetTracker', [xhr, status]);
-                    }
-                });
-            },
+function userJs($) {
+    var np = $.np,
+    emitter = np.emitter;
+    $.extend($.np.api, {
+        getTracker: function() {
+            $.ajax({
+                url: '/_api/management/tracker/get/',
+                type: 'GET',
+                dataType: 'text',
+                success: function(data) {
+                    emitter.trigger('@ApiGetTracker', [data]);
+                },
+                error: function(xhr, status) {
+                    emitter.trigger('#ApiGetTracker', [xhr, status]);
+                }
+            });
+        },
 
-            saveTracker: function() {
-                $.ajax({
-                    url: '/_api/management/tracker/save/',
-                    type: 'POST',
-                    data: np.tracker.attr('value'),
-                    dataType: 'json',
-                    success: function(data) {
-                        emitter.trigger('@ApiSaveTracker');
-                    },
-                    error: function(xhr, status) {
-                        emitter.trigger('#ApiSaveTracker', [xhr, status]);
-                    }
-                });
-            },
+        saveTracker: function() {
+            $.ajax({
+                url: '/_api/management/tracker/save/',
+                type: 'POST',
+                data: np.tracker.attr('value'),
+                dataType: 'json',
+                success: function(data) {
+                    emitter.trigger('@ApiSaveTracker');
+                },
+                error: function(xhr, status) {
+                    emitter.trigger('#ApiSaveTracker', [xhr, status]);
+                }
+            });
+        },
 
-            saveSetting: function() {
-                $.ajax({
-                    url: '/_api/management/setting/save/',
-                    type: 'POST',
-                    data: {
-                        _id: 'site',
-                        title: np.siteTitle.attr('value'),
-                        intro: np.siteIntro.attr('value')
-                    },
-                    dataType: 'json',
-                    success: function(data) {
-                        emitter.trigger('@ApiSaveSetting');
-                    },
-                    error: function(xhr, status) {
-                        emitter.trigger('#ApiSaveSetting', [xhr, status]);
-                    }
-                });
-            }
-        });
-        emitter.bind('@ApiGetTracker', function(e, data) {
-            np.tracker.attr('value', data);
-        });
-
-    };
+        saveSetting: function() {
+            $.ajax({
+                url: '/_api/management/setting/save/',
+                type: 'POST',
+                data: {
+                    _id: 'site',
+                    title: np.siteTitle.attr('value'),
+                    intro: np.siteIntro.attr('value')
+                },
+                dataType: 'json',
+                success: function(data) {
+                    emitter.trigger('@ApiSaveSetting');
+                },
+                error: function(xhr, status) {
+                    emitter.trigger('#ApiSaveSetting', [xhr, status]);
+                }
+            });
+        }
+    });
+    emitter.bind('@ApiGetTracker', function(e, data) {
+        np.tracker.attr('value', data);
+    });
 }
 
 module.exports = {
@@ -124,14 +121,13 @@ module.exports = {
         setting: setting
     },
     client: {
-        'main.js': {
+        'user.js': {
             'management': {
                 weight: 100,
-                code: clientCode(),
-                validUser: true
+                code: userJs
             }
         },
-        'init.js': {
+        'initUser.js': {
             'management': {
                 weight: 100,
                 code: function($) {
@@ -143,8 +139,7 @@ module.exports = {
                     np.api.getTracker();
                     np.saveTracker.click(np.api.saveTracker);
                     np.saveSetting.click(np.api.saveSetting);
-                },
-                validUser: true
+                }
             }
         }
     },

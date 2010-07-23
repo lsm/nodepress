@@ -11,13 +11,19 @@ function handleFile(handler, path) {
 }
 
 function mainJs(handler) {
-    var user = core.auth.checkCookie(handler, settings.cookieSecret)[0];
-    view.render('/views/js/main.js.mu', {code: client.getCode('main.js', user)}, null, function(js) {
+    view.render('/views/js/main.js.mu', {code: client.getCode('main.js')}, null, function(js) {
+        handler.send(js , 200, {'Content-Type': 'application/javascript'});
+    });
+}
+
+function userJs(handler) {
+    view.render('/views/js/user.js.mu', {code: client.getCode('user.js')}, null, function(js) {
         handler.send(js , 200, {'Content-Type': 'application/javascript'});
     });
 }
 
 exports.view = [
     ['^/static/js/main.js$', mainJs, 'get'],
+    ['^/static/js/user.js$', userJs, 'get'],
     [FileHandler, '^/static/(.*)$', handleFile, 'get']
 ];
