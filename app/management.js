@@ -46,6 +46,7 @@ function saveSetting(handler) {
     handler.on('end', function(data) {
         data = JSON.parse(data);
         setting.save(data).then(function() {
+            core.event.emit('management.api.saveSetting', data);
             handler.send('Setting saved');
         });
     });
@@ -82,7 +83,7 @@ function userJs($) {
                 url: '/_api/management/tracker/save/',
                 type: 'POST',
                 data: np.tracker.attr('value'),
-                dataType: 'json',
+                dataType: 'text',
                 success: function(data) {
                     emitter.trigger('@ApiSaveTracker');
                 },
@@ -96,12 +97,12 @@ function userJs($) {
             $.ajax({
                 url: '/_api/management/setting/save/',
                 type: 'POST',
-                data: {
+                data: JSON.stringify({
                     _id: 'site',
                     title: np.siteTitle.attr('value'),
                     intro: np.siteIntro.attr('value')
-                },
-                dataType: 'json',
+                }),
+                dataType: 'text',
                 success: function(data) {
                     emitter.trigger('@ApiSaveSetting');
                 },
@@ -113,6 +114,12 @@ function userJs($) {
     });
     emitter.bind('@ApiGetTracker', function(e, data) {
         np.tracker.attr('value', data);
+    });
+    emitter.bind('@ApiSaveSetting', function() {
+        np.growl({
+            title: 'Setting saved successfully.',
+            text: ' '
+        })
     });
 }
 
@@ -136,6 +143,8 @@ module.exports = {
                     np.tracker = $('#np-tracker'),
                     np.saveSetting = $('#np-save-setting');
                     np.saveTracker = $('#np-save-tracker');
+                    np.siteTitle = $('#np-siteTitle');
+                    np.siteIntro = $('#np-siteIntro');
                     np.api.getTracker();
                     np.saveTracker.click(np.api.saveTracker);
                     np.saveSetting.click(np.api.saveSetting);
