@@ -1,4 +1,13 @@
-0.1.0 (2010/07/01):
+0.1.2 (2010/07/23):
+-------------------
+- core.index as bootscript
+- handle static files
+- generate clientside code from server side with order control
+- customize site title and intro
+- separate template file into pieces (using partial)
+- use url to connect mongodb
+
+0.1.0 - 0.1.1 (2010/07/01):
 -------------------
 - MongoDb pooling
 - class for db and collection
