@@ -127,7 +127,24 @@ module.exports = {
         'main.js': {
             'management': {
                 weight: 100,
-                code: clientCode()
+                code: clientCode(),
+                validUser: true
+            }
+        },
+        'init.js': {
+            'management': {
+                weight: 100,
+                code: function($) {
+                    var np = $.np;
+                    // tracker
+                    np.tracker = $('#np-tracker'),
+                    np.saveSetting = $('#np-save-setting');
+                    np.saveTracker = $('#np-save-tracker');
+                    np.api.getTracker();
+                    np.saveTracker.click(np.api.saveTracker);
+                    np.saveSetting.click(np.api.saveSetting);
+                },
+                validUser: true
             }
         }
     },

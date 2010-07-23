@@ -3,7 +3,7 @@ core = require('../core'),
 client = core.client,
 view = core.view,
 path = require('path'),
-root = path.join(genji.settings.env.root, '/static')
+root = path.join(genji.settings.env.root, '/static');
 
 function handleFile(handler, path) {
     handler.setRoot(root);
@@ -11,7 +11,8 @@ function handleFile(handler, path) {
 }
 
 function mainJs(handler) {
-    view.render('/views/js/main.js.mu', {code: client.getCode('main.js')}, null, function(js) {
+    var user = core.auth.checkCookie(handler, settings.cookieSecret)[0];
+    view.render('/views/js/main.js.mu', {code: client.getCode('main.js', user)}, null, function(js) {
         handler.send(js , 200, {'Content-Type': 'application/javascript'});
     });
 }

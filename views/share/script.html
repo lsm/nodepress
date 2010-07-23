@@ -2,91 +2,10 @@
 <script src="{{staticUrl}}/js/main.js" type="text/javascript" language="javascript"></script>
 <script type="text/javascript" language="javascript">
     $(function() {
-        // store the jquery object for later usage
-        var np = {};
-        np.filter = $('#np-filter'),
-        np.filterTags = $('#np-filter-tags'),
-        np.posts = $('#np-posts'),
-        np.tabComments = $('#np-tab-comments');
-        // for login
-        np.username = $('#np-username'),
-        np.password = $('#np-password'),
-        np.signin = $('#np-signin'),
-        np.signout = $('#np-signout');
-        // pager
-        np.nextPage = $('#np-next-page');
-        np.prevPage = $('#np-prev-page');
-        $.np.dom = np;
-        $.np.init();
+        var cookieName = '{{cookieName}}',
+        totalPosts = '{{total}}';
         $.np.page = '{{page}}';
 
-        np.signin.click($.np.signIn);
-        np.signout.click(function() {
-            document.cookie = "{{cookieName}}=" + ";path=/" + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
-            location.href = '/';
-        });
-        
-        {{#is_owner}}
-        // only run for authorized user
-        np.tabs = $("#np-tabs").tabs("div.np-tab", { history: true , effect: 'default'}),
-        // editor
-        np.title = $('#np-title'),
-        np.tags = $('#np-tags'),
-        np.input = $('#np-textarea'),
-        np.previewDiv = $('#np-preview'),
-        np.editor = $('.np-editor'),
-        np.save = $('#np-save'),
-        np.publish = $('#np-publish');
-        function convert() {
-            $.np.preview(np.input, np.previewDiv);
-        }
-        // convert once onload
-        convert();
-        // bind events
-        np.input.bind('input', function() {
-            convert();
-        });
-        np.save.click(function(event) {
-            $.np.api.save();
-        });
-        np.publish.click(function(event) {
-            $.np.api.save(true);
-        });
-        // tracker
-        np.tracker = $('#np-tracker'),
-        np.saveSetting = $('#np-save-setting');
-        np.saveTracker = $('#np-save-tracker');
-        $.np.api.getTracker();
-        np.saveTracker.click($.np.api.saveTracker);
-        np.saveSetting.click($.np.api.saveSetting);
-        // after rendered post
-        var emitter = $.np.emitter;
-        emitter.bind('PostsRendered', function() {
-            $('div.np-post-info').append('<a href="#np-toolbar-editor" class="np-post-edit np-left">edit</a>');
-            $('a.np-post-edit').bind('click', function(event) {
-                var postId = $(event.currentTarget).parent('.np-post-info').parent('.np-post').attr('id');
-                $.np.fillEditor(postId);
-            });
-        });
-
-        {{/is_owner}}
-
-        // render content/pager, bind events
-        $('.np-post-content').each(function(idx, npc) {
-            npc.innerHTML = $.np.showdown.makeHtml(npc.innerHTML);
-        });
-        $('.np-post-date').each(function(idx, npd) {
-            npd.innerHTML = new Date(parseInt(npd.innerHTML)).toLocaleDateString();
-        });
-        if ($.np.page == 'index') {
-            $('.np-post-tag').click(function(event) {
-                $.np.emitter.trigger('TagSelected', [{limit: 5, skip: 0, tags: [event.currentTarget.innerHTML]}]);
-            });
-        }
-        if ('{{total}}' != '') {
-            // mustache rendered by server
-            $.np.buildPager(null, {total: parseInt('{{total}}') }, {limit: 5, skip: 0});
-            $.np.emitter.trigger('PostsRendered');
-        }
+        // init.js {{& initJs}}
     });
 </script>

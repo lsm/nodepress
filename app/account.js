@@ -33,7 +33,7 @@ function signin(handler) {
 
 var _view = [['^/signin/$', signin, 'post']];
 
-function clientCode() {
+function mainJs() {
     return function($) {
         var np = $.np,
         emitter = np.emitter;
@@ -43,8 +43,8 @@ function clientCode() {
                 type: 'POST',
                 dataType: 'text',
                 data: {
-                    username: np.username.attr('value'),
-                    password: np.password.attr('value')
+                    username: np.dom.username.attr('value'),
+                    password: np.dom.password.attr('value')
                 },
                 success: function(data) {
                     emitter.trigger('@Login', [data]);
@@ -69,13 +69,34 @@ function clientCode() {
     }
 }
 
+function initJs() {
+    return function($) {
+        var np = $.np.dom;
+        np.username = $('#np-username'),
+        np.password = $('#np-password'),
+        np.signin = $('#np-signin'),
+        np.signout = $('#np-signout');
+        np.signin.click($.np.signIn);
+        np.signout.click(function() {
+            document.cookie = cookieName + "=" + ";path=/" + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
+            location.href = '/';
+        });
+    }
+}
+
 module.exports = {
     client: {
         'main.js': {
             'account': {
                 weight: 100,
-                code: clientCode()
+                code: mainJs()
             }
+        },
+        'init.js': {
+           'account': {
+               weight: 100,
+               code: initJs()
+           }
         }
     },
     db: {
