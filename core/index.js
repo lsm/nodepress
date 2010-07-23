@@ -45,7 +45,7 @@ process.nextTick(function() {
         '_id': 'site'
     }).then(function(site) {
         site = site || {};
-        cache.set('title', site.value || 'nodepress.com');
+        cache.set('title', site.title || 'nodepress.com');
         cache.set('intro', site.intro || 'a blogging tool built on top of nodejs');
     });
 
@@ -66,3 +66,10 @@ process.nextTick(function() {
 });
 
 // bind events
+
+event.addListener('management.api.saveSetting', function(data) {
+    if (data._id == 'site') {
+        if (data.title) cache.set('title', data.title);
+        if (data.intro) cache.set('intro', data.intro);
+    }
+});
