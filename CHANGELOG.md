@@ -1,3 +1,10 @@
+0.1.3 (?)
+---------
+- tags cloud
+- theme system
+- compress js/css code using [UglifyJS](http://github.com/mishoo/UglifyJS)
+- account: password recovery, change password, user registration
+
 0.1.2 (2010/07/23):
 -------------------
 - core.index as bootscript
