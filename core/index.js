@@ -12,9 +12,10 @@ genji.np = {};
 
 // setup cache, event emitter and filter.
 var ge = genji.web.middleware.globalEmitter;
-var cache = exports.cache = genji.np.cache = new genji.cache.Memory;
-var event = exports.event = genji.np.event = new genji.core.Event;
+var cache = exports.cache = genji.np.cache = new genji.pattern.Cache;
+var event = exports.event = genji.np.event = new genji.pattern.Event;
 var filter = exports.filter = genji.np.filter = new genji.pattern.Filter;
+var factory = exports.factory = genji.np.factory = new genji.pattern.Factory;
 
 // error handling
 ge.addListener('error', function(err) {

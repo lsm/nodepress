@@ -16,7 +16,7 @@ var settings = {
         {name: 'error-handler'},
         {name:'logger'},
         {name:'conditional-get'},
-        {name: 'router', conf: {handler: 'genji.web.handler.SimpleHandler', urls: './urls'}}
+        {name: 'router', conf: {handler: 'genji.web.handler.SimpleCookieHandler', urls: './urls'}}
     ]
 };
 

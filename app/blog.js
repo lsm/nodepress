@@ -3,6 +3,7 @@ db = core.db,
 auth = core.auth,
 view = core.view,
 client = core.client,
+factory = core.factory,
 management = require('./management'),
 Collection = db.Collection,
 settings = genji.settings,
@@ -12,7 +13,8 @@ function _now() {
     return (new Date()).getTime() + ''; // save as string
 }
 
-var post = new Collection('posts');
+factory.register('post', function(name) { return new Collection(name)}, ['posts'], true);
+var post = factory.post;
 post.extend({
     save: function(data) {
         if (typeof data === 'string') data = JSON.parse(data);

@@ -1,4 +1,4 @@
-var Base = genji.core.Base,
+var Base = genji.pattern.Base,
 Promise = require('./promise').Promise,
 mongo = require('mongodb'),
 Pool = genji.pattern.Pool;
@@ -10,6 +10,9 @@ function getConn(num, callback) {
         mongo.connect(genji.settings.db, function(err, db) {
             if (err) throw err;
             callback(db);
+        });
+        process.on('uncaughtException', function (err) {
+            console.log('Caught exception: ' + err);
         });
     }
 }
