@@ -14,7 +14,7 @@ genji.np = {};
 var ge = genji.web.middleware.globalEmitter;
 var cache = exports.cache = genji.np.cache = new genji.pattern.Cache;
 var event = exports.event = genji.np.event = new genji.pattern.Event;
-var filter = exports.filter = genji.np.filter = new genji.pattern.Filter;
+var filter = exports.filter = genji.np.filter = new genji.pattern.control.Filter;
 var factory = exports.factory = genji.np.factory = new genji.pattern.Factory;
 
 // error handling
@@ -30,7 +30,7 @@ ge.addListener('error', function(err) {
 
 var defaultContext = {};
 
-// loading settings
+// load settings
 process.nextTick(function() {
     var setting = exports.db.setting,
     post = exports.db.post;
@@ -74,3 +74,10 @@ event.addListener('management.api.saveSetting', function(data) {
         if (data.intro) cache.set('intro', data.intro);
     }
 });
+
+// utilities
+exports.util = {
+    now: function() {
+        return new String((new Date()).getTime());
+    }
+}
