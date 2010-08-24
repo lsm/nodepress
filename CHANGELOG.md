@@ -4,6 +4,7 @@
 - theme system
 - compress js/css code using [UglifyJS](http://github.com/mishoo/UglifyJS)
 - account: password recovery, change password, user registration
+- handle error at client side for unexpected server response
 
 0.1.2 (2010/07/23):
 -------------------
