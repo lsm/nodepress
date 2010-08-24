@@ -6,4 +6,4 @@
 	url = http://github.com/akaspin/nun.git
 [submodule "lib/node-mongodb-native"]
 	path = lib/node-mongodb-native
-	url = git://github.com/christkv/node-mongodb-native.git
+	url = git://github.com/christkv/node-mongodb-native
