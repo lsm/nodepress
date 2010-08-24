@@ -10,7 +10,7 @@ var settings = {
     ,servers: [
         {host: '127.0.0.1', port: 8000}
     ]
-    ,installedApps: ['account', 'blog', 'management', 'static']
+    ,installedApps: ['account', 'blog', 'management', 'static', 'tag']
     ,middlewares: [
         {name:'response-time'},
         {name: 'error-handler'},
