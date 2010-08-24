@@ -11,9 +11,6 @@ function getConn(num, callback) {
             if (err) throw err;
             callback(db);
         });
-        process.on('uncaughtException', function (err) {
-            console.log('Caught exception: ' + err);
-        });
     }
 }
 
