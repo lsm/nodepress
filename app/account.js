@@ -1,11 +1,13 @@
 var core = require('../core'),
 db = core.db,
 auth = core.auth,
+factory = core.factory,
 Collection = db.Collection,
 settings = genji.settings,
 querystring = require("querystring");
 
-var user = new Collection('users');
+factory.register('user', function(name) { return new Collection(name)}, ['users'], true);
+var user = factory.user;
 
 function signin(handler) {
     if (auth.checkCookie(handler, settings.cookieSecret)) {
@@ -83,13 +85,13 @@ function initJs($) {
 module.exports = {
     client: {
         'main.js': {
-            'account': {
+            'app.account': {
                 weight: 100,
                 code: mainJs
             }
         },
         'init.js': {
-            'account': {
+            'app.account': {
                 weight: 100,
                 code: initJs
             }

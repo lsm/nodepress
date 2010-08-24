@@ -60,7 +60,8 @@ var api = [
 ['management/setting/save/$', saveSetting, 'post', [auth.checkLogin]]
 ]
 
-function userJs($) {
+// client side code
+function management($) {
     var np = $.np,
     emitter = np.emitter;
     $.extend($.np.api, {
@@ -129,13 +130,13 @@ module.exports = {
     },
     client: {
         'user.js': {
-            'management': {
+            'app.management': {
                 weight: 100,
-                code: userJs
+                code: management
             }
         },
         'initUser.js': {
-            'management': {
+            'app.management': {
                 weight: 100,
                 code: function($) {
                     var np = $.np;

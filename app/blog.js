@@ -7,11 +7,9 @@ factory = core.factory,
 management = require('./management'),
 Collection = db.Collection,
 settings = genji.settings,
+_now = core.util.now,
 md5 = genji.crypto.md5;
 
-function _now() {
-    return (new Date()).getTime() + ''; // save as string
-}
 
 factory.register('post', function(name) { return new Collection(name)}, ['posts'], true);
 var post = factory.post;
@@ -27,7 +25,6 @@ post.extend({
         if (data.hasOwnProperty('published') && data.published == 1) {
             data.published = _now();
         }
-        core.event.emit('blog.db.post.save', data);
         return this._super(data);
     }
 });
@@ -39,6 +36,7 @@ function save(handler) {
             handler.sendJSON({
                 _id: doc._id
             });
+            core.event.emit('blog.api.save', doc);
         });
     });   
 }
@@ -68,11 +66,11 @@ function list(handler, skip, limit, tags) {
 
     post.count(query).then(function(num) {
         post.find(query, null, options).then(function(result) {
-            core.event.emit('blog.api.list', query, options, result);
             handler.sendJSON({
                 posts: result,
                 total: num
             });
+            core.event.emit('blog.api.list', query, options, result);
         });
     });
 }
@@ -81,8 +79,8 @@ function byId(handler, id) {
     post.findOne({
         _id: id
     }).then(function(data) {
-        core.event.emit('blog.api.id', id, data);
         handler.sendJSON(data);
+        core.event.emit('blog.api.id', id, data);
     });
 }
 
@@ -175,7 +173,7 @@ var _view = [
 ['^/article/(\\w+)/.*/$', article, 'get']
 ];
 
-// client code
+// client side code
 function mainJs($) {
         // setup
         $.np = {};
@@ -453,23 +451,23 @@ module.exports = {
     },
     client: {
         'main.js': {
-            'blog': {
+            'app.blog': {
                 weight: 20,
                 code: mainJs
             }
         },
         'user.js': {
-            'blogMainUser': {
+            'app.blog.mainUser': {
                 weight: 30,
                 code: blogMainUser
             }
         },
         'init.js' : {
-            'blog': {
+            'app.blog': {
                 weight: 20,
                 code: initJs
             },
-            'blogRenderPost': {
+            'app.blog.renderPost': {
                 weight: 40,
                 code: function($) {
                     // render content/pager, bind events
@@ -502,7 +500,7 @@ module.exports = {
             }
         },
         'initUser.js': {
-            'blogInitUser': {
+            'app.blog.initUser': {
                 weight: 30,
                 code: function($) {
                     var dom = $.np.dom;

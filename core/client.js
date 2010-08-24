@@ -27,7 +27,7 @@ function getCode(filename) {
             return ctx[a].weight - ctx[b].weight;
         });
         for (var i = 0; i < tmp.length; i++) {
-            result +=  '\n;(' + ctx[tmp[i]].code.toString() + ')($);';
+            result +=  '\n/*'+ tmp[i]+ '*/\n;(' + ctx[tmp[i]].code.toString() + ')($);';
         }
     }
     return result;
