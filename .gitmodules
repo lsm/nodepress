@@ -7,3 +7,6 @@
 [submodule "lib/node-mongodb-native"]
 	path = lib/node-mongodb-native
 	url = git://github.com/christkv/node-mongodb-native
+[submodule "lib/UglifyJS"]
+	path = lib/UglifyJS
+	url = git://github.com/mishoo/UglifyJS.git

@@ -1,4 +1,6 @@
 var context = {};
+var jsp = require("parse-js");
+var pro = require("process");
 
 function inject(appClient) {
     for (var filename in appClient) {
@@ -27,10 +29,17 @@ function getCode(filename) {
             return ctx[a].weight - ctx[b].weight;
         });
         for (var i = 0; i < tmp.length; i++) {
-            result +=  '\n/*'+ tmp[i]+ '*/\n;(' + ctx[tmp[i]].code.toString() + ')($);';
+            result +=  '\n\n/*'+ tmp[i]+ '*/\n;(' + ctx[tmp[i]].code.toString() + ')($);';
         }
     }
-    return result;
+    if (genji.settings.env.type == "development") return result;
+    // compress code if not in development mode
+    var ast = jsp.parse(result);
+    ast = pro.ast_mangle(ast);
+    ast = pro.ast_squeeze(ast);
+    var final_code = pro.gen_code(ast);
+    // add `\n` and `;` to make closure working
+    return "\n;" + final_code + ";";
 }
 
 module.exports = {
