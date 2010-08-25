@@ -1,6 +1,6 @@
 [submodule "lib/genji"]
 	path = lib/genji
-	url = http://github.com/zir/genji.git
+	url = git://github.com/zir/genji.git
 [submodule "lib/nun"]
 	path = lib/nun
 	url = http://github.com/akaspin/nun.git
