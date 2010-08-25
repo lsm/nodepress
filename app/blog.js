@@ -481,11 +481,9 @@ module.exports = {
                     });
                     if ($.np.page == 'index') {
                         $('.np-post-tag').click(function(event) {
-                            $.np.emitter.trigger('TagSelected', [{
-                                limit: 5,
-                                skip: 0,
-                                tags: [event.currentTarget.innerHTML]
-                                }]);
+                            var params = $.np.params;
+                            params.tags = [event.currentTarget.innerHTML];
+                            $.np.emitter.trigger('TagSelected', [params]);
                         });
                     }
                     if ($.np.totalPosts != '') {
