@@ -130,7 +130,7 @@ function mainJs($) {
        sidebar.attr("innerHTML", innerHTML);
        // bind event to tags
        var params = $.np.params;
-        $('.np-post-tag').click(function(event) {
+        $('#np-sidebar-tagcloud .np-post-tag').click(function(event) {
             if (!params.tags) params.tags = [];
             if (params.tags.indexOf(event.currentTarget.innerHTML) < 0) {
                 $.merge(params.tags, [event.currentTarget.innerHTML]);

@@ -267,11 +267,12 @@ function mainJs($) {
 
         emitter.bind('TagSelected', buildTagsFilter);
 
-        function buildTagsFilter(event, params) {
+        function buildTagsFilter(event) {
+            var params = $.np.params;
             $.np.api.list({
-                skip:0,
-                limit:5,
-                tags:params.tags
+                skip: params.skip || 0,
+                limit:params.limit || 0,
+                tags: params.tags || []
             });
             dom.filterTags.attr('innerHTML', '');
             $.each(params.tags, function(idx, tag) {
@@ -282,7 +283,8 @@ function mainJs($) {
                 params.tags = $.grep(params.tags, function(t) {
                     return tag != t;
                 });
-                buildTagsFilter(event, params);
+                $.np.params = params;
+                buildTagsFilter(event);
             });
         }
 
