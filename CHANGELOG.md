@@ -1,10 +1,13 @@
-0.1.3 (?)
----------
-- tags cloud
+0.1.4 (?)
 - theme system
-- compress js/css code using [UglifyJS](http://github.com/mishoo/UglifyJS)
 - account: password recovery, change password, user registration
 - handle error at client side for unexpected server response
+
+0.1.3 (2010/08/25)
+---------
+- tags cloud
+- compress js code using [UglifyJS](http://github.com/mishoo/UglifyJS)
+
 
 0.1.2 (2010/07/23):
 -------------------
