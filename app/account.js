@@ -36,8 +36,7 @@ function signin(handler) {
 var _view = [['^/signin/$', signin, 'post']];
 
 function mainJs($) {
-    var np = $.np,
-    emitter = np.emitter;
+    var np = $.np;
     np.signIn = function() {
         $.ajax({
             url: '/signin/',
@@ -48,24 +47,17 @@ function mainJs($) {
                 password: np.dom.password.attr('value')
             },
             success: function(data) {
-                emitter.trigger('@Login', [data]);
+                np.emit('@Login', [data]);
             },
             error: function(xhr, status) {
-                emitter.trigger('#Login', [xhr, status]);
+                np.emit('#AjaxError', ["Login failed", xhr, status]);
             }
         });
     }
 
     // events
-    emitter.bind('@Login', function(event, data) {
+    np.on('@Login', function(event, data) {
         location.href = '/';
-    });
-    emitter.bind('#Login', function(event, xhr, status) {
-        $.gritter.add({
-            title: "Failed to sign in",
-            time: 3000,
-            text: xhr.responseText
-        });
     });
 }
 

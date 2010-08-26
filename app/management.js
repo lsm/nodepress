@@ -62,19 +62,19 @@ var api = [
 
 // client side code
 function management($) {
-    var np = $.np,
-    emitter = np.emitter;
-    $.extend($.np.api, {
+    var np = $.np;
+    var dom = np.dom;
+    $.extend(np.api, {
         getTracker: function() {
             $.ajax({
                 url: '/_api/management/tracker/get/',
                 type: 'GET',
                 dataType: 'text',
                 success: function(data) {
-                    emitter.trigger('@ApiGetTracker', [data]);
+                    np.emit('@ApiGetTracker', [data]);
                 },
                 error: function(xhr, status) {
-                    emitter.trigger('#ApiGetTracker', [xhr, status]);
+                    np.emit('#AjaxError', ["Can't get tracker code", xhr, status]);
                 }
             });
         },
@@ -83,13 +83,13 @@ function management($) {
             $.ajax({
                 url: '/_api/management/tracker/save/',
                 type: 'POST',
-                data: np.tracker.attr('value'),
+                data: dom.tracker.attr('value'),
                 dataType: 'text',
                 success: function(data) {
-                    emitter.trigger('@ApiSaveTracker');
+                    np.emit('@ApiSaveTracker');
                 },
                 error: function(xhr, status) {
-                    emitter.trigger('#ApiSaveTracker', [xhr, status]);
+                    np.emit('#AjaxError', ["Failed to save tracker code", xhr, status]);
                 }
             });
         },
@@ -100,23 +100,23 @@ function management($) {
                 type: 'POST',
                 data: JSON.stringify({
                     _id: 'site',
-                    title: np.siteTitle.attr('value'),
-                    intro: np.siteIntro.attr('value')
+                    title: dom.siteTitle.attr('value'),
+                    intro: dom.siteIntro.attr('value')
                 }),
                 dataType: 'text',
                 success: function(data) {
-                    emitter.trigger('@ApiSaveSetting');
+                    np.emit('@ApiSaveSetting');
                 },
                 error: function(xhr, status) {
-                    emitter.trigger('#ApiSaveSetting', [xhr, status]);
+                    np.emit('#AjaxError', ["Failed to save settings", xhr, status]);
                 }
             });
         }
     });
-    emitter.bind('@ApiGetTracker', function(e, data) {
-        np.tracker.attr('value', data);
+    np.on('@ApiGetTracker', function(e, data) {
+        dom.tracker.attr('value', data);
     });
-    emitter.bind('@ApiSaveSetting', function() {
+    np.on('@ApiSaveSetting', function() {
         np.growl({
             title: 'Setting saved successfully.',
             text: ' '
@@ -140,15 +140,16 @@ module.exports = {
                 weight: 100,
                 code: function($) {
                     var np = $.np;
+                    var dom = np.dom;
                     // tracker
-                    np.tracker = $('#np-tracker'),
-                    np.saveSetting = $('#np-save-setting');
-                    np.saveTracker = $('#np-save-tracker');
-                    np.siteTitle = $('#np-siteTitle');
-                    np.siteIntro = $('#np-siteIntro');
+                    dom.tracker = $('#np-tracker'),
+                    dom.saveSetting = $('#np-save-setting');
+                    dom.saveTracker = $('#np-save-tracker');
+                    dom.siteTitle = $('#np-siteTitle');
+                    dom.siteIntro = $('#np-siteIntro');
                     np.api.getTracker();
-                    np.saveTracker.click(np.api.saveTracker);
-                    np.saveSetting.click(np.api.saveSetting);
+                    dom.saveTracker.click(np.api.saveTracker);
+                    dom.saveSetting.click(np.api.saveSetting);
                 }
             }
         }

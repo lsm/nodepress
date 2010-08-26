@@ -101,9 +101,9 @@ var api = [
 // client side code
 
 function mainJs($) {
-    var emitter = $.np.emitter;
     // extend the rest api
-    $.extend($.np.api, {
+    var np = $.np;
+    $.extend(np.api, {
         getTagCloud: function() {
             var url = "/_api/tag/cloud/";
             $.ajax({
@@ -111,16 +111,16 @@ function mainJs($) {
                 type: 'GET',
                 dataType: 'json',
                 success: function(data, status) {
-                    emitter.trigger('@ApiTagCloud', [data]);
+                    np.emit('@ApiTagCloud', [data]);
                 },
                 error: function(xhr, status) {
-                    emitter.trigger('#ApiTagCloud', [xhr, status]);
+                    np.emit('#AjaxError', ["Failed to load tag cloud", xhr, status]);
                 }
            });
         }
     });
 
-    emitter.bind("@ApiTagCloud", function(event, data) {
+    np.on("@ApiTagCloud", function(event, data) {
        if (data.error) return;
        var sidebar = $("#np-sidebar-tagcloud");
        var innerHTML = "";
@@ -129,12 +129,12 @@ function mainJs($) {
        });
        sidebar.attr("innerHTML", innerHTML);
        // bind event to tags
-       var params = $.np.params;
+       var params = np.params;
         $('#np-sidebar-tagcloud .np-post-tag').click(function(event) {
             if (!params.tags) params.tags = [];
             if (params.tags.indexOf(event.currentTarget.innerHTML) < 0) {
                 $.merge(params.tags, [event.currentTarget.innerHTML]);
-                emitter.trigger('TagSelected', [params]);
+                np.emit('TagSelected', [params]);
             }
         });
     });
