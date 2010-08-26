@@ -2,12 +2,13 @@
 - theme system
 - account: password recovery, change password, user registration
 - handle error at client side for unexpected server response
+- $.np now can act as event emitter
+- cleanup usage of $.np, np and dom
 
 0.1.3 (2010/08/25)
 ---------
 - tags cloud
 - compress js code using [UglifyJS](http://github.com/mishoo/UglifyJS)
-
 
 0.1.2 (2010/07/23):
 -------------------
