@@ -23,20 +23,7 @@
             <!-- posts list and sidebar -->
             <div class="np-full-width">
                 <div id="np-content">
-                    <div id="np-filter" class="np-post">
-                        <div id="np-filter-tags"></div>
-                        <div class="np-right">
-                            <div id="np-post-perpage">
-                                <a href="#5-per-page">5</a>
-                                <a href="#15-per-page">15</a>
-                                <a href="#25-per-page">25</a>
-                            </div>
-                            <div id="np-pager">
-                                <a id="np-prev-page"><<</a>
-                                <a id="np-next-page">>></a>
-                            </div>
-                        </div>
-                    </div>
+                    {{> share/pager.html}}
                     <div id="np-posts">
                         {{#posts}}<div id="{{_id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{_id}}/{{title}}/">{{title}}</a></h2>
                             <div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>
