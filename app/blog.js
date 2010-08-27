@@ -7,6 +7,7 @@ factory = core.factory,
 management = require('./management'),
 Collection = db.Collection,
 settings = genji.settings,
+path = require("path"),
 _now = core.util.now,
 md5 = genji.crypto.md5;
 
@@ -94,19 +95,47 @@ var api = [
 ['blog/id/([0-9a-fA-F]+)/$', byId, 'get']
 ];
 
+// add scripts
+// js
+[
+{type: "js", basename: "jquery-1.4.2.js", group: "main"},
+{type: "js", basename: "jquery.gritter-1.6.js", group: "main"},
+{type: "js", basename: "jquery.tools.tabs-1.2.4.js", group: "main"},
+{type: "js", basename: "mustache-0.3.0.js", group: "main"},
+{type: "js", basename: "showdown-0.9.js", group: "main"},
+{type: "js", basename: "main.js", group: "main"},
+{type: "js", basename: "user.js", group: "user"}
+].forEach(function(script) {
+    client.addScript(script.type, script.basename, "/static/js/", "/js/", script.group);
+});
+// css
+[
+{type: "css", basename: "screen.css", group: "main"},
+{type: "css", basename: "jquery.gritter.css", group: "main"},
+{type: "css", basename: "tabs.css", group: "user"}
+].forEach(function(script) {
+    client.addScript(script.type, script.basename, "/static/css/", "/css/", script.group);
+});
+
 // views
 function index(handler) {
     var user = auth.checkCookie(handler, settings.cookieSecret)[0];
     var ctx = core.defaultContext;
+    var scriptGroup = ["main"];
+    var inDev = settings.env.type == "development1";
     if (user) {
         ctx.is_owner = [{
             name: user
         }];
+        scriptGroup.push("user");
     } else {
         ctx.is_owner = undefined;
     }
-    ctx.initJs = client.getCode('init.js'),
-    ctx.initUserJs = client.getCode('initUser.js'),
+    // combine if not in dev model
+    ctx.scripts = [{js: client.getScripts("js", scriptGroup, !inDev), css: client.getScripts("css", scriptGroup, !inDev)}]
+    // compress if not in dev model
+    ctx.initJs = client.getCode('init.js', !inDev),
+    ctx.initUserJs = client.getCode('initUser.js', !inDev),
     post.count({}).then(function(num) {
         ctx.total = num;
         post.find({}, null, {
@@ -356,7 +385,7 @@ function blogMainUser($) {
                     np.emit('@ApiSave', [data, publish]);
                 },
                 error: function(xhr, status) {
-                    np.emit('#ApiSave', [xhr, status]);
+                    np.emit('#AjaxError', ["Failed to save post", xhr, status]);
                 }
             });
         }
@@ -421,10 +450,7 @@ function blogMainUser($) {
                 fill(data);
             },
             error: function(xhr, status) {
-                np.growl({
-                    title: 'Failed to load post',
-                    text: 'id: ' + id
-                });
+                np.emit("#AjaxError", ['Failed to load post', xhr, status])
             }
         });
     }

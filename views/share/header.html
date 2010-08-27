@@ -4,7 +4,7 @@
     <head>
         <title>{{title}} | {{intro}}</title>
         <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
-        <link rel="stylesheet" type="text/css" media="screen" href="{{staticUrl}}/css/screen.css" />
-        <link rel="stylesheet" type="text/css" media="screen" href="{{staticUrl}}/css/tabs.css" />
-        <link rel="stylesheet" type="text/css" media="screen" href="{{staticUrl}}/css/jquery.gritter.css" />
+        {{#scripts}}
+            {{&css}}
+        {{/scripts}}
     </head>

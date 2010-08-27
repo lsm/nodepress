@@ -1,8 +1,7 @@
-<script src="{{staticUrl}}/js{{debugUrl}}/deps.js" type="text/javascript" language="javascript"></script>
-<script src="{{staticUrl}}/js/main.js" type="text/javascript" language="javascript"></script>
-{{#is_owner}}
-<script src="{{.staticUrl}}/js/user.js" type="text/javascript" language="javascript"></script>
-{{/is_owner}}
+{{#scripts}}
+    {{&js}}
+{{/scripts}}
+
 <script type="text/javascript" language="javascript">
     $(function() {
         $.np.cookieName = '{{cookieName}}';

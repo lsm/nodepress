@@ -22,8 +22,25 @@ function userJs(handler) {
     });
 }
 
+function nodepressJs(handler, type, group) {
+    var compress = genji.settings.env.type == "development";
+    try {
+        client.getCombined(type, group, compress, function(code) {
+            if (code) {
+                handler.send(code, 200, {
+                    'Content-Type': type == "js" ? 'application/javascript' : "text/css"
+                });
+            }
+        });
+    } catch(e) {
+        handler.setStatus(404);
+        handler.sendHTML("File not found");
+    }
+}
+
 exports.view = [
     ['^/static/js/main.js$', mainJs, 'get'],
     ['^/static/js/user.js$', userJs, 'get'],
+    ['^/static/(js|css)/' + client.combinedScriptPrefix + '(\\w+).(js|css)$', nodepressJs, 'get'],
     [FileHandler, '^/static/(.*)$', handleFile, 'get']
 ];
