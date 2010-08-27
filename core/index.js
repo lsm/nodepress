@@ -8,14 +8,23 @@ settings = genji.settings,
 exports.view = require('./view');
 
 // nodepress global object
-genji.np = {};
+genji.np = exports;
 
 // setup cache, event emitter and filter.
 var ge = genji.web.middleware.globalEmitter;
-var cache = exports.cache = genji.np.cache = new genji.pattern.Cache;
-var event = exports.event = genji.np.event = new genji.pattern.Event;
-var filter = exports.filter = genji.np.filter = new genji.pattern.control.Filter;
-var factory = exports.factory = genji.np.factory = new genji.pattern.Factory;
+var cache = exports.cache = new genji.pattern.Cache;
+var event = exports.event = new genji.pattern.Event;
+var filter = exports.filter = new genji.pattern.control.Filter;
+var factory = exports.factory = new genji.pattern.Factory;
+
+// shortcuts
+exports.on = function(type, callback) {
+    event.on(type, callback);
+}
+
+exports.emit = function() {
+    event.emit.apply(event, arguments);
+}
 
 // error handling
 ge.addListener('error', function(err) {
@@ -46,7 +55,7 @@ process.nextTick(function() {
         '_id': 'site'
     }).then(function(site) {
         site = site || {};
-        cache.set('title', site.title || 'nodepress.com');
+        cache.set('title', site.title || 'Nodepress');
         cache.set('intro', site.intro || 'a blogging tool built on top of nodejs');
     });
 
