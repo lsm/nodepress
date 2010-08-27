@@ -1,6 +1,14 @@
-0.1.4 (?)
-- theme system
+0.1.5 (?)
 - account: password recovery, change password, user registration
+- use form for login
+- add author info for post
+- cache combined/compressed file, it's slow
+
+0.1.4 (2010/08/27)
+- theme system
+    * inject script tag by system facilities
+    * combine static files by type (css/js) and group
+    * allow replacing mustache templates (specific or all)
 - handle error at client side for unexpected server response
 - $.np now can act as event emitter
 - cleanup usage of $.np, np and dom
@@ -23,7 +31,7 @@
 -------------------
 - MongoDb pooling
 - class for db and collection
-- introduce promise
+- introduce [promise](http://github.com/kriszyp/node-promise) written by [Kris Zyp](http://www.sitepen.com/blog/author/kzyp/)
 - new code structure that easy to extend
 
 0.0.2 - 0.0.3 (2010/06/23):
