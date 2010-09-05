@@ -7,16 +7,15 @@ var settings = {
     cookieSecret: 'c00kie-key-4-hmac',
     cookieName: '_npc'
     ,env: {type: 'development', root: baseDir, level: 2}
-    ,servers: [
-        {host: '127.0.0.1', port: 8000}
-    ]
+    ,host: '127.0.0.1'
+    ,port: 8000
     ,installedApps: ['init', 'account', 'blog', 'management', 'static', 'tag']
     ,middlewares: [
         {name:'response-time'},
         {name: 'error-handler'},
         {name:'logger'},
         {name:'conditional-get'},
-        {name: 'router', conf: {handler: 'genji.web.handler.SimpleCookieHandler', urls: './urls'}}
+        {name: 'router', handler: 'genji.web.handler.SimpleCookieHandler', urls: './urls'}
     ]
 };
 

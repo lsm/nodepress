@@ -87,9 +87,10 @@ tag.find({}).then(function(tags) {
 });
 
 // api
-function getTagCloud(handler) {
+function getTagCloud() {
+    var self = this;
     tag.find({count: {$gt: 0}}, {"count": 1}).then(function(tags) {
-        handler.sendJSON(tags || {"error": "No tag foound"});
+        self.sendJSON(tags || {"error": "No tag foound"});
     });
 }
 

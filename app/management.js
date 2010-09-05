@@ -6,12 +6,13 @@ tracker;
 
 var setting = new Collection('settings');
 
-function getTracker(handler, callback) {
+function getTracker(callback) {
+    var self = this;
     function send(tracker) {
         if (callback) {
             callback(tracker);
         } else {
-            handler.send(tracker.code);
+            self.send(tracker.code);
         }
     }
     if (tracker) {
@@ -28,8 +29,9 @@ function getTracker(handler, callback) {
     });
 }
 
-function saveTracker(handler) {
-    handler.on('end', function(data) {
+function saveTracker() {
+    var self = this;
+    self.on('end', function(data) {
         setting.save({
             _id: 'defaultTracker',
             code: data
@@ -37,27 +39,29 @@ function saveTracker(handler) {
             tracker = {
                 code: data
             };
-            handler.send('ok');
+            self.send('ok');
         });
     });
 }
 
-function saveSetting(handler) {
-    handler.on('end', function(data) {
+function saveSetting() {
+    var self = this;
+    self.on('end', function(data) {
         data = JSON.parse(data);
         setting.save(data).then(function() {
             core.event.emit('management.api.saveSetting', data);
-            handler.send('Setting saved');
+            self.send('Setting saved');
         });
     });
 }
 
-getTracker(null, function() {});
+// get tracker code from db
+getTracker(function() {});
 
 var api = [
-['management/tracker/get/$', getTracker, 'get', [auth.checkLogin]],
-['management/tracker/save/$', saveTracker, 'post', [auth.checkLogin]],
-['management/setting/save/$', saveSetting, 'post', [auth.checkLogin]]
+['management/tracker/get/$', getTracker, 'get'],
+['management/tracker/save/$', saveTracker, 'post'],
+['management/setting/save/$', saveSetting, 'post']
 ]
 
 // client side code

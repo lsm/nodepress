@@ -9,26 +9,26 @@ querystring = require("querystring");
 factory.register('user', function(name) { return new Collection(name)}, ['users'], true);
 var user = factory.user;
 
-function signin(handler) {
-    if (auth.checkCookie(handler, settings.cookieSecret)) {
+function signin() {
+    if (auth.checkCookie(this, settings.cookieSecret)) {
         // already logged in
-        handler.send("ok");
+        this.send("ok");
         return;
     }
-    handler.on('end', function(data) {
+    this.on('end', function(data) {
         var p = querystring.parse(data);
         if (p.hasOwnProperty("username") && p.hasOwnProperty("password")) {
             user.findOne({
                 username: p['username']
             }).then(function(res) {
-                if (res && auth.signin(handler, p, res["password"], settings.cookieSecret)) {
-                    handler.send("ok");
+                if (res && auth.signin(this, p, res["password"], settings.cookieSecret)) {
+                    this.send("ok");
                 } else {
-                    handler.error(401, 'Wrong username/password pair.');
+                    this.error(401, 'Wrong username/password pair.');
                 }
             });
         } else {
-            handler.error(403, 'Please enter username and password.');
+            this.error(403, 'Please enter username and password.');
         }
     });
 }

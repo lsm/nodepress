@@ -5,42 +5,45 @@ view = core.view,
 path = require('path'),
 root = path.join(genji.settings.env.root, '/static');
 
-function handleFile(handler, path) {
-    handler.setRoot(root);
-    handler.staticFile(path);
+function handleFile(path) {
+    this.setRoot(root);
+    this.staticFile(path);
 }
 
-function mainJs(handler) {
+function mainJs() {
+    var self = this;
     view.render('/views/js/main.js.mu', {code: client.getCode('main.js')}, null, function(js) {
-        handler.send(js , 200, {'Content-Type': 'application/javascript'});
+        self.send(js , 200, {'Content-Type': 'application/javascript'});
     });
 }
 
-function userJs(handler) {
+function userJs() {
+    var self = this;
     view.render('/views/js/user.js.mu', {code: client.getCode('user.js')}, null, function(js) {
-        handler.send(js , 200, {'Content-Type': 'application/javascript'});
+        self.send(js , 200, {'Content-Type': 'application/javascript'});
     });
 }
 
-function nodepressJs(handler, type, group) {
+function nodepressRes(type, group) {
+    var self = this;
     var compress = genji.settings.env.type == "development";
     try {
         client.getCombined(type, group, compress, function(code) {
             if (code) {
-                handler.send(code, 200, {
+                self.send(code, 200, {
                     'Content-Type': type == "js" ? 'application/javascript' : "text/css"
                 });
             }
         });
     } catch(e) {
-        handler.setStatus(404);
-        handler.sendHTML("File not found");
+        self.setStatus(404);
+        self.sendHTML("File not found");
     }
 }
 
 exports.view = [
     ['^/static/js/main.js$', mainJs, 'get'],
     ['^/static/js/user.js$', userJs, 'get'],
-    ['^/static/(js|css)/' + client.combinedScriptPrefix + '(\\w+).(js|css)$', nodepressJs, 'get'],
-    [FileHandler, '^/static/(.*)$', handleFile, 'get']
+    ['^/static/(js|css)/' + client.combinedScriptPrefix + '(\\w+).(js|css)$', nodepressRes, 'get'],
+    ['^/static/(.*)$', handleFile, 'get', FileHandler]
 ];

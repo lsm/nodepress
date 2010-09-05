@@ -33,10 +33,11 @@ post.extend({
 });
 
 // api
-function save(handler) {
-    handler.on('end', function(data) {
+function save() {
+    var self = this;
+    self.on('end', function(data) {
         post.save(data).then(function(doc) {
-            handler.sendJSON({
+            self.sendJSON({
                 _id: doc._id
             });
             core.event.emit('blog.api.save', doc);
@@ -44,7 +45,8 @@ function save(handler) {
     });   
 }
 
-function list(handler, skip, limit, tags) {
+function list(skip, limit, tags) {
+    var self = this;
     skip = parseInt(skip) ? skip : 0;
     limit = parseInt(limit) ? limit : 5;
     if (limit > 30 || limit < 1) limit = 5; // default
@@ -69,7 +71,7 @@ function list(handler, skip, limit, tags) {
 
     post.count(query).then(function(num) {
         post.find(query, null, options).then(function(result) {
-            handler.sendJSON({
+            self.sendJSON({
                 posts: result,
                 total: num
             });
@@ -78,17 +80,18 @@ function list(handler, skip, limit, tags) {
     });
 }
 
-function byId(handler, id) {
+function byId(id) {
+    var self = this;
     post.findOne({
         _id: id
     }).then(function(data) {
-        handler.sendJSON(data);
+        self.sendJSON(data);
         core.event.emit('blog.api.id', id, data);
     });
 }
 
 var api = [
-['blog/save/', save, 'post', [auth.checkLogin]],
+['blog/save/', save, 'post'],
 ['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
 ['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
 ['blog/list/$', list, 'get'],
@@ -118,8 +121,9 @@ var api = [
 });
 
 // views
-function index(handler) {
-    var user = auth.checkCookie(handler, settings.cookieSecret)[0];
+function index() {
+    var self = this;
+    var user = auth.checkCookie(self, settings.cookieSecret)[0];
     var ctx = core.defaultContext;
     var scriptGroup = ["main"];
     var inDev = settings.env.type == "development1";
@@ -156,14 +160,15 @@ function index(handler) {
             ctx.posts = posts;
             ctx.page = 'index';
             view.render('/views/index.html', ctx, null, function(html) {
-                handler.sendHTML(html);
+                self.sendHTML(html);
             });
         });
     });
 }
 
-function article(handler, id) {
-    var user = auth.checkCookie(handler, settings.cookieSecret)[0];
+function article(id) {
+    var self = this;
+    var user = auth.checkCookie(self, settings.cookieSecret)[0];
     var ctx = core.defaultContext;
     if (user) {
         ctx.is_owner = [{
@@ -190,18 +195,21 @@ function article(handler, id) {
                 ctx.posts = [post];
                 ctx.page = 'article';
                 view.render('/views/article.html', ctx, null, function(html) {
-                    handler.sendHTML(html);
+                    self.sendHTML(html);
                 });
             } else {
-                handler.error(404, 'Article not found');
+                self.error(404, 'Article not found');
             }
         });
     });
 }
 
 var _view = [
-['^/$', index, 'get'],
-['^/article/(\\w+)/.*/$', article, 'get']
+    ['^/hello/$', function() {
+            this.sendHTML('Hello world\n');
+    }],
+    ['^/$', index, 'get'],
+    ['^/article/(\\w+)/.*/$', article, 'get']
 ];
 
 // client side code
