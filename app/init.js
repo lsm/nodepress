@@ -1,6 +1,12 @@
+// views
+var _view = [
+    ['.*', function() {
+            // default 404 handler
+            this.error(404, '`' + this.request.url + '` not found');
+    }, 'notfound']
+]
 
-
-// This the bootstrip script that all apps depend on.
+// This the clientside bootstrip script that all apps depend on.
 function mainInitJs($) {
     // global nodepress object
     var np = $.np = {};
@@ -41,5 +47,6 @@ module.exports = {
                 code: mainInitJs
             }
         }
-    }
+    },
+    view: _view
 }

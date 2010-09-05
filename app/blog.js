@@ -209,7 +209,13 @@ var _view = [
             this.sendHTML('Hello world\n');
     }],
     ['^/$', index, 'get'],
-    ['^/article/(\\w+)/.*/$', article, 'get']
+    ['^/article/(\\w+)/.*/$', article, 'get'],
+    ['.*', function() {
+        var self = this;
+        core.view.render('/views/error/404.html', {url: this.request.url}, function(html) {
+            self.error(404, html);
+        })
+    }, 'notfound']
 ];
 
 // client side code
