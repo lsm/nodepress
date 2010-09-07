@@ -3,7 +3,12 @@ jsp = require("parse-js"),
 pro = require("process"),
 url = require("url"),
 fs = require("fs"),
+cache,
 Path = require("path");
+
+process.nextTick(function() {
+    cache = genji.np.cache;
+})
 
 var scripts = {};
 scripts.js = [];
@@ -104,6 +109,20 @@ function getScripts(type, groups, combine) {
 }
 
 function getCombined(type, group, compress, callback) {
+    if (compress) {
+        // try to get from cache
+        var cached = cache.get([type, group].join('-'));
+        if (cached) {
+            cb(cached, true);
+        }
+    }
+    function cb(data, fromCache) {
+        callback(data);
+        if (compress && !fromCache) {
+            cache.set([type, group].join('-'), data);
+        }
+    }
+    
     var toReturn = [],
     // count how many scripts have been combined, to fix the array length problem:
     // var a = []; a[3] = 0; then a.length is 4 not 1
@@ -131,12 +150,12 @@ function getCombined(type, group, compress, callback) {
            _getCodeFromFS(idx, script, function(i, content) {
                toReturn[i] = compress && type == "js" ? _compress(content) : content;
                found++;
-               if (toCombine.length == found) callback(toReturn.join(";\n"));
+               if (toCombine.length == found) cb(toReturn.join(";\n"));
            });
        } 
    });
    // for the case when all code are generated
-   if (toCombine.length == found) callback(toReturn.join(";\n"));
+   if (toCombine.length == found) cb(toReturn.join(";\n"));
 }
 
 module.exports = {
