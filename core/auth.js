@@ -10,11 +10,11 @@ function checkCookie(handler, serverKey) {
     return false;
 }
 
-function checkLogin(handler) {
-    if ((handler.user = checkCookie(handler, settings.cookieSecret)[0])) {
+function checkLogin() {
+    if ((this.user = checkCookie(this, settings.cookieSecret)[0])) {
         return true;
     }
-    handler.error(401);
+    this.error(401, 'Login failed');
     return false;
 }
 

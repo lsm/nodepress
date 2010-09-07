@@ -15,20 +15,21 @@ function signin() {
         this.send("ok");
         return;
     }
+    var self = this;
     this.on('end', function(data) {
         var p = querystring.parse(data);
         if (p.hasOwnProperty("username") && p.hasOwnProperty("password")) {
             user.findOne({
                 username: p['username']
             }).then(function(res) {
-                if (res && auth.signin(this, p, res["password"], settings.cookieSecret)) {
-                    this.send("ok");
+                if (res && auth.signin(self, p, res["password"], settings.cookieSecret)) {
+                    self.send("ok");
                 } else {
-                    this.error(401, 'Wrong username/password pair.');
+                    self.error(401, 'Wrong username/password pair.');
                 }
             });
         } else {
-            this.error(403, 'Please enter username and password.');
+            self.error(403, 'Please enter username and password.');
         }
     });
 }
