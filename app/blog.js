@@ -91,7 +91,7 @@ function byId(id) {
 }
 
 var api = [
-['blog/save/', save, 'post'],
+['blog/save/', [auth.checkLogin, save], 'post'],
 ['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
 ['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
 ['blog/list/$', list, 'get'],
@@ -205,9 +205,9 @@ function article(id) {
 }
 
 var _view = [
-    ['^/hello/$', function() {
-            this.sendHTML('Hello world\n');
-    }],
+    ['^/hello/', function() {
+        this.sendHTML('Hello World\n');
+    }, {pre: [auth.checkLogin]}],
     ['^/$', index, 'get'],
     ['^/article/(\\w+)/.*/$', article, 'get'],
     ['.*', function() {
