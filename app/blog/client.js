@@ -1,102 +1,5 @@
-var core = require('../core'),
-db = core.db,
-auth = core.auth,
-view = core.view,
-client = core.client,
-factory = core.factory,
-management = require('./management'),
-Collection = db.Collection,
-settings = genji.settings,
-path = require("path"),
-_now = core.util.now,
-md5 = genji.crypto.md5;
-
-
-factory.register('post', function(name) {
-    return new Collection(name)
-    }, ['posts'], true);
-var post = factory.post;
-post.extend({
-    save: function(data) {
-        if (typeof data === 'string') data = JSON.parse(data);
-        if (!data.hasOwnProperty('_id')) {
-            data.created = _now();
-            data._id = md5(data + data.created);
-        } else {
-            data.modified = _now();
-        }
-        if (data.hasOwnProperty('published') && data.published == 1) {
-            data.published = _now();
-        }
-        return this._super(data);
-    }
-});
-
-// api
-function save() {
-    var self = this;
-    self.on('end', function(data) {
-        post.save(data).then(function(doc) {
-            self.sendJSON({
-                _id: doc._id
-            });
-            core.event.emit('blog.api.save', doc);
-        });
-    });   
-}
-
-function list(skip, limit, tags) {
-    var self = this;
-    skip = parseInt(skip) ? skip : 0;
-    limit = parseInt(limit) ? limit : 5;
-    if (limit > 30 || limit < 1) limit = 5; // default
-    var query = {
-        published: {
-            $exists: true
-        }
-    };
-
-    if (tags) {
-        tags = decodeURIComponent(tags).split(',');
-        query.tags = {
-            $all: tags
-        };
-    }
-
-    var options = {
-        sort:[["published", -1]],
-        limit:limit,
-        skip: skip
-    }
-
-    post.count(query).then(function(num) {
-        post.find(query, null, options).then(function(result) {
-            self.sendJSON({
-                posts: result,
-                total: num
-            });
-            core.event.emit('blog.api.list', query, options, result);
-        });
-    });
-}
-
-function byId(id) {
-    var self = this;
-    post.findOne({
-        _id: id
-    }).then(function(data) {
-        self.sendJSON(data);
-        core.event.emit('blog.api.id', id, data);
-    });
-}
-
-var api = [
-['blog/save/', [auth.checkLogin, save], 'post'],
-['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
-['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
-['blog/list/$', list, 'get'],
-['blog/id/([0-9a-fA-F]+)/$', byId, 'get']
-];
+var core = require('../../core'),
+client = core.client;
 
 // add scripts
 // js
@@ -120,103 +23,6 @@ var api = [
     client.addScript(script.type, script.basename, "/static/css/", "/css/", script.group);
 });
 
-// views
-function index() {
-    var self = this;
-    var user = auth.checkCookie(self, settings.cookieSecret)[0];
-    var ctx = core.defaultContext;
-    var scriptGroup = ["main"];
-    var inDev = settings.env.type == "development1";
-    if (user) {
-        ctx.is_owner = [{
-            name: user
-        }];
-        scriptGroup.push("user");
-    } else {
-        ctx.is_owner = undefined;
-    }
-    // combine if not in dev model
-    ctx.scripts = [{js: client.getScripts("js", scriptGroup, !inDev), css: client.getScripts("css", scriptGroup, !inDev)}]
-    // compress if not in dev model
-    ctx.initJs = client.getCode('init.js', !inDev),
-    ctx.initUserJs = client.getCode('initUser.js', !inDev),
-    post.count({}).then(function(num) {
-        ctx.total = num;
-        post.find({}, null, {
-            limit: 5,
-            sort:[["published", -1]]
-        }).then(function(posts) {
-            posts.forEach(function(item) {
-                if (item.hasOwnProperty("tags")) {
-                    var tags = [];
-                    for (var i = 0; i < item.tags.length; i++) {
-                        tags[i] = {
-                            name: item.tags[i]
-                        };
-                    }
-                    item.tags = tags;
-                }
-            });
-            ctx.posts = posts;
-            ctx.page = 'index';
-            view.render('/views/index.html', ctx, null, function(html) {
-                self.sendHTML(html);
-            });
-        });
-    });
-}
-
-function article(id) {
-    var self = this;
-    var user = auth.checkCookie(self, settings.cookieSecret)[0];
-    var ctx = core.defaultContext;
-    if (user) {
-        ctx.is_owner = [{
-            name: user
-        }];
-    } else {
-        ctx.is_owner = undefined;
-    }
-    post.count({}).then(function(num) {
-        ctx.total = num;
-        post.findOne({
-            _id: id
-        }).then(function(post) {
-            if (post) {
-                if (post.hasOwnProperty("tags")) {
-                    var tags = [];
-                    for (var i = 0; i < post.tags.length; i++) {
-                        tags[i] = {
-                            name: post.tags[i]
-                        };
-                    }
-                    post.tags = tags;
-                }
-                ctx.posts = [post];
-                ctx.page = 'article';
-                view.render('/views/article.html', ctx, null, function(html) {
-                    self.sendHTML(html);
-                });
-            } else {
-                self.error(404, 'Article not found');
-            }
-        });
-    });
-}
-
-var _view = [
-    ['^/hello/', function() {
-        this.sendHTML('Hello World\n');
-    }, {pre: [auth.checkLogin]}],
-    ['^/$', index, 'get'],
-    ['^/article/(\\w+)/.*/$', article, 'get'],
-    ['.*', function() {
-        var self = this;
-        core.view.render('/views/error/404.html', {url: this.request.url}, function(html) {
-            self.error(404, html);
-        })
-    }, 'notfound']
-];
 
 // client side code
 function mainJs($) {
@@ -482,105 +288,99 @@ function initJs($) {
     dom.prevPage = $('#np-prev-page');
 }
 
-module.exports = {
-    db: {
-        post: post
-    },
-    client: {
-        'main.js': {
-            'app.blog': {
-                weight: 20,
-                code: mainJs
-            }
-        },
-        'user.js': {
-            'app.blog.mainUser': {
-                weight: 30,
-                code: blogMainUser
-            }
-        },
-        'init.js' : {
-            'app.blog': {
-                weight: 20,
-                code: initJs
-            },
-            'app.blog.renderPost': {
-                weight: 40,
-                code: function($) {
-                    // render content/pager, bind events
-                    var np = $.np;
-                    $('.np-post-content').each(function(idx, npc) {
-                        npc.innerHTML = np.showdown.makeHtml(npc.innerHTML);
-                    });
-                    $('.np-post-date').each(function(idx, npd) {
-                        npd.innerHTML = new Date(parseInt(npd.innerHTML)).toLocaleDateString();
-                    });
-                    if (np.page == 'index') {
-                        $('.np-post-tag').click(function(event) {
-                            var params = np.params;
-                            params.tags = [event.currentTarget.innerHTML];
-                            np.np.emit('TagSelected', [params]);
-                        });
-                    }
-                    if (np.totalPosts != '') {
-                        // mustache rendered by server
-                        np.buildPager(null, {
-                            total: parseInt(np.totalPosts)
-                        }, {
-                            limit: 5,
-                            skip: 0
-                        });
-                        np.emit('PostsRendered');
-                    }
-                }
-            }
-        },
-        'initUser.js': {
-            'app.blog.initUser': {
-                weight: 30,
-                code: function($) {
-                    var np = $.np;
-                    var dom = np.dom;
-                    dom.tabs = $("#np-tabs").tabs("div.np-tab", {
-                        history: true ,
-                        effect: 'default'
-                    }),
-                    // editor
-                    dom.title = $('#np-title'),
-                    dom.tags = $('#np-tags'),
-                    dom.input = $('#np-textarea'),
-                    dom.previewDiv = $('#np-preview'),
-                    dom.editor = $('.np-editor'),
-                    dom.save = $('#np-save'),
-                    dom.publish = $('#np-publish');
-                    function convert() {
-                        np.preview(dom.input, dom.previewDiv);
-                    }
-                    // convert once onload
-                    convert();
-                    // bind events
-                    dom.input.bind('input', function() {
-                        convert();
-                    });
-                    dom.save.click(function(event) {
-                        np.api.save();
-                    });
-                    dom.publish.click(function(event) {
-                        np.api.save(true);
-                    });
 
-                    // after rendered post
-                    np.on('PostsRendered', function() {
-                        $('div.np-post-info').append('<a href="#np-toolbar-editor" class="np-post-edit np-left">edit</a>');
-                        $('a.np-post-edit').bind('click', function(event) {
-                            var postId = $(event.currentTarget).parent('.np-post-info').parent('.np-post').attr('id');
-                            np.fillEditor(postId);
-                        });
+module.exports = {
+    'main.js': {
+        'app.blog': {
+            weight: 20,
+            code: mainJs
+        }
+    },
+    'user.js': {
+        'app.blog.mainUser': {
+            weight: 30,
+            code: blogMainUser
+        }
+    },
+    'init.js' : {
+        'app.blog': {
+            weight: 20,
+            code: initJs
+        },
+        'app.blog.renderPost': {
+            weight: 40,
+            code: function($) {
+                // render content/pager, bind events
+                var np = $.np;
+                $('.np-post-content').each(function(idx, npc) {
+                    npc.innerHTML = np.showdown.makeHtml(npc.innerHTML);
+                });
+                $('.np-post-date').each(function(idx, npd) {
+                    npd.innerHTML = new Date(parseInt(npd.innerHTML)).toLocaleDateString();
+                });
+                if (np.page == 'index') {
+                    $('.np-post-tag').click(function(event) {
+                        var params = np.params;
+                        params.tags = [event.currentTarget.innerHTML];
+                        np.emit('TagSelected', [params]);
                     });
+                }
+                if (np.totalPosts != '') {
+                    // mustache rendered by server
+                    np.buildPager(null, {
+                        total: parseInt(np.totalPosts)
+                    }, {
+                        limit: 5,
+                        skip: 0
+                    });
+                    np.emit('PostsRendered');
                 }
             }
         }
     },
-    api: api,
-    view: _view
-}
+    'initUser.js': {
+        'app.blog.initUser': {
+            weight: 30,
+            code: function($) {
+                var np = $.np;
+                var dom = np.dom;
+                dom.tabs = $("#np-tabs").tabs("div.np-tab", {
+                    history: true ,
+                    effect: 'default'
+                }),
+                // editor
+                dom.title = $('#np-title'),
+                dom.tags = $('#np-tags'),
+                dom.input = $('#np-textarea'),
+                dom.previewDiv = $('#np-preview'),
+                dom.editor = $('.np-editor'),
+                dom.save = $('#np-save'),
+                dom.publish = $('#np-publish');
+                function convert() {
+                    np.preview(dom.input, dom.previewDiv);
+                }
+                // convert once onload
+                convert();
+                // bind events
+                dom.input.bind('input', function() {
+                    convert();
+                });
+                dom.save.click(function(event) {
+                    np.api.save();
+                });
+                dom.publish.click(function(event) {
+                    np.api.save(true);
+                });
+
+                // after rendered post
+                np.on('PostsRendered', function() {
+                    $('div.np-post-info').append('<a href="#np-toolbar-editor" class="np-post-edit np-left">edit</a>');
+                    $('a.np-post-edit').bind('click', function(event) {
+                        var postId = $(event.currentTarget).parent('.np-post-info').parent('.np-post').attr('id');
+                        np.fillEditor(postId);
+                    });
+                });
+            }
+        }
+    }
+};
