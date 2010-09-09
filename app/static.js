@@ -26,7 +26,7 @@ function userJs() {
 
 function nodepressRes(type, group) {
     var self = this;
-    var compress = genji.settings.env.type == "development";
+    var compress = genji.settings.env.type != "development";
     try {
         client.getCombined(type, group, compress, function(code) {
             if (code) {

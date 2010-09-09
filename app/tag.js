@@ -89,7 +89,7 @@ tag.find({}).then(function(tags) {
 // api
 function getTagCloud() {
     var self = this;
-    tag.find({count: {$gt: 0}}, {"count": 1}).then(function(tags) {
+    tag.find({count: {$gt: 0}}, {"count": 1}, {sort: [['modified', -1]]}).then(function(tags) {
         self.sendJSON(tags || {"error": "No tag foound"});
     });
 }

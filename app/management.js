@@ -1,6 +1,7 @@
 var core = require('../core'),
 db = core.db,
 auth = core.auth,
+checkLogin = auth.checkLogin,
 Collection = db.Collection,
 tracker;
 
@@ -59,9 +60,15 @@ function saveSetting() {
 getTracker(function() {});
 
 var api = [
-['management/tracker/get/$', getTracker, 'get'],
-['management/tracker/save/$', saveTracker, 'post'],
-['management/setting/save/$', saveSetting, 'post']
+    [
+        'management/',
+        [
+            ['tracker/get/$', getTracker, 'get'],
+            ['tracker/save/$', saveTracker, 'post'],
+            ['setting/save/$', saveSetting, 'post']
+        ],
+        {pre: [checkLogin]}
+    ]
 ]
 
 // client side code

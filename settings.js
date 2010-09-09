@@ -20,12 +20,12 @@ var settings = {
 };
 
 try {
-    var local_settings = require('./local_conf');
+    var local_settings = require('./local_settings');
     for (var key in local_settings) {
         settings[key] = local_settings[key];
     }
 } catch(e) {
-    require('sys').puts(e);
+    require('sys').puts('You can define settings in ./local_settings to override defaults.');
 }
 
 settings.libPath.forEach(function(path) {
