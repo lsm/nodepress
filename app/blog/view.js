@@ -42,11 +42,13 @@ function index() {
                         };
                     }
                     item.tags = tags;
+                    // render markdown on server side for first page load
+                    item.content = view.markdown(item.content);
                 }
             });
             ctx.posts = posts;
             ctx.page = 'index';
-            view.render('/views/index.html', ctx, null, function(html) {
+            view.render('index.html', ctx, function(html) {
                 self.sendHTML(html);
             });
         });

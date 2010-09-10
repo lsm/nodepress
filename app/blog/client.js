@@ -307,14 +307,11 @@ module.exports = {
             weight: 20,
             code: initJs
         },
-        'app.blog.renderPost': {
+        'app.blog.bindEvents': {
             weight: 40,
             code: function($) {
-                // render content/pager, bind events
+                // bind events, insert date
                 var np = $.np;
-                $('.np-post-content').each(function(idx, npc) {
-                    npc.innerHTML = np.showdown.makeHtml(npc.innerHTML);
-                });
                 $('.np-post-date').each(function(idx, npd) {
                     npd.innerHTML = new Date(parseInt(npd.innerHTML)).toLocaleDateString();
                 });
@@ -326,7 +323,7 @@ module.exports = {
                     });
                 }
                 if (np.totalPosts != '') {
-                    // mustache rendered by server
+                    // mustache and markdown rendered by server
                     np.buildPager(null, {
                         total: parseInt(np.totalPosts)
                     }, {
