@@ -12,14 +12,14 @@ function handleFile(path) {
 
 function mainJs() {
     var self = this;
-    view.render('/views/js/main.js.mu', {code: client.getCode('main.js')}, null, function(js) {
+    view.render('js/main.js.mu', {code: client.getCode('main.js')}, null, function(js) {
         self.send(js , 200, {'Content-Type': 'application/javascript'});
     });
 }
 
 function userJs() {
     var self = this;
-    view.render('/views/js/user.js.mu', {code: client.getCode('user.js')}, null, function(js) {
+    view.render('js/user.js.mu', {code: client.getCode('user.js')}, null, function(js) {
         self.send(js , 200, {'Content-Type': 'application/javascript'});
     });
 }

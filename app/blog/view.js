@@ -83,7 +83,7 @@ function article(id) {
                 }
                 ctx.posts = [post];
                 ctx.page = 'article';
-                view.render('/views/article.html', ctx, null, function(html) {
+                view.render('article.html', ctx, null, function(html) {
                     self.sendHTML(html);
                 });
             } else {
@@ -101,7 +101,7 @@ module.exports = [
     ['^/article/(\\w+)/.*/$', article, 'get'],
     ['.*', function() {
         var self = this;
-        view.render('/views/error/404.html', {url: this.request.url}, function(html) {
+        view.render('error/404.html', {url: this.request.url}, function(html) {
             self.error(404, html);
         })
     }, 'notfound']
