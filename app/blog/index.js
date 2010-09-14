@@ -33,5 +33,6 @@ module.exports = {
     },
     client: require('./client'),
     api: require('./api'),
-    view: require('./view')
+    view: require('./view'),
+    DEFAULT_POST_NUM: 20
 }

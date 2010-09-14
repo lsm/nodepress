@@ -30,7 +30,7 @@ function index() {
     post.count({}).then(function(num) {
         ctx.total = num;
         post.find({}, null, {
-            limit: 5,
+            limit: core.app.blog.DEFAULT_POST_NUM,
             sort:[["published", -1]]
         }).then(function(posts) {
             posts.forEach(function(item) {

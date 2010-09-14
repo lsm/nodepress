@@ -19,8 +19,8 @@ function save() {
 function list(skip, limit, tags) {
     var self = this;
     skip = parseInt(skip) ? skip : 0;
-    limit = parseInt(limit) ? limit : 5;
-    if (limit > 30 || limit < 1) limit = 5; // default
+    limit = parseInt(limit) ? limit : core.blog.DEFAULT_POST_NUM;
+    if (limit > 30 || limit < 1) limit = core.blog.DEFAULT_POST_NUM; // default
     var query = {
         published: {
             $exists: true
