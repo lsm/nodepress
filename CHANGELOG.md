@@ -1,10 +1,20 @@
-0.1.7 (?)
+0.1.8 (?)
+---------
 - core:
+    - try to implement `same code run both on client/server side`
+
+0.1.7 (?)
+---------
+- project:
     - can be used as a standalone node module
+    - package.json for npm
+- core:
     - unify `posts` block template in a file, client side should get it from server
 
 0.1.6 (?)
 ---------
+- project:
+    - node-markdown as a submodule
 - app:
     - account:
         - password recovery, change password, user registration and information
@@ -13,8 +23,9 @@
         - add author info for post
         - default 20 (too many?) posts, remove `post per page`
         - render markdown on server side for first page load
+        - post id hash improvement
 - core:
-    - node-markdown as submodule
+    - customizable app path
 - theming system:
     - allow setting the template root
 - bug fix:
