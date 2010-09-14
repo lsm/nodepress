@@ -136,20 +136,6 @@ function mainJs($) {
     np.on('@ApiList', buildPager);
     function buildPager(event, data, params) {
         var total = data.total;
-        $('#np-post-perpage a').each(function(idx, a) {
-            a = $(a);
-            var perPage = parseInt(a.attr('innerHTML'));
-            if (perPage == params.limit || perPage - total > 10) {
-                a.addClass('np-hide');
-            } else {
-                a.unbind('click');
-                a.bind('click', function() {
-                    params.limit = perPage;
-                    np.api.list(params);
-                });
-                a.removeClass('np-hide');
-            }
-        });
         if (params.skip + params.limit < total) {
             dom.nextPage.unbind('click');
             dom.nextPage.bind('click', function() {
