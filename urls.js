@@ -1,12 +1,26 @@
-var db = require('./core/db'),
-client = require('./core/client'),
+var core = require('./core'),
+db = core.db,
+client = core.client,
 settings = genji.settings,
 apps = [],
 apis = [],
 urls = [];
 
+core.app = {};
+
 settings.installedApps.forEach(function(app) {
-    apps.push(require('./app/' + app));
+    var module, name;
+    if (typeof app == 'string') {
+         module = require('./app/' + app);
+         name = app;
+    } else if (typeof app == 'object') {
+        module = require(app.require);
+        name = app.name;
+    } else {
+        throw new Error('setting format of `installedApps` not correct.');
+    }
+    core.app[name] = module;
+    apps.push(module);
 });
 
 apps.forEach(function(app) {
