@@ -10,11 +10,12 @@ factory.register('post', function(name) {
     }, ['posts'], true);
 var post = factory.post;
 post.extend({
-    save: function(data) {
+    save: function(data, author) {
         if (typeof data === 'string') data = JSON.parse(data);
         if (!data.hasOwnProperty('_id')) {
             data.created = _now();
-            data._id = md5(data + data.created);
+            data.author = author;
+            data._id = md5(data);
         } else {
             data.modified = _now();
         }
