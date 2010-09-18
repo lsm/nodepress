@@ -2,6 +2,9 @@
 ---------
 - core:
     - try to implement `same code run both on client/server side`
+- account:
+    - password recovery, change password, user registration and information
+    - use form for login
 
 0.1.7 (?)
 ---------
@@ -11,14 +14,11 @@
 - core:
     - unify `posts` block template in a file, client side should get it from server
 
-0.1.6 (?)
+0.1.6 (2010/09/14)
 ---------
 - project:
     - node-markdown as a submodule
 - app:
-    - account:
-        - password recovery, change password, user registration and information
-        - use form for login
     - blog: 
         - add author info for post
         - default 20 (too many?) posts, remove `post per page`
