@@ -1,7 +1,8 @@
 var path = require('path'),
-nun = require("../lib/nun"),
+nun = require("nun"),
 settings = genji.settings,
-defaultOptions = {};
+defaultOptions = {},
+md = require('markdown').Markdown;
 
 
 function setOption(key, value) {
@@ -10,11 +11,13 @@ function setOption(key, value) {
 
 setOption('compress', false);
 setOption('cache', true);
+setOption('viewPath', path.join(settings.env.root, '/views'));
+
 
 function render(tpl, ctx, options, callback) {
     if (typeof options === 'function') callback = options;
     options = options || defaultOptions;
-    nun.render(path.join(settings.env.root, tpl), ctx, options, function (err, output) {
+    nun.render(path.join(defaultOptions.viewPath, tpl), ctx, options, function (err, output) {
         if (err) {
             throw err;
         }
@@ -30,5 +33,6 @@ function render(tpl, ctx, options, callback) {
 
 module.exports = {
     render: render,
+    markdown: md,
     setOption: setOption
 }

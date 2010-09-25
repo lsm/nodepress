@@ -10,3 +10,6 @@
 [submodule "lib/UglifyJS"]
 	path = lib/UglifyJS
 	url = git://github.com/mishoo/UglifyJS.git
+[submodule "lib/node-markdown"]
+	path = lib/node-markdown
+	url = http://github.com/andris9/node-markdown.git

@@ -136,20 +136,6 @@ function mainJs($) {
     np.on('@ApiList', buildPager);
     function buildPager(event, data, params) {
         var total = data.total;
-        $('#np-post-perpage a').each(function(idx, a) {
-            a = $(a);
-            var perPage = parseInt(a.attr('innerHTML'));
-            if (perPage == params.limit || perPage - total > 10) {
-                a.addClass('np-hide');
-            } else {
-                a.unbind('click');
-                a.bind('click', function() {
-                    params.limit = perPage;
-                    np.api.list(params);
-                });
-                a.removeClass('np-hide');
-            }
-        });
         if (params.skip + params.limit < total) {
             dom.nextPage.unbind('click');
             dom.nextPage.bind('click', function() {
@@ -307,14 +293,11 @@ module.exports = {
             weight: 20,
             code: initJs
         },
-        'app.blog.renderPost': {
+        'app.blog.bindEvents': {
             weight: 40,
             code: function($) {
-                // render content/pager, bind events
+                // bind events, insert date
                 var np = $.np;
-                $('.np-post-content').each(function(idx, npc) {
-                    npc.innerHTML = np.showdown.makeHtml(npc.innerHTML);
-                });
                 $('.np-post-date').each(function(idx, npd) {
                     npd.innerHTML = new Date(parseInt(npd.innerHTML)).toLocaleDateString();
                 });
@@ -326,7 +309,7 @@ module.exports = {
                     });
                 }
                 if (np.totalPosts != '') {
-                    // mustache rendered by server
+                    // mustache and markdown rendered by server
                     np.buildPager(null, {
                         total: parseInt(np.totalPosts)
                     }, {

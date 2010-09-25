@@ -30,7 +30,7 @@ function index() {
     post.count({}).then(function(num) {
         ctx.total = num;
         post.find({}, null, {
-            limit: 5,
+            limit: core.app.blog.DEFAULT_POST_NUM,
             sort:[["published", -1]]
         }).then(function(posts) {
             posts.forEach(function(item) {
@@ -42,11 +42,13 @@ function index() {
                         };
                     }
                     item.tags = tags;
+                    // render markdown on server side for first page load
+                    item.content = view.markdown(item.content);
                 }
             });
             ctx.posts = posts;
             ctx.page = 'index';
-            view.render('/views/index.html', ctx, null, function(html) {
+            view.render('index.html', ctx, function(html) {
                 self.sendHTML(html);
             });
         });
@@ -81,7 +83,7 @@ function article(id) {
                 }
                 ctx.posts = [post];
                 ctx.page = 'article';
-                view.render('/views/article.html', ctx, null, function(html) {
+                view.render('article.html', ctx, null, function(html) {
                     self.sendHTML(html);
                 });
             } else {
@@ -99,7 +101,7 @@ module.exports = [
     ['^/article/(\\w+)/.*/$', article, 'get'],
     ['.*', function() {
         var self = this;
-        view.render('/views/error/404.html', {url: this.request.url}, function(html) {
+        view.render('error/404.html', {url: this.request.url}, function(html) {
             self.error(404, html);
         })
     }, 'notfound']

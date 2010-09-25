@@ -167,5 +167,4 @@ module.exports = {
     },
     api: api,
     getTracker: getTracker
-//    view: _view
 }

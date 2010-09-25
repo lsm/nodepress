@@ -1,9 +1,35 @@
-0.1.6 (?)
+0.1.8 (?)
 ---------
+- core:
+    - try to implement `same code run both on client/server side`
+- account:
+    - password recovery, change password, user registration and information
+    - use form for login
+
+0.1.7 (?)
+---------
+- project:
+    - can be used as a standalone node module
+    - package.json for npm
+- core:
+    - unify `posts` block template in a file, client side should get it from server
+
+0.1.6 (2010/09/14)
+---------
+- project:
+    - node-markdown as a submodule
 - app:
-    - account: password recovery, change password, user registration and information
-    - account: use form for login
-    - blog: add author info for post
+    - blog: 
+        - add author info for post
+        - default 20 (too many?) posts, remove `post per page`
+        - render markdown on server side for first page load
+        - post id hash improvement
+- core:
+    - customizable app path
+- theming system:
+    - allow setting the template root
+- bug fix:
+    - fix tabs
 
 0.1.5 (2010/09/07)
 ------------------
@@ -18,7 +44,6 @@
 - theme system
     * inject script tag by system facilities
     * combine static files by type (css/js) and group
-    * allow replacing mustache templates (specific or all)
 - handle error at client side for unexpected server response
 - $.np now can act as event emitter
 - cleanup usage of $.np, np and dom
