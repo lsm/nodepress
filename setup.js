@@ -1,4 +1,4 @@
-var settings = require('./conf'),
+var settings = require('./settings'),
 sys = require('sys'),
 mkpass = require('./lib/genji/lib/genji/web/auth').makePassword,
 mongo = require('./lib/node-mongodb-native/lib/mongodb');
