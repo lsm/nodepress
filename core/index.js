@@ -5,6 +5,7 @@ exports.db = require('./db'),
 exports.client = require('./client'),
 exports.promise = require('./promise'),
 settings = genji.settings,
+EventEmitter = require('events').EventEmitter,
 exports.view = require('./view');
 
 // nodepress global object
@@ -12,8 +13,7 @@ genji.np = exports;
 
 // setup cache, event emitter and filter.
 var cache = exports.cache = new genji.pattern.Cache;
-var event = exports.event = new genji.pattern.Event;
-var filter = exports.filter = new genji.pattern.control.Filter;
+var event = exports.event = new EventEmitter;
 var factory = exports.factory = new genji.pattern.Factory;
 
 // shortcuts

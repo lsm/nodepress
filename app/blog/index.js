@@ -2,7 +2,7 @@ var core = require('../../core'),
 Collection = core.db.Collection,
 factory = core.factory,
 _now = core.util.now,
-md5 = genji.crypto.md5;
+md5 = genji.util.crypto.md5;
 
 
 factory.register('post', function(name) {
