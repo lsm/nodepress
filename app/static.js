@@ -3,7 +3,7 @@ core = require('../core'),
 client = core.client,
 view = core.view,
 path = require('path'),
-root = path.join(genji.settings.env.root, '/static');
+root = path.join(genji.settings.appRoot, '/static');
 
 function handleFile(path) {
     this.setRoot(root);

@@ -37,7 +37,7 @@ function inject(appClient) {
 
 // try to get content from file `root` + `path`
 function _getCodeFromFS(idx, script, callback) {
-    fs.readFile(Path.join(genji.settings.env.root, script.dir, script.basename), "utf8", function(err, content) {
+    fs.readFile(Path.join(genji.settings.appRoot, script.dir, script.basename), "utf8", function(err, content) {
         if (err) throw err;
         // use `idx` as we need to reserve the script order in async operation (big file load slower)
         callback(idx, content);

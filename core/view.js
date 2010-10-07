@@ -11,7 +11,7 @@ function setOption(key, value) {
 
 setOption('compress', false);
 setOption('cache', true);
-setOption('viewPath', path.join(settings.env.root, '/views'));
+setOption('viewPath', path.join(settings.appRoot, '/views'));
 
 
 function render(tpl, ctx, options, callback) {
