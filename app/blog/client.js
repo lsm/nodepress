@@ -41,7 +41,7 @@ function mainJs($) {
         list: function(query) {
             np.params = query || np.params;
             var skip = np.params.skip || 0;
-            var limit = np.params.limit || 5;
+            var limit = np.params.limit || core.blog.DEFAULT_POST_NUM;
             var tags = np.params.tags || [];
             var url = '/_api/blog/list/' + skip + '/' + limit + '/';
             if (tags.length > 0) {
