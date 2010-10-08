@@ -313,7 +313,7 @@ module.exports = {
                     np.buildPager(null, {
                         total: parseInt(np.totalPosts)
                     }, {
-                        limit: 5,
+                        limit: 20,
                         skip: 0
                     });
                     np.emit('PostsRendered');
