@@ -13,6 +13,7 @@
     - package.json for npm
 - core:
     - unify `posts` block template in a file, client side should get it from server
+    - urls.js should not hardcoded the api prefix, or maybe the idea of 'api' is a bad.
 
 0.1.6 (2010/09/14)
 ---------
