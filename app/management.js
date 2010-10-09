@@ -135,6 +135,14 @@ function management($) {
     });
 }
 
+// bind global events
+np.on('management.api.saveSetting', function(data) {
+    if (data._id == 'site') {
+        if (data.title) np.cache.set('title', data.title);
+        if (data.intro) np.cache.set('intro', data.intro);
+    }
+});
+
 module.exports = {
     db: {
         setting: setting
