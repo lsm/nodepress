@@ -1,6 +1,6 @@
 var path = require('path'),
 nun = require("nun"),
-settings = genji.settings,
+settings = np.settings,
 defaultOptions = {},
 md = require('markdown').Markdown;
 

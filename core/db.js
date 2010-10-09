@@ -1,4 +1,5 @@
-var Base = genji.pattern.Base,
+var genji = np.genji,
+Base = genji.pattern.Base,
 Promise = require('./promise').Promise,
 mongo = require('mongodb'),
 Pool = genji.pattern.Pool;
@@ -7,14 +8,14 @@ var sys = require('sys');
 
 function getConn(num, callback) {
     for (var i = 0; i < num; i++) {
-        mongo.connect(genji.settings.db, function(err, db) {
+        mongo.connect(np.settings.db, function(err, db) {
             if (err) throw err;
             callback(db);
         });
     }
 }
 
-var connPool = new Pool(getConn, 5);
+var connPool = new Pool(getConn, np.settings.dbPoolSize || 5);
 
 var Db = Base(function() {
      this.pool = connPool;

@@ -1,6 +1,7 @@
-var settings = genji.settings,
-base64 = genji.util.base64,
-auth = genji.web.auth;
+var genji = np.genji;
+    settings = np.settings,
+    base64 = genji.util.base64,
+    auth = genji.web.auth;
 
 function checkCookie(handler, serverKey) {
     var cookie = handler.getCookie(settings.cookieName);
