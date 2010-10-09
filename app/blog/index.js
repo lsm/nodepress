@@ -26,6 +26,42 @@ post.extend({
     }
 });
 
+// load settings
+/*
+var setting = exports.db.setting,
+post = exports.db.post;
+setting.findOne({
+    '_id': 'defaultTracker'
+}).then(function(trackerObj) {
+    tracker = trackerObj || {
+        code: ''
+    };
+    cache.set('defaultTracker', tracker.code);
+});
+setting.findOne({
+    '_id': 'site'
+}).then(function(site) {
+    site = site || {};
+    cache.set('title', site.title || 'Nodepress');
+    cache.set('intro', site.intro || 'a blogging tool built on top of nodejs');
+});
+
+exports.defaultContext = {
+    staticUrl: settings.staticUrl,
+    debugUrl: settings.env.type === 'development' ? '/debug' : '',
+    cookieName: settings.cookieName,
+    get tracker() {
+        return cache.get('defaultTracker');
+    },
+    get title() {
+        return cache.get('title');
+    },
+    get intro() {
+        return cache.get('intro');
+    }
+};
+*/
+
 
 module.exports = {
     db: {
