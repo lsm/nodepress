@@ -32,6 +32,5 @@ function render(tpl, ctx, options, callback) {
 module.exports = {
     init: init,
     render: render,
-    markdown: md,
-    setOption: setOption
+    markdown: md
 }
