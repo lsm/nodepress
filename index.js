@@ -2,10 +2,9 @@ var Path = require('path');
 
 setupRequirePath();
 
-var db, client, np = {},
+var db, client, np
 apis = [],
 urls = [];
-np.app = {};
 
 
 function setupRequirePath() {
@@ -81,6 +80,7 @@ function setupCore(settings) {
 }
 
 function setupApps(apps) {
+    np.app = {};
     apps.forEach(function(app) {
         var module, name;
         if (typeof app == 'string') {
@@ -93,25 +93,25 @@ function setupApps(apps) {
             throw new Error('setting format of `installedApps` not correct.');
         }
         if (module.hasOwnProperty('api')) {
-            apis = apis.concat(app['api']);
+            apis = apis.concat(module['api']);
         }
         if (module.hasOwnProperty('db')) {
-            for (var name in app['db']) {
-                db[name] = app['db'][name];
+            for (var name in module['db']) {
+                np.db[name] = module['db'][name];
             }
         }
         if (module.hasOwnProperty('view')) {
-            urls = urls.concat(app['view']);
+            urls = urls.concat(module['view']);
         }
         if (module.hasOwnProperty('client')) {
-            client.inject(app.client);
+            np.client.inject(module.client);
         }
         np.app[name] = module;
     });
 }
 
 function startServer(settings) {
-    // settings and genji
+    // construct the nodepress core
     np = setupCore(settings);
     np.settings = settings;
     global.np = np;
@@ -131,7 +131,7 @@ function startServer(settings) {
         });
     }
     // start server
-    return genji.web.startServer(settings);
+    return np.genji.web.startServer(settings);
 }
 
 exports.startServer = startServer;
