@@ -3,7 +3,10 @@ var genji = require('genji'),
     auth = genji.web.auth;
 
 function checkCookie(cookie) {
-    return auth.verify(base64.decode(cookie), exports.cookieSecret);
+    if (cookie) {
+        return auth.verify(base64.decode(cookie), exports.cookieSecret);
+    }
+    return false;
 }
 
 function signin(user, credential, expire, data) {
