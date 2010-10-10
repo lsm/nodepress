@@ -118,8 +118,8 @@ function copy(src, dest) {
  *
  */
 function start(bootFile) {
-    var settings = require(Path.join(process.cwd(), bootFile));
     var np = require('../index');
+    var settings = require(Path.join(process.cwd(), bootFile));
     np.startServer(settings);
 }
 
