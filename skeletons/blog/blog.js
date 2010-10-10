@@ -1,4 +1,5 @@
-var path = require('path');
+var path = require('path'),
+genji = require('genji');
 var settings = {
     db: {
         servers: 'mongo://127.0.0.1:27017/nodepress',
@@ -28,22 +29,16 @@ var settings = {
         {name: 'error-handler'},
         {name:'logger', level: 'info'},
         {name:'conditional-get'},
-        {name: 'router', handler: 'genji.web.handler.SimpleCookieHandler'}
+        {name: 'router', handler: genji.web.handler.SimpleCookieHandler}
     ]
 };
 
 try {
-    var local_settings = require('./local_settings');
+    var local_settings = require('./settings');
     for (var key in local_settings) {
         settings[key] = local_settings[key];
     }
-} catch(e) {
-    require('sys').puts('You can define settings in ./local_settings to override defaults.');
-}
-
-settings.libPath.forEach(function(path) {
-    require.paths.unshift(path);
-});
+} catch(e) {}
 
 
 module.exports = settings;
