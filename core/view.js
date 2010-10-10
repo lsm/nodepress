@@ -1,23 +1,21 @@
 var path = require('path'),
 nun = require("nun"),
-settings = np.settings,
-defaultOptions = {},
+defaultOptions,
 md = require('markdown').Markdown;
 
 
-function setOption(key, value) {
-    defaultOptions[key] = value;
+function init(viewRoot, compress, cache) {
+    defaultOptions = {
+        viewRoot: viewRoot,
+        compress: compress || false,
+        cache: cache || false
+    };
 }
-
-setOption('compress', false);
-setOption('cache', true);
-setOption('viewPath', path.join(settings.appRoot, '/views'));
-
 
 function render(tpl, ctx, options, callback) {
     if (typeof options === 'function') callback = options;
     options = options || defaultOptions;
-    nun.render(path.join(defaultOptions.viewPath, tpl), ctx, options, function (err, output) {
+    nun.render(path.join(defaultOptions.viewRoot, tpl), ctx, options, function (err, output) {
         if (err) {
             throw err;
         }
@@ -32,6 +30,7 @@ function render(tpl, ctx, options, callback) {
 }
 
 module.exports = {
+    init: init,
     render: render,
     markdown: md,
     setOption: setOption

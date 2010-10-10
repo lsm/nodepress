@@ -3,7 +3,7 @@ jsp = require("parse-js"),
 pro = require("process"),
 url = require("url"),
 fs = require("fs"),
-cache = np.cache,
+cache, staticUrl, staticRoot, combinedScriptPrefix,
 Path = require("path");
 
 var scripts = {};
@@ -14,8 +14,14 @@ var scriptTpl = {
     css: '<link rel="stylesheet" type="text/css" href="{{src}}" />'
 }
 
-var combinedScriptPrefix = "nodepress-";
 var scriptPaths = [];
+
+function init(options) {
+    cache = options.cache;
+    staticRoot = options.staticRoot;
+    staticUrl = options.staticUrl || 'http://127.0.0.1:8000/static/';
+    combinedScriptPrefix = options.combinedScriptPrefix || 'nodepress-';
+}
 
 function inject(appClient) {
     for (var filename in appClient) {
@@ -33,7 +39,7 @@ function inject(appClient) {
 
 // try to get content from file `root` + `path`
 function _getCodeFromFS(idx, script, callback) {
-    fs.readFile(Path.join(np.settings.appRoot, script.dir, script.basename), "utf8", function(err, content) {
+    fs.readFile(Path.join(staticRoot, script.dir, script.basename), "utf8", function(err, content) {
         if (err) throw err;
         // use `idx` as we need to reserve the script order in async operation (big file load slower)
         callback(idx, content);
@@ -82,7 +88,6 @@ function addScript(type, basename, relativeDir, relativeUrl, group) {
 function getScripts(type, groups, combine) {
     var ret = "", path;
     if (typeof groups == "string") groups = [groups];
-    var staticUrl = np.settings.staticUrl;
     if (staticUrl[staticUrl.length-1] != "/") staticUrl += "/";
     if (combine) {
         // if combine is enabled, just use group name as the filename of combined scripts,
@@ -105,6 +110,7 @@ function getScripts(type, groups, combine) {
 }
 
 function getCombined(type, group, compress, callback) {
+    var cache = exports.cache;
     if (compress) {
         // try to get from cache
         var cached = cache.get([type, group].join('-'));
@@ -155,10 +161,10 @@ function getCombined(type, group, compress, callback) {
 }
 
 module.exports = {
+    init: init,
     getCode: getCode,
     inject: inject,
     getScripts: getScripts,
     getCombined: getCombined,
-    combinedScriptPrefix: combinedScriptPrefix,
     addScript: addScript
 }

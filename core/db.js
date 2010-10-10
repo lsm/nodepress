@@ -1,21 +1,30 @@
-var genji = np.genji,
-Base = genji.pattern.Base,
-Promise = require('./promise').Promise,
-mongo = require('mongodb'),
-Pool = genji.pattern.Pool;
 
-var sys = require('sys');
+/**
+ * Module dependences
+ * 
+ */
+var Promise = require('./promise').Promise,
+genji = require('genji'),
+mongo = require('mongodb'),
+Base = genji.pattern.Base,
+Pool = genji.pattern.Pool,
+connPool, servers;
+
 
 function getConn(num, callback) {
     for (var i = 0; i < num; i++) {
-        mongo.connect(np.settings.db, function(err, db) {
+        mongo.connect(servers, function(err, db) {
             if (err) throw err;
             callback(db);
         });
     }
 }
 
-var connPool = new Pool(getConn, np.settings.dbPoolSize || 5);
+function init(dbServers, poolSize) {
+    servers = dbServers;
+    connPool = new Pool(getConn, poolSize || 5);
+}
+
 
 var Db = Base(function() {
      this.pool = connPool;
@@ -140,6 +149,7 @@ var Collection = Db({
 });
 
 module.exports = {
+    init: init,
     Db: Db,
     Collection: Collection
 }

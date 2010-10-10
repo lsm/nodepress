@@ -21,22 +21,46 @@ function setupRequirePath() {
     });
 }
 
-function setupCore() {
-    // load core modules
-    np.auth = require('./core/auth'),
-    np.db = require('./core/db'),
-    np.client = require('./core/client'),
-    np.promise = require('./core/promise'),
-    settings = np.settings,
-    genji = np.genji,
-    EventEmitter = require('events').EventEmitter,
-    np.view = require('./core/view');
+function setupCore(settings) {
+    // load dependences
+    var np = {}, genji = np.genji = require('genji'),
+    EventEmitter = require('events').EventEmitter;
 
-
-    // setup cache, event emitter and filter.
+    // setup cache, event emitter, promise and filter.
     np.cache = new genji.pattern.Cache;
     var event = np.event = new EventEmitter;
+    np.promise = require('./core/promise');
     np.factory = new genji.pattern.Factory;
+
+    // setup view
+    if (settings.view) {
+        np.view = require('./core/view');
+        np.view.init(settings.view.viewRoot, settings.view.compress, settings.view.cache);
+    }
+    
+    // setup db
+    if (settings.db) {
+        np.db = require('./core/db');
+        np.db.init(settings.db.servers, settings.db.poolSize);
+    }
+
+    // setup auth
+    if (settings.auth) {
+        np.auth = require('./core/auth');
+        np.auth.cookieName = settings.auth.cookieName || '_nodepressCookie';
+        np.auth.cookieSecret = settings.auth.cookieSecret || '_nodepressC00kie-securekEy';
+    }
+
+    // setup client
+    if (settings.client) {
+        np.client = require('./core/client');
+        np.client.init({
+            cache: np.cache,
+            staticRoot: settings.client.staticRoot || Path.join(settings.appRoot, '/static'),
+            staticUrl: settings.client.staticUrl,
+            combinedScriptPrefix: settings.client.combinedScriptPrefix
+        });
+    }
 
     // the global `np` object can act as an event emitter
     np.on = function(type, callback) {
@@ -53,6 +77,7 @@ function setupCore() {
             return new String((new Date()).getTime());
         }
     }
+    return np;
 }
 
 function setupApps(apps) {
@@ -87,10 +112,10 @@ function setupApps(apps) {
 
 function startServer(settings) {
     // settings and genji
+    np = setupCore(settings);
     np.settings = settings;
-    np.genji = require('genji');
     global.np = np;
-    setupCore();
+    
     // setup application if any
     if (Array.isArray(settings.installedApps) && settings.installedApps.length > 0) {
         setupApps(settings.installedApps);
@@ -110,3 +135,4 @@ function startServer(settings) {
 }
 
 exports.startServer = startServer;
+exports.getCore = setupCore;
