@@ -8,21 +8,37 @@ cookieName = auth.cookieName,
 cookieSecret = auth.cookieSecret,
 querystring = require("querystring");
 
-factory.register('user', function(name) { return new Collection(name)}, ['users'], true);
+factory.register('user', function(name) {return new Collection(name)}, ['users'], true);
 var user = factory.user;
 
 
-function checkLogin(msg) {
-    if ((this.user = auth.checkCookie(this.getCookie(cookieName), cookieSecret)[0])) {
+function checkLogin(failure) {
+    var validCookie = auth.checkCookie(this.getCookie(cookieName), cookieSecret);
+    if (validCookie) {
+        // valid user
+        this.username = validCookie[0];
+        this.userExpire = validCookie[1];
+        this.userData = validCookie[2];
         return true;
     }
-    this.error(401, msg || 'Login failed');
+    // not a logged in user
+    switch(typeof failure) {
+        case 'function':
+            failure();
+            break;
+        case 'string':
+        case 'undefined':
+            this.error(401, failure || 'Login failed');
+            break;
+        default:
+            // do nothing just return false (for the signin process)
+            if (failure === false) return false;
+    }
     return false;
 }
 
 function signin() {
-    var cookie = this.getCookie(cookieName);
-    if (cookie && auth.checkCookie(cookie, cookieSecret)) {
+    if (checkLogin.call(this, false)) {
         // already logged in
         this.send("ok");
         return;
@@ -34,11 +50,19 @@ function signin() {
             user.findOne({
                 username: p['username']
             }).then(function(res) {
-                if (res && auth.signin(self, p, res["password"], cookieSecret, cookieName)) {
-                    self.send("ok");
-                } else {
-                    self.error(401, 'Wrong username/password pair.');
+                var expire = new Date(new Date + 7*24*3600*1000);
+                if (res) {
+                    var signed = auth.signin(self, p, res["password"], expire);
+                    if (signed) {
+                        self.setCookie(cookieName, signed, {
+                            expires: expire,
+                            path: "/"
+                        });
+                        self.send("ok");
+                        return;
+                    }
                 }
+                self.error(401, 'Wrong username/password pair.');
             });
         } else {
             self.error(403, 'Please enter username and password.');

@@ -13,10 +13,6 @@ function signin(user, credential, expire, data) {
     if (auth.checkPassword(credential, user["password"])) {
         var signed = auth.sign(user['username'], expire, data, exports.cookieSecret);
         return signed ? base64.encode(signed) : false;
-//        handler.setCookie(exports.cookieName, base64.encode(c), {
-//            expires: expire,
-//            path: "/"
-//        });
     }
     return false;
 }
