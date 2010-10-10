@@ -1,12 +1,12 @@
-var FileHandler = genji.web.handler.FileHandler,
-core = require('../core'),
+var FileHandler = np.genji.web.handler.FileHandler,
+core = np,
 client = core.client,
 view = core.view,
-path = require('path'),
-root = path.join(genji.settings.appRoot, '/static');
+settings = core.settings,
+path = require('path');
 
 function handleFile(path) {
-    this.setRoot(root);
+    this.setRoot(client.staticRoot);
     this.staticFile(path);
 }
 
@@ -26,7 +26,7 @@ function userJs() {
 
 function nodepressRes(type, group) {
     var self = this;
-    var compress = genji.settings.env.type != "development";
+    var compress = settings.env != "development";
     try {
         client.getCombined(type, group, compress, function(code) {
             if (code) {

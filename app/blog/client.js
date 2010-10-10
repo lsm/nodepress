@@ -1,4 +1,4 @@
-var core = require('../../core'),
+var core = np,
 client = core.client;
 
 // add scripts

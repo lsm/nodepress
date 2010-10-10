@@ -1,4 +1,5 @@
-var core = require('../../core'),
+var core = np,
+account = require('../account'),
 auth = core.auth,
 view = core.view,
 factory = core.factory,

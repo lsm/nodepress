@@ -1,19 +1,19 @@
-    
-var core = require('../../core'),
+var core = np,
 auth = core.auth,
 view = core.view,
 client = core.client,
+account = require('../account'),
 factory = core.factory,
 post = factory.post,
-settings = genji.settings;
+settings = core.settings;
 
 
 function index() {
     var self = this;
-    var user = auth.checkCookie(self, settings.cookieSecret)[0];
-    var ctx = core.defaultContext;
+    var user = auth.checkCookie(this.getCookie(auth.cookieName), auth.cookieSecret)[0];
+    var ctx = core.blog.defaultContext;
     var scriptGroup = ["main"];
-    var inDev = settings.env.type == "development";
+    var inDev = settings.env == "development";
     if (user) {
         ctx.is_owner = [{
             name: user
@@ -57,7 +57,7 @@ function index() {
 
 function article(id) {
     var self = this;
-    var user = auth.checkCookie(self, settings.cookieSecret)[0];
+    var user = auth.checkCookie(this.getCookie(auth.cookieName), auth.cookieSecret)[0];
     var ctx = core.defaultContext;
     if (user) {
         ctx.is_owner = [{
@@ -96,7 +96,7 @@ function article(id) {
 module.exports = [
     ['^/hello/', function() {
         this.sendHTML('Hello World\n');
-    }, {pre: [auth.checkLogin]}],
+    }, {pre: [account.checkLogin]}],
     ['^/$', index, 'get'],
     ['^/article/(\\w+)/.*/$', article, 'get'],
     ['.*', function() {

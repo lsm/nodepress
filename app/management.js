@@ -1,11 +1,13 @@
-var core = require('../core'),
+var core = np,
 db = core.db,
 auth = core.auth,
-checkLogin = auth.checkLogin,
+factory = core.factory,
+checkLogin = require('./account').checkLogin,
 Collection = db.Collection,
 tracker;
 
-var setting = new Collection('settings');
+factory.register('setting', function(name) {return new Collection(name)}, ['settings'], true);
+var setting = factory.setting;
 
 function getTracker(callback) {
     var self = this;

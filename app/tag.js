@@ -1,12 +1,12 @@
-var core = require('../core'),
+var core = np,
 view = core.view,
 client = core.client,
 factory = core.factory,
 management = require('./management'),
 Collection = core.db.Collection,
-settings = genji.settings,
+settings = core.settings,
 now = core.util.now,
-chain = genji.pattern.control.chain;
+chain = np.genji.pattern.control.chain;
 
 factory.register('tag', function(name) {return new Collection(name)}, ['tags'], true);
 var tag = factory.tag;

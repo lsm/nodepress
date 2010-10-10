@@ -1,8 +1,8 @@
-var core = require('../../core'),
+var core = np,
 Collection = core.db.Collection,
 factory = core.factory,
 _now = core.util.now,
-md5 = genji.util.crypto.md5;
+md5 = np.genji.util.crypto.md5;
 
 
 factory.register('post', function(name) {
@@ -27,9 +27,7 @@ post.extend({
 });
 
 // load settings
-/*
-var setting = exports.db.setting,
-post = exports.db.post;
+var setting = core.db.setting;
 setting.findOne({
     '_id': 'defaultTracker'
 }).then(function(trackerObj) {
@@ -46,7 +44,7 @@ setting.findOne({
     cache.set('intro', site.intro || 'a blogging tool built on top of nodejs');
 });
 
-exports.defaultContext = {
+var defaultContext = {
     staticUrl: settings.staticUrl,
     debugUrl: settings.env.type === 'development' ? '/debug' : '',
     cookieName: settings.cookieName,
@@ -60,7 +58,6 @@ exports.defaultContext = {
         return cache.get('intro');
     }
 };
-*/
 
 
 module.exports = {

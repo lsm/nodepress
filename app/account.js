@@ -1,16 +1,28 @@
-var core = require('../core'),
+var core = np,
 db = core.db,
 auth = core.auth,
 factory = core.factory,
 Collection = db.Collection,
-settings = genji.settings,
+settings = core.settings,
+cookieName = auth.cookieName,
+cookieSecret = auth.cookieSecret,
 querystring = require("querystring");
 
 factory.register('user', function(name) { return new Collection(name)}, ['users'], true);
 var user = factory.user;
 
+
+function checkLogin(msg) {
+    if ((this.user = auth.checkCookie(this.getCookie(cookieName), cookieSecret)[0])) {
+        return true;
+    }
+    this.error(401, msg || 'Login failed');
+    return false;
+}
+
 function signin() {
-    if (auth.checkCookie(this, settings.cookieSecret)) {
+    var cookie = this.getCookie(cookieName);
+    if (cookie && auth.checkCookie(cookie, cookieSecret)) {
         // already logged in
         this.send("ok");
         return;
@@ -22,7 +34,7 @@ function signin() {
             user.findOne({
                 username: p['username']
             }).then(function(res) {
-                if (res && auth.signin(self, p, res["password"], settings.cookieSecret)) {
+                if (res && auth.signin(self, p, res["password"], cookieSecret, cookieName)) {
                     self.send("ok");
                 } else {
                     self.error(401, 'Wrong username/password pair.');
@@ -76,6 +88,7 @@ function initJs($) {
 }
 
 module.exports = {
+    checkLogin: checkLogin,
     client: {
         'main.js': {
             'app.account': {
