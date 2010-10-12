@@ -15,6 +15,9 @@
     - nomnomargs for parsing options (lib/nomnomargs)
 - core:
     - unify `posts` block template in a file, client side should get it from server
+- app:
+    - blog:
+        - bug fix: content is not rendered by mustache on article page
 
 0.1.6 (2010/09/14)
 ---------
