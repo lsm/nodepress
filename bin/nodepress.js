@@ -101,7 +101,6 @@ function init(path, force) {
  */
 function copy(src, dest) {
     exec('cp -rfv ' + src + ' ' + dest, function(error, stdout, stderr) {
-        console.log(stdout);
         console.log(stderr);
         if (error !== null) {
             console.log(error);
