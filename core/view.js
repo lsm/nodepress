@@ -1,21 +1,18 @@
 var path = require('path'),
 nun = require("nun"),
-defaultOptions,
 md = require('markdown').Markdown;
 
 
 function init(viewRoot, compress, cache) {
-    defaultOptions = {
-        viewRoot: viewRoot || path.join(__dirname, '../views'),
-        compress: compress || false,
-        cache: cache || false
-    };
+    exports.viewRoot = viewRoot || path.join(__dirname, '../views'),
+    exports.compress = compress || false,
+    exports.cache = cache || false
 }
 
 function render(tpl, ctx, options, callback) {
     if (typeof options === 'function') callback = options;
-    options = options || defaultOptions;
-    nun.render(path.join(defaultOptions.viewRoot, tpl), ctx, options, function (err, output) {
+    options = options || exports;
+    nun.render(path.join(exports.viewRoot, tpl), ctx, options, function (err, output) {
         if (err) {
             throw err;
         }
@@ -29,8 +26,6 @@ function render(tpl, ctx, options, callback) {
     });
 }
 
-module.exports = {
-    init: init,
-    render: render,
-    markdown: md
-}
+exports.init = init;
+exports.render= render;
+exports.markdown= md;
