@@ -86,8 +86,8 @@ function init(path, force) {
             }
         } else {
             // prompt a confirmation
-            confirm('The directory is not empty, are you sure you want to continue?', function() {
-                init(path, true);
+            confirm('The directory is not empty, are you sure you want to continue?', function(yes) {
+                yes && init(path, true);
             });
         }
     });
