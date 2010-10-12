@@ -11,6 +11,7 @@ var sys = require('sys'),
 childProcess = require('child_process'),
 Path = require('path'),
 fs = require('fs'),
+nomnom = require('../lib/nomnomargs/lib/nomnom'),
 exec = childProcess.exec,
 spawn = childProcess.spawn;
 
@@ -26,34 +27,44 @@ var version = '0.1.7';
 
 var stdin;
 
-// Parse arguments
-var args = process.argv.slice(2),
-cmd = args.shift(), path = '.', type = 'helloworld';
+/**
+ * Option definitions for nomnomargs
+ */
+var opts = [
+    {name: 'bind'
+    ,string: '-b HOSTNAME:PORT'
+    ,'long': '--bind=HOSTNAME:PORT'
+    ,'default': '127.0.0.1:8000'
+    ,help: 'Server hostname and listening port, default `127.0.0.1:8000`'},
+    {name: 'path'
+    ,string: '-p EXEC_PATH'
+    ,'long': '--path=EXEC_PATH'
+    ,'default': process.cwd()
+    ,help: 'Execution path of nodepress, default `.`'},
+    {name: 'command'
+    ,position: 0},
+    {name: 'target'
+    ,position: 1}
+];
 
-function parseArgs() {
-    while (args.length) {
-        var arg = args.shift();
-        switch (arg) {
-            case '-t':
-                type = args.shift();
-                break;
-        }
-    }
+// parse options
+var options = nomnom.parseArgs(opts, {script: 'nodepress'}), host, port;
+if (options.bind) {
+    var bind = options.bind.split(':');
+    host = bind[0];
+    port = bind[1];
 }
 
-// Parse commands
-switch(cmd) {
+// run command
+switch(options.command) {
     case 'init':
-        parseArgs();
-        init(path);
+        init(options.path);
         break;
     case 'start':
-        var bootFile = args.shift();
-        start(bootFile);
+        start(options.target);
         break;
     default:
-// nodepress --help
-
+        throw new Error('Unknow command: ' + options.command);
 }
 
 /**
@@ -78,9 +89,9 @@ function init(path, force) {
         if (err && err.errno !== process.ENOENT) throw err;
         if (!files || !files.length || force) {
             // directory is empty
-            if (projectTypes.indexOf(type) > -1) {
+            if (projectTypes.indexOf(options.target) > -1) {
                 // create the project by copying all files under corresponding skeleton dir
-                copy(Path.join(skeletonPath, type, '/*'), path);
+                copy(Path.join(skeletonPath, options.target, '/*'), path);
             } else {
                 abort('Project type not exists.');
             }
@@ -114,11 +125,12 @@ function copy(src, dest) {
 
 /**
  * Load the boot file and try to start a server
- *
  */
 function start(bootFile) {
     var np = require('../index');
-    var settings = require(Path.join(process.cwd(), bootFile));
+    var settings = require(Path.join(options.path, bootFile));
+    settings.host = host || settings.host || '127.0.0.1';
+    settings.port = port || settings.port || 8000;
     np.startServer(settings);
 }
 
