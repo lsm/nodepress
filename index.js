@@ -11,6 +11,7 @@ function setupRequirePath() {
     [
         Path.join(__dirname, "/lib"),
         Path.join(__dirname, "/lib/genji/lib"),
+        Path.join(__dirname, "/lib/nomnomargs/lib"),
         Path.join(__dirname, "/lib/fugue/lib"),
         Path.join(__dirname, "/lib/node-mongodb-native/lib"),
         Path.join(__dirname, "/lib/UglifyJS/lib"),

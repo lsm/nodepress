@@ -16,3 +16,6 @@
 [submodule "lib/fugue"]
 	path = lib/fugue
 	url = http://github.com/pgte/fugue.git
+[submodule "lib/nomnomargs"]
+	path = lib/nomnomargs
+	url = http://github.com/harthur/nomnomargs.git
