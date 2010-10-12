@@ -5,10 +5,9 @@ _now = core.util.now,
 md5 = np.genji.util.crypto.md5;
 
 
-factory.register('post', function(name) {
-    return new Collection(name)
-    }, ['posts'], true);
+factory.register('post', function(name) {return new Collection(name)}, ['posts'], true);
 var post = factory.post;
+
 post.extend({
     save: function(data, author) {
         if (typeof data === 'string') data = JSON.parse(data);
@@ -26,41 +25,44 @@ post.extend({
     }
 });
 
-// load settings
-var setting = core.db.setting;
-setting.findOne({
-    '_id': 'defaultTracker'
-}).then(function(trackerObj) {
-    tracker = trackerObj || {
-        code: ''
-    };
-    cache.set('defaultTracker', tracker.code);
-});
-setting.findOne({
-    '_id': 'site'
-}).then(function(site) {
-    site = site || {};
-    cache.set('title', site.title || 'Nodepress');
-    cache.set('intro', site.intro || 'a blogging tool built on top of nodejs');
+// load settings from db
+var defaultContext = {
+    staticUrl: core.settings.staticUrl,
+    cookieName: core.settings.cookieName
+};
+process.nextTick(function() {
+    var setting = core.db.setting, cache = core.cache;
+    setting.findOne({
+        '_id': 'defaultTracker'
+    }).then(function(trackerObj) {
+        var tracker = trackerObj || {
+            code: ''
+        };
+        cache.set('defaultTracker', tracker.code);
+    });
+    setting.findOne({
+        '_id': 'site'
+    }).then(function(site) {
+        site = site || {};
+        cache.set('title', site.title || 'Nodepress');
+        cache.set('intro', site.intro || 'a blogging tool built on top of nodejs');
+    });
+
+    defaultContext.__defineGetter__('tracker', function() {
+        return cache.get('defaultTracker');
+    });
+    defaultContext.__defineGetter__('title', function() {
+        return cache.get('title');
+    });
+    defaultContext.__defineGetter__('intro', function() {
+        return cache.get('intro');
+    });
 });
 
-var defaultContext = {
-    staticUrl: settings.staticUrl,
-    debugUrl: settings.env.type === 'development' ? '/debug' : '',
-    cookieName: settings.cookieName,
-    get tracker() {
-        return cache.get('defaultTracker');
-    },
-    get title() {
-        return cache.get('title');
-    },
-    get intro() {
-        return cache.get('intro');
-    }
-};
 
 
 module.exports = {
+    ctx: defaultContext,
     db: {
         post: post
     },
