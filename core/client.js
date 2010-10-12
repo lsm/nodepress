@@ -18,9 +18,9 @@ var scriptPaths = [];
 
 function init(options) {
     cache = options.cache;
-    staticRoot = options.staticRoot || Path.join(__dirname, '../static');
-    staticUrl = options.staticUrl || 'http://127.0.0.1:8000/static/';
-    combinedScriptPrefix = options.combinedScriptPrefix || 'nodepress-';
+    staticRoot = module.exports.staticRoot = options.staticRoot || Path.join(__dirname, '../static');
+    staticUrl = module.exports.staticUrl = options.staticUrl || 'http://127.0.0.1:8000/static/';
+    combinedScriptPrefix = module.exports.combinedScriptPrefix = options.combinedScriptPrefix || 'nodepress-';
 }
 
 function inject(appClient) {
