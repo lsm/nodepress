@@ -2,7 +2,6 @@ var core = np,
 auth = core.auth,
 view = core.view,
 client = core.client,
-account = require('../account'),
 factory = core.factory,
 post = factory.post,
 settings = core.settings;
@@ -94,9 +93,6 @@ function article(id) {
 }
 
 module.exports = [
-    ['^/hello/', function() {
-        this.sendHTML('Hello World\n');
-    }, {pre: [account.checkLogin]}],
     ['^/$', index, 'get'],
     ['^/article/(\\w+)/.*/$', article, 'get'],
     ['.*', function() {
