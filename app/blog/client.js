@@ -41,7 +41,7 @@ function mainJs($) {
         list: function(query) {
             np.params = query || np.params;
             var skip = np.params.skip || 0;
-            var limit = np.params.limit || core.blog.DEFAULT_POST_NUM;
+            var limit = np.params.limit || 20;
             var tags = np.params.tags || [];
             var url = '/_api/blog/list/' + skip + '/' + limit + '/';
             if (tags.length > 0) {
@@ -115,7 +115,7 @@ function mainJs($) {
         var params = np.params;
         np.api.list({
             skip: params.skip || 0,
-            limit:params.limit || 0,
+            limit:params.limit || 20,
             tags: params.tags || []
         });
         dom.filterTags.attr('innerHTML', '');
