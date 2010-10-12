@@ -147,7 +147,7 @@ np.on('management.api.saveSetting', function(data) {
 });
 
 np.on('management.api.saveTracker', function(data) {
-    if (data.code) np.cache.set('defaultTracker', data.code);
+    if (data) np.cache.set('defaultTracker', data.code);
 });
 
 module.exports = {
