@@ -25,11 +25,11 @@ post.extend({
     }
 });
 
-// load settings from db
 var defaultContext = {
-    staticUrl: core.settings.staticUrl,
-    cookieName: core.settings.cookieName
+    staticUrl: core.client.staticUrl,
+    cookieName: core.auth.cookieName
 };
+// load settings from db
 process.nextTick(function() {
     var setting = core.db.setting, cache = core.cache;
     setting.findOne({

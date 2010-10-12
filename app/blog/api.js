@@ -63,7 +63,7 @@ function byId(id) {
 }
 
 var api = [
-['blog/save/$', [auth.checkLogin, save], 'post'],
+['blog/save/$', [account.checkLogin, save], 'post'],
 ['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
 ['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
 ['blog/list/$', list, 'get'],
