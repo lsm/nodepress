@@ -38,11 +38,12 @@ function saveTracker() {
         setting.save({
             _id: 'defaultTracker',
             code: data
-        }).then(function() {
+        }).then(function(doc) {
             tracker = {
                 code: data
             };
             self.send('ok');
+            core.emit('management.api.saveTracker', doc);
         });
     });
 }
@@ -52,8 +53,8 @@ function saveSetting() {
     self.on('end', function(data) {
         data = JSON.parse(data);
         setting.save(data).then(function() {
-            core.event.emit('management.api.saveSetting', data);
             self.send('Setting saved');
+            core.emit('management.api.saveSetting', data);
         });
     });
 }
@@ -143,6 +144,10 @@ np.on('management.api.saveSetting', function(data) {
         if (data.title) np.cache.set('title', data.title);
         if (data.intro) np.cache.set('intro', data.intro);
     }
+});
+
+np.on('management.api.saveTracker', function(data) {
+    if (data.code) np.cache.set('defaultTracker', data.code);
 });
 
 module.exports = {
