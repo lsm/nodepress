@@ -1,4 +1,6 @@
 var core = np,
+fs = require('fs'),
+Path = require('path'),
 Collection = core.db.Collection,
 factory = core.factory,
 _now = core.util.now,
@@ -29,8 +31,9 @@ var defaultContext = {
     staticUrl: core.client.staticUrl,
     cookieName: core.auth.cookieName
 };
-// load settings from db
+
 process.nextTick(function() {
+    // load settings from db
     var setting = core.db.setting, cache = core.cache;
     setting.findOne({
         '_id': 'defaultTracker'
@@ -58,6 +61,15 @@ process.nextTick(function() {
         return cache.get('intro');
     });
 });
+
+// load post template from template file
+fs.readFile(Path.join(core.view.viewRoot, '/share/posts.html'), 'utf8', function(err, data) {
+    if (err) throw err;
+    // nun use `{{&` to escape which is not compatible with original mustache
+    data = data.replace('{{&content}}', '{{{content}}}');
+    defaultContext.postTpl = data.split('\n').join('');
+});
+
 
 
 

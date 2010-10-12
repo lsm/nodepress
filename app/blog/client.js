@@ -29,12 +29,6 @@ function mainJs($) {
     var np = $.np;
     np.showdown = new Showdown.converter();
     np.data = {};
-    np.tpl = {
-        posts: '{{#posts}}<div id="{{_id}}" class="np-post"><h2 class="np-post-title"><a href="/article/{{_id}}/{{title}}/">{{title}}</a></h2>'
-    +'<div class="np-post-info np-right"><h4 class="np-post-date">{{published}}</h4></div>'
-    +'<div class="np-post-content">{{{content}}}</div>'
-    +'<div class="np-post-tags np-right">{{#tags}}<div class="np-post-tag">{{name}}</div>{{/tags}}</div></div>{{/posts}}'
-    };
     var dom = np.dom;
     // rest apis and remote calls
     var api = {
@@ -69,7 +63,7 @@ function mainJs($) {
 
     // render the posts list with content
     np.on('@ApiList', function(event, data, params) {
-        var tpl = np.tpl.posts;
+        var tpl = np.postTpl;
         // keep the original content (markdown)
         np.data.posts = data.posts;
         var posts = [];
