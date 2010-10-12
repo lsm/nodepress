@@ -30,9 +30,6 @@ function checkLogin(failure) {
         case 'undefined':
             this.error(401, failure || 'Login failed');
             break;
-        default:
-            // do nothing just return false (for the signin process)
-            if (failure === false) return false;
     }
     return false;
 }
@@ -50,9 +47,9 @@ function signin() {
             user.findOne({
                 username: p['username']
             }).then(function(res) {
-                var expire = new Date(new Date + 7*24*3600*1000);
+                var expire = new Date(+new Date + 7*24*3600*1000);
                 if (res) {
-                    var signed = auth.signin(self, p, res["password"], expire);
+                    var signed = auth.signin(p, res["password"], expire);
                     if (signed) {
                         self.setCookie(cookieName, signed, {
                             expires: expire,
