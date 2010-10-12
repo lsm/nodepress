@@ -83,13 +83,13 @@ function setupCore(settings) {
 function setupApps(apps) {
     np.app = {};
     apps.forEach(function(app) {
-        var module, name;
+        var module, appName;
         if (typeof app == 'string') {
             module = require('./app/' + app);
-            name = app;
+            appName = app;
         } else if (typeof app == 'object') {
             module = require(app.require);
-            name = app.name;
+            appName = app.name;
         } else {
             throw new Error('setting format of `installedApps` not correct.');
         }
@@ -107,7 +107,7 @@ function setupApps(apps) {
         if (module.hasOwnProperty('client')) {
             np.client.inject(module.client);
         }
-        np.app[name] = module;
+        np.app[appName] = module;
     });
 }
 

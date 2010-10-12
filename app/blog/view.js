@@ -11,7 +11,7 @@ settings = core.settings;
 function index() {
     var self = this;
     var user = auth.checkCookie(this.getCookie(auth.cookieName), auth.cookieSecret)[0];
-    var ctx = core.blog.defaultContext;
+    var ctx = core.app.blog.ctx;
     var scriptGroup = ["main"];
     var inDev = settings.env == "development";
     if (user) {
