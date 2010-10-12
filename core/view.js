@@ -6,7 +6,7 @@ md = require('markdown').Markdown;
 
 function init(viewRoot, compress, cache) {
     defaultOptions = {
-        viewRoot: viewRoot,
+        viewRoot: viewRoot || path.join(__dirname, '../static'),
         compress: compress || false,
         cache: cache || false
     };

@@ -55,13 +55,13 @@ function setupCore(settings) {
         np.client = require('./core/client');
         np.client.init({
             cache: np.cache,
-            staticRoot: settings.client.staticRoot || Path.join(settings.appRoot, '/static'),
+            staticRoot: settings.client.staticRoot,
             staticUrl: settings.client.staticUrl,
             combinedScriptPrefix: settings.client.combinedScriptPrefix
         });
     }
 
-    // the global `np` object can act as an event emitter
+    // the `np` object can act as an event emitter
     np.on = function(type, callback) {
         event.on(type, callback);
     }

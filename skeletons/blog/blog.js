@@ -6,7 +6,6 @@ var settings = {
         poolSize: 5
     },
     client: {
-        staticRoot: path.join(__dirname, '/static'),
         staticUrl: 'http://127.0.0.1:8000/static/',
         combinedScriptPrefix: 'nodepress-'
     },
@@ -15,7 +14,6 @@ var settings = {
         cookieName: '_npc'
     },
     view: {
-        viewRoot: path.join(__dirname, '/views'),
         compress: true,
         cache: true
     }
