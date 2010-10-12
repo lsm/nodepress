@@ -9,9 +9,10 @@
 0.1.7 (?)
 ---------
 - project:
-    - re-organized the structure (can be used as a standalone node module and)
+    - re-organized the structure (can be used as a standalone node module)
     - package.json for npm
-    - bin/nodepress.js
+    - bin/nodepress.js helper script (creating project skeletons etc.)
+    - nomnomargs for parsing options (lib/nomnomargs)
 - core:
     - unify `posts` block template in a file, client side should get it from server
 
