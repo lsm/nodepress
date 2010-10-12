@@ -22,10 +22,10 @@ function index() {
         ctx.is_owner = undefined;
     }
     // combine if not in dev model
-    ctx.scripts = [{js: client.getScripts("js", scriptGroup, !inDev), css: client.getScripts("css", scriptGroup, !inDev)}]
+    ctx.scripts = [{js: client.getScripts("js", scriptGroup, !inDev), css: client.getScripts("css", scriptGroup, !inDev)}];
     // compress if not in dev model
-    ctx.initJs = client.getCode('init.js', !inDev),
-    ctx.initUserJs = client.getCode('initUser.js', !inDev),
+    ctx.initJs = client.getCode('init.js', !inDev);
+    ctx.initUserJs = client.getCode('initUser.js', !inDev);
     post.count({}).then(function(num) {
         ctx.total = num;
         post.find({}, null, {
@@ -57,7 +57,7 @@ function index() {
 function article(id) {
     var self = this;
     var user = auth.checkCookie(this.getCookie(auth.cookieName), auth.cookieSecret)[0];
-    var ctx = core.defaultContext;
+    var ctx = core.app.blog.ctx;
     if (user) {
         ctx.is_owner = [{
             name: user
