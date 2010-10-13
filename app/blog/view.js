@@ -79,6 +79,7 @@ function article(id) {
                         };
                     }
                     post.tags = tags;
+                    post.content = view.markdown(post.content);
                 }
                 ctx.posts = [post];
                 ctx.page = 'article';
