@@ -110,7 +110,6 @@ function getScripts(type, groups, combine) {
 }
 
 function getCombined(type, group, compress, callback) {
-    var cache = exports.cache;
     if (compress) {
         // try to get from cache
         var cached = cache.get([type, group].join('-'));
