@@ -351,6 +351,7 @@ module.exports = {
 
                 // after rendered post
                 np.on('PostsRendered', function() {
+                    // add `edit` button for author
                     $('div.np-post-info').append('<a href="#np-toolbar-editor" class="np-post-edit np-left">edit</a>');
                     $('a.np-post-edit').bind('click', function(event) {
                         var postId = $(event.currentTarget).parent('.np-post-info').parent('.np-post').attr('id');

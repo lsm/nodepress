@@ -11,10 +11,10 @@
 - project:
     - re-organized the structure (can be used as a standalone node module)
     - package.json for npm
-    - bin/nodepress.js helper script (creating project skeletons etc.)
-    - nomnomargs for parsing options (lib/nomnomargs)
+    - bin/nodepress.js helper script (creating project skeletons, start server)
+    - add [nomnomargs](http://github.com/harthur/nomnomargs) for parsing options (lib/nomnomargs)
 - core:
-    - unify `posts` block template in a file, client side should get it from server
+    - unify `posts` block template in a file for both server and client side
 - app:
     - blog:
         - bug fix: content is not rendered by mustache on article page
