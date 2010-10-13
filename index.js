@@ -132,7 +132,12 @@ function startServer(settings) {
         });
     }
     // start server
-    return np.genji.web.startServer(settings);
+    var server = np.genji.web.createServer(settings.middlewares);
+    server.listen(settings.port, settings.host, function() {
+        if (settings.env == 'development') {
+            console.log('Server started at: http://%s:%s', settings.host, settings.port);
+        }
+    });
 }
 
 exports.startServer = startServer;
