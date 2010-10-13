@@ -6,13 +6,13 @@ client = core.client;
 [
 {type: "js", basename: "jquery-1.4.2.js", group: "main"},
 {type: "js", basename: "jquery.gritter-1.6.js", group: "main"},
-{type: "js", basename: "jquery.tools.tabs-1.2.4.js", group: "main"},
+{type: "js", basename: "jquery.tools.tabs-1.2.5.js", group: "main"},
 {type: "js", basename: "mustache-0.3.0.js", group: "main"},
 {type: "js", basename: "showdown-0.9.js", group: "main"},
 {type: "js", basename: "main.js", group: "main"},
 {type: "js", basename: "user.js", group: "user"}
 ].forEach(function(script) {
-    client.addScript(script.type, script.basename, "/static/js/", "/js/", script.group);
+    client.addScript(script.type, script.basename, "/js/", "/js/", script.group);
 });
 // css
 [
@@ -20,7 +20,7 @@ client = core.client;
 {type: "css", basename: "jquery.gritter.css", group: "main"},
 {type: "css", basename: "tabs.css", group: "user"}
 ].forEach(function(script) {
-    client.addScript(script.type, script.basename, "/static/css/", "/css/", script.group);
+    client.addScript(script.type, script.basename, "/css/", "/css/", script.group);
 });
 
 
