@@ -122,22 +122,24 @@ function mainJs($) {
     });
 
     np.on("@ApiTagCloud", function(event, data) {
-       if (data.error) return;
-       var sidebar = $("#np-sidebar-tagcloud");
-       var innerHTML = "";
-       data.forEach(function(tag) {
-           innerHTML += '<div class="np-post-tag">' + tag._id + '</div>';
-       });
-       sidebar.attr("innerHTML", innerHTML);
-       // bind event to tags
-       var params = np.params;
-        $('#np-sidebar-tagcloud .np-post-tag').click(function(event) {
-            if (!params.tags) params.tags = [];
-            if (params.tags.indexOf(event.currentTarget.innerHTML) < 0) {
-                $.merge(params.tags, [event.currentTarget.innerHTML]);
-                np.emit('TagSelected', [params]);
-            }
+        if (data.error) return;
+        var sidebar = $("#np-sidebar-tagcloud");
+        var innerHTML = "";
+        data.forEach(function(tag) {
+            innerHTML += '<div class="np-post-tag">' + tag._id + '</div>';
         });
+        sidebar.attr("innerHTML", innerHTML);
+        // bind event to tags
+        var params = np.params;
+        if (np.page == 'index') {
+            $('#np-sidebar-tagcloud .np-post-tag').click(function(event) {
+                if (!params.tags) params.tags = [];
+                if (params.tags.indexOf(event.currentTarget.innerHTML) < 0) {
+                    $.merge(params.tags, [event.currentTarget.innerHTML]);
+                    np.emit('TagSelected', [params]);
+                }
+            });
+        }
     });
 }
 
