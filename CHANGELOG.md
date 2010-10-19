@@ -1,4 +1,4 @@
-0.1.8 (?)
+0.1.9 (?)
 ---------
 - core:
     - try to implement `same code run both on client/server side`
@@ -6,12 +6,21 @@
     - password recovery, change password, user registration and information
     - use form for login
 
-0.1.7 (?)
+0.1.8 (?)
+---------
+- project:
+    - support multi-process and daemonization
+- core:
+    - rewrite `auth` base on the new cookie middleware of `genji`
+    - db: should be able to re-connect when connection broken
+
+0.1.7 (2010/10/19)
 ---------
 - project:
     - re-organized the structure (can be used as a standalone node module)
     - package.json for npm
     - bin/nodepress.js helper script (creating project skeletons, start server)
+    - project skeletons for `blog`, `framework` and simple helloworld example
     - add [nomnomargs](http://github.com/harthur/nomnomargs) for parsing options (lib/nomnomargs)
 - core:
     - unify `posts` block template in a file for both server and client side
