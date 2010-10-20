@@ -1,6 +1,6 @@
 { "name": "nodepress"
 , "description": "High-level web framework, can be used as a blog by default"
-, "version": "0.1.6"
+, "version": "0.1.7"
 , "homepage": "http://github.com/zir/nodepress"
 , "author": "Senmiao Liu <zir.echo@gmail.com> http://vitecho.com"
 , "repository" :
