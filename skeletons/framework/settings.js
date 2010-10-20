@@ -25,7 +25,7 @@ try {
     for (var key in local_settings) {
         settings[key] = local_settings[key];
     }
-} catch() {}
+} catch(e) {}
 
 
 module.exports = settings;
