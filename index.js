@@ -27,7 +27,6 @@ function setupCore(settings) {
     // setup cache, event emitter, promise and filter.
     np.cache = new genji.pattern.Cache;
     var event = np.event = new EventEmitter;
-    np.promise = require('./core/promise');
     np.factory = new genji.pattern.Factory;
 
     // setup view
