@@ -2,9 +2,7 @@ var Path = require('path');
 
 setupRequirePath();
 
-var db, client, np
-apis = [],
-urls = [];
+var apis = [], urls = [];
 
 
 function setupRequirePath() {
@@ -80,7 +78,7 @@ function setupCore(settings) {
     return np;
 }
 
-function setupApps(apps) {
+function setupApps(apps, np) {
     np.app = {};
     apps.forEach(function(app) {
         var module, appName;
@@ -111,15 +109,15 @@ function setupApps(apps) {
     });
 }
 
-function startServer(settings) {
+function createServer(settings) {
     // construct the nodepress core
-    np = setupCore(settings);
+    var np = setupCore(settings);
     np.settings = settings;
     global.np = np;
     
     // setup application if any
     if (Array.isArray(settings.installedApps) && settings.installedApps.length > 0) {
-        setupApps(settings.installedApps);
+        setupApps(settings.installedApps, np);
         urls.push([settings.apiPrefix || '^/_api/', apis]);
         settings.middlewares.forEach(function(m) {
             if (m.name == 'router') {
@@ -128,11 +126,16 @@ function startServer(settings) {
                 } else {
                     m.urls = urls;
                 }
+                console.log(m.urls);
             }
         });
     }
+    return np.genji.web.createServer(settings.middlewares);
+}
+
+function startServer(settings) {
     // start server
-    var server = np.genji.web.createServer(settings.middlewares);
+    var server = createServer(settings);
     server.listen(settings.port, settings.host, function() {
         if (settings.env == 'development') {
             console.log('Server started at: http://%s:%s', settings.host, settings.port);
@@ -140,5 +143,7 @@ function startServer(settings) {
     });
 }
 
+exports.createServer = createServer;
 exports.startServer = startServer;
 exports.getCore = setupCore;
+exports.setupApps = setupApps;
