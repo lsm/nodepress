@@ -126,7 +126,6 @@ function createServer(settings) {
                 } else {
                     m.urls = urls;
                 }
-                console.log(m.urls);
             }
         });
     }
