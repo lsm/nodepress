@@ -3,11 +3,11 @@
  * Module dependences
  * 
  */
-var Promise = require('./promise').Promise,
-genji = require('genji'),
+var genji = require('genji'),
 mongo = require('mongodb'),
 Base = genji.pattern.Base,
 Pool = genji.pattern.Pool,
+promise = genji.pattern.control.promise,
 connPool, servers;
 
 
@@ -108,43 +108,28 @@ var Collection = Db({
     },
     
     find: function(selector, fields, options) {
-        var promise = new Promise;
-        this._find(this.name, selector, fields, options, function(result) {
-            promise.resolve(result);
-        });
-        return promise;
+        var _find = promise(this._find, this);
+        return _find(this.name, selector, fields, options);
+    },
+
+    findEach: function(selector, fields, options) {
+        return promise(this._findEach, this)(this.name, selector, fields, options);
     },
 
     findOne: function(selector, options) {
-        var promise = new Promise;
-        this._findOne(this.name, selector, options || {}, function(result) {
-            promise.resolve(result);
-        });
-        return promise;
+        return promise(this._findOne, this)(this.name, selector, options || {});
     },
 
     save: function(data) {
-        var promise = new Promise;
-        this._save(this.name, data, function(doc) {
-            promise.resolve(doc);
-        })
-        return promise;
+        return promise(this._save, this)(this.name, data);
     },
 
     remove: function(selector) {
-        var promise = new Promise;
-        this._remove(this.name, selector, function(coll) {
-            promise.resolve(coll);
-        })
-        return promise;
+        return promise(this._remove, this)(this.name, selector);
     },
 
     count: function(selector) {
-        var promise = new Promise;
-        this._count(this.name, selector, function(num) {
-            promise.resolve(num);
-        });
-        return promise;
+        return promise(this._count, this)(this.name, selector);
     }
 });
 
