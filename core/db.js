@@ -43,15 +43,32 @@ var Db = Base(function() {
     },
 
     _find: function(collectionName, selector, fields, options, callback) {
-        var me = this;
+        var self = this;
+        this._findEach(collectionName, selector, fields, options, function(cursor) {
+            cursor.toArray(function(err, result) {
+               if (err) throw err;
+               callback(result);
+            });
+        });
+    },
+
+    _findEach: function(collectionName, selector, fields, options, callback) {
+        var self = this;
         this.giveCollection(collectionName, function(coll) {
             coll.find(selector, fields, options, function(err, cursor) {
                 if (err) throw err;
-                cursor.toArray(function(err, result) {
-                    if (err) throw err;
-                    me.pool.emit('back', cursor.db);
-                    callback(result);
-                });
+                var fetchAll = cursor.fetchAllRecords;
+                cursor.fetchAllRecords = function(callback) {
+                    fetchAll.call(cursor, function(err, result) {
+                        callback(err, result);
+                        if(!cursor.cursorId.greaterThan(cursor.db.bson_serializer.Long.fromInt(0))) {
+                            // free db when there's no data to fetch
+                            // only works for `fetchAllRecords`, `toArray`, `each`, `nextObject`, `fetchFirstResults`
+                           self.freeDb(cursor.db);
+                        }
+                    });
+                }
+                callback(cursor);
             });
         });
     },
