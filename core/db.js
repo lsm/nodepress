@@ -25,10 +25,13 @@ function init(dbServers, poolSize) {
     connPool = new Pool(getConn, poolSize || 5);
 }
 
-
 var Db = Base(function() {
      this.pool = connPool;
 }, {
+    freeDb: function(db) {
+        this.pool.emit('back', db);
+    },
+    
     giveDb: function(callback) {
         this.pool.pop(callback);
     },
@@ -78,8 +81,8 @@ var Db = Base(function() {
         this.giveCollection(collectionName, function(coll) {
             coll.findOne(selector, options, function(err, result) {
                 if (err) throw err;
-                me.pool.emit('back', coll.db);
                 callback(result);
+                me.freeDb(coll.db);
             });
         });
     },
@@ -89,8 +92,8 @@ var Db = Base(function() {
         this.giveCollection(collectionName, function(coll) {
             coll.save(data, function(err, doc) {
                 if (err) throw err;
-                me.pool.emit('back', coll.db);
                 callback(doc);
+                me.freeDb(coll.db);
             });
         });
     },
@@ -100,8 +103,8 @@ var Db = Base(function() {
         this.giveCollection(collectionName, function(coll) {
             coll.remove(selector, function(err, coll) {
                 if (err) throw err;
-                me.pool.emit('back', coll.db);
                 callback(coll);
+                me.freeDb(coll.db);
             });
         });
     },
@@ -111,8 +114,8 @@ var Db = Base(function() {
         this.giveCollection(collectionName, function(coll) {
             coll.count(selector, function(err, num) {
                 if (err) throw err;
-                me.pool.emit('back', coll.db);
                 callback(num);
+                me.freeDb(coll.db);
             });
         });
     }
