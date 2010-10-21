@@ -34,7 +34,7 @@ var opts = [
     {name: 'bind'
     ,string: '-b HOSTNAME:PORT'
     ,'long': '--bind=HOSTNAME:PORT'
-    ,help: 'Server hostname and listening port, default `127.0.0.1:8000`'},
+    ,help: 'Server hostname and listening port, can override the values defined in your setting file'},
     {name: 'path'
     ,string: '-p EXEC_PATH'
     ,'long': '--path=EXEC_PATH'
