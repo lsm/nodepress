@@ -21,7 +21,7 @@ var settings = {
 };
 
 try {
-    var local_settings = require('./settings');
+    var local_settings = require('./local_settings');
     for (var key in local_settings) {
         settings[key] = local_settings[key];
     }
