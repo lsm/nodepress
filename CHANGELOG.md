@@ -13,7 +13,9 @@
     - bin/nodepress support watch/reload server for development
 - core:
     - rewrite `auth` base on the new cookie middleware of `genji`
-    - db: should be able to re-connect when connection broken
+    - db: 
+        - add 2 new methods: `freeDb`, `findEach`
+        - should be able to re-connect when connection broken
     - promise: replaced by a simple one
 
 0.1.7 (2010/10/19)
