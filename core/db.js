@@ -118,6 +118,17 @@ var Db = Base(function() {
                 me.freeDb(coll.db);
             });
         });
+    },
+
+    _ensureIndex: function(collectionName, fieldOrSpec, unique, callback) {
+        var self = this;
+        this.giveDb(function(db) {
+            db.ensureIndex(collectionName, fieldOrSpec, unique, function(err, res) {
+                if (err) throw err;
+                callback(res);
+                self.freeDb(db);
+            });
+        });
     }
 });
 
@@ -150,6 +161,10 @@ var Collection = Db({
 
     count: function(selector) {
         return promise(this._count, this)(this.name, selector);
+    },
+
+    ensureIndex: function(spec, unique) {
+        return promise(this._ensureIndex, this)(this.name, spec, unique);
     }
 });
 
