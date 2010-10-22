@@ -22,18 +22,31 @@ function getConn(num, callback) {
 
 function init(dbServers, poolSize) {
     servers = dbServers;
-    connPool = new Pool(getConn, poolSize || 5);
+    if (poolSize > 0) {
+        connPool = new Pool(getConn, poolSize || 5);
+    }
 }
 
 var Db = Base(function() {
      this.pool = connPool;
 }, {
     freeDb: function(db) {
-        this.pool.emit('back', db);
+        if (this.pool) {
+            this.pool.emit('back', db);
+        } else {
+            db.close();
+        }
     },
     
     giveDb: function(callback) {
-        this.pool.pop(callback);
+        if (this.pool) {
+            this.pool.pop(callback);
+        } else {
+            mongo.connect(servers, function(err, db) {
+                if (err) throw err;
+                callback(db);
+            });
+        }
     },
 
     giveCollection: function(name, callback) {
