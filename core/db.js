@@ -59,7 +59,6 @@ var Db = Base(function() {
     },
 
     _find: function(collectionName, selector, fields, options, callback) {
-        var self = this;
         this._findEach(collectionName, selector, fields, options, function(cursor) {
             cursor.toArray(function(err, result) {
                if (err) throw err;
