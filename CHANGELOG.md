@@ -17,9 +17,10 @@
         - add 2 new methods: `freeDb`, `findEach`
         - should be able to re-connect when connection broken
     - promise: replaced by a simple one
+    - view/client: add timestamp for static resource (js/css)
 
 0.1.7 (2010/10/19)
----------
+------------------
 - project:
     - re-organized the structure (can be used as a standalone node module)
     - package.json for npm
@@ -33,7 +34,7 @@
         - bug fix: content is not rendered by mustache on article page
 
 0.1.6 (2010/09/14)
----------
+------------------
 - project:
     - node-markdown as a submodule
 - app:
