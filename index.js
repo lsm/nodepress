@@ -77,46 +77,38 @@ function setupCore(settings) {
     return np;
 }
 
-function setupApps(apps, np) {
-    np.app = {};
-    apps.forEach(function(app) {
-        var module, appName;
-        if (typeof app == 'string') {
-            module = require('./app/' + app);
-            appName = app;
-        } else if (typeof app == 'object') {
-            module = require(app.require);
-            appName = app.name;
-        } else {
-            throw new Error('setting format of `installedApps` not correct.');
-        }
-        if (module.hasOwnProperty('api')) {
-            apis = apis.concat(module['api']);
-        }
-        if (module.hasOwnProperty('db')) {
-            for (var name in module['db']) {
-                np.db[name] = module['db'][name];
-            }
-        }
-        if (module.hasOwnProperty('view')) {
-            urls = urls.concat(module['view']);
-        }
-        if (module.hasOwnProperty('client')) {
-            np.client.inject(module.client);
-        }
-        np.app[appName] = module;
-    });
-}
-
-function createServer(settings) {
-    // construct the nodepress core
-    var np = setupCore(settings);
-    np.settings = settings;
-    global.np = np;
-    
-    // setup application if any
+function setupApps(settings, np) {
     if (Array.isArray(settings.installedApps) && settings.installedApps.length > 0) {
-        setupApps(settings.installedApps, np);
+        var apps = settings.installedApps;
+        np.app = {};
+        apps.forEach(function(app) {
+            var module, appName;
+            if (typeof app == 'string') {
+                module = require('./app/' + app);
+                appName = app;
+            } else if (typeof app == 'object') {
+                module = require(app.require);
+                appName = app.name;
+            } else {
+                throw new Error('setting format of `installedApps` not correct.');
+            }
+            if (module.hasOwnProperty('api')) {
+                apis = apis.concat(module['api']);
+            }
+            if (module.hasOwnProperty('db')) {
+                for (var name in module['db']) {
+                    np.db[name] = module['db'][name];
+                }
+            }
+            if (module.hasOwnProperty('view')) {
+                urls = urls.concat(module['view']);
+            }
+            if (module.hasOwnProperty('client')) {
+                np.client.inject(module.client);
+            }
+            np.app[appName] = module;
+        });
+
         urls.push([settings.apiPrefix || '^/_api/', apis]);
         settings.middlewares.forEach(function(m) {
             if (m.name == 'router') {
@@ -127,6 +119,17 @@ function createServer(settings) {
                 }
             }
         });
+    }
+    
+}
+
+function createServer(settings, np) {
+    if (!np) {
+        // construct the nodepress core if not setted
+        var np = setupCore(settings);
+        setupApps(settings, np);
+        np.settings = settings;
+        global.np = np;
     }
     return np.genji.web.createServer(settings.middlewares);
 }
@@ -143,5 +146,5 @@ function startServer(settings) {
 
 exports.createServer = createServer;
 exports.startServer = startServer;
-exports.getCore = setupCore;
+exports.setupCore = setupCore;
 exports.setupApps = setupApps;
