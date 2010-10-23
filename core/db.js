@@ -8,27 +8,51 @@ mongo = require('mongodb'),
 Base = genji.pattern.Base,
 Pool = genji.pattern.Pool,
 promise = genji.pattern.control.promise,
-connPool, servers;
+connPool, dbConfig;
 
+function connect(server, callback) {
+    if (Array.isArray(server)) throw new Error('Server configuration not correct.');
+    var type = typeof server;
+    if (type  == 'string') {
+       mongo.connect(server, callback);
+       return;
+    } else if (type == 'object') {
+       var db = new mongo.Db(server.dbname, new mongo.Server(server.host, server.port, server.serverOptions), server.dbOptions);
+       db.open(callback);
+       return;
+    }
+}
 
-function getConn(num, callback) {
+function getConn(dbConfig, num, callback) {
     for (var i = 0; i < num; i++) {
-        mongo.connect(servers, function(err, db) {
-            if (err) throw err;
-            callback(db);
-        });
+        if (Array.isArray(dbConfig)) {
+            dbConfig.forEach(function(server) {
+                connect(server, function(err, db) {
+                    if (err) throw err;
+                    callback(db);
+                });
+            });
+        } else {
+            connect(dbConfig, function(err, db) {
+                if (err) throw err;
+                callback(db);
+            });
+        }
     }
 }
 
-function init(dbServers, poolSize) {
-    servers = dbServers;
+function init(dbConf, poolSize) {
+    dbConfig = dbConf;
     if (poolSize > 0) {
-        connPool = new Pool(getConn, poolSize || 5);
+        connPool = new Pool(function(num, callback) {
+            getConn(dbConfig, num, callback);
+        }, poolSize);
     }
 }
 
-var Db = Base(function() {
-     this.pool = connPool;
+var Db = Base(function(config) {
+    this.config = config || dbConfig;
+    this.pool = connPool;
 }, {
     freeDb: function(db) {
         if (this.pool) {
@@ -42,7 +66,7 @@ var Db = Base(function() {
         if (this.pool) {
             this.pool.pop(callback);
         } else {
-            mongo.connect(servers, function(err, db) {
+            connect(this.config, function(err, db) {
                 if (err) throw err;
                 callback(db);
             });
