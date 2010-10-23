@@ -8,7 +8,7 @@ post = factory.post;
 function save() {
     var self = this;
     self.on('end', function(data) {
-        post.save(data, self.user).then(function(doc) {
+        post.save(data, self.username).then(function(doc) {
             self.sendJSON({
                 _id: doc._id
             });
