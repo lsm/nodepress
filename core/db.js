@@ -134,6 +134,17 @@ var Db = Base(function(config) {
         });
     },
 
+    _update: function(collectionName, spec, doc, options, callback) {
+        var self = this;
+        this.giveCollection(collectionName, function(coll) {
+           coll.update(spec, doc, options, function(err, updated) {
+               if (err) throw err;
+               callback(updated);
+               self.freeDb(coll.db);
+           });
+        });
+    },
+
     _remove: function(collectionName, selector, callback) {
         var me = this;
         this.giveCollection(collectionName, function(coll) {
@@ -189,6 +200,10 @@ var Collection = Db({
 
     save: function(data) {
         return promise(this._save, this)(this.name, data);
+    },
+
+    update: function(spec, doc, options) {
+        return promise(this._update, this)(this.name, spec, doc, options);
     },
 
     remove: function(selector) {
