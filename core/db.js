@@ -11,16 +11,16 @@ promise = genji.pattern.control.promise,
 connPool, dbConfig;
 
 function connect(server, callback) {
-    if (Array.isArray(server)) throw new Error('Server configuration not correct.');
     var type = typeof server;
     if (type  == 'string') {
        mongo.connect(server, callback);
        return;
-    } else if (type == 'object') {
+    } else if (type == 'object' && !Array.isArray(server)) {
        var db = new mongo.Db(server.dbname, new mongo.Server(server.host, server.port, server.serverOptions), server.dbOptions);
        db.open(callback);
        return;
     }
+    throw new Error('Server configuration not correct.');
 }
 
 function getConn(dbConfig, num, callback) {
