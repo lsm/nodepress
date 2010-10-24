@@ -14,7 +14,7 @@
 - core:
     - rewrite `auth` base on the new cookie middleware of `genji`
     - db: 
-        - add 2 new methods: `freeDb`, `findEach`
+        - add 4 new methods: `freeDb`, `findEach`, `update`, `ensureIndex`
         - should be able to re-connect when connection broken
     - promise: replaced by a simple one
     - view/client: add timestamp for static resource (js/css)
