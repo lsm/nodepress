@@ -128,8 +128,8 @@ function createServer(settings, np) {
         // construct the nodepress core if not setted
         var np = setupCore(settings);
         global.np = np;
-        setupApps(settings, np);
         np.settings = settings;
+        setupApps(settings, np);
     }
     return np.genji.web.createServer(settings.middlewares);
 }
