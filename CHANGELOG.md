@@ -15,6 +15,7 @@
     - rewrite `auth` base on the new cookie middleware of `genji`
     - db: 
         - add 4 new methods: `freeDb`, `findEach`, `update`, `ensureIndex`
+        - support no-pooling
         - should be able to re-connect when connection broken
     - promise: replaced by a simple one
     - view/client: add timestamp for static resource (js/css)
