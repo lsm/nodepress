@@ -54,6 +54,15 @@ var Db = Base(function(config) {
     this.config = config || dbConfig;
     this.pool = connPool;
 }, {
+    close: function() {
+        if (this.pool) {
+            // only pooled connection need to close manually
+            this.pool.batch(function(db) {
+                db.close();
+            });
+        }
+    },
+    
     freeDb: function(db) {
         if (this.pool) {
             this.pool.emit('back', db);
