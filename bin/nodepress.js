@@ -62,6 +62,9 @@ switch(options.command) {
     case 'start':
         start(options.target);
         break;
+    case 'dev':
+        dev(options.target);
+        break;
     default:
         throw new Error('Unknow command: ' + options.command);
 }
@@ -131,6 +134,19 @@ function start(bootFile) {
     settings.host = host || settings.host || '127.0.0.1';
     settings.port = port || settings.port || 8000;
     np.startServer(settings);
+}
+
+/**
+ * Start the server and restart when file is modified
+ */
+function dev(bootFile) {
+    var args = process.argv;
+    args[2] = 'start'; // replace `dev` by `start`
+    args[3] = bootFile;
+    args.shift(); // remove `node`
+    require('../index');
+    var runScript = require('genji/util/manager').runScript;
+    runScript(args, process.cwd());
 }
 
 /* Helper functions */
