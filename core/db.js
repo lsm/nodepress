@@ -132,10 +132,10 @@ var Db = Base(function(config) {
         });
     },
 
-    _save: function(collectionName, data, callback) {
+    _save: function(collectionName, data, options, callback) {
         var me = this;
         this.giveCollection(collectionName, function(coll) {
-            coll.save(data, function(err, doc) {
+            coll.save(data, options, function(err, doc) {
                 if (err) throw err;
                 callback(doc);
                 me.freeDb(coll.db);
@@ -207,8 +207,8 @@ var Collection = Db({
         return promise(this._findOne, this)(this.name, selector, options || {});
     },
 
-    save: function(data) {
-        return promise(this._save, this)(this.name, data);
+    save: function(data, options) {
+        return promise(this._save, this)(this.name, data, options);
     },
 
     update: function(spec, doc, options) {
