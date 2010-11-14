@@ -231,5 +231,6 @@ var Collection = Db({
 module.exports = {
     init: init,
     Db: Db,
-    Collection: Collection
+    Collection: Collection,
+    ObjectID: mongo.BSONPure.ObjectID
 }
