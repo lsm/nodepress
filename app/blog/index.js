@@ -16,7 +16,6 @@ post.extend({
         if (!data.hasOwnProperty('_id')) {
             data.created = _now();
             data.author = author;
-            data._id = md5(data);
         } else {
             data.modified = _now();
         }
@@ -60,6 +59,11 @@ process.nextTick(function() {
     defaultContext.__defineGetter__('intro', function() {
         return cache.get('intro');
     });
+    // ensure indexes
+    var postIndex = [
+        ['published', -1], ['tags', 1], ['author', 1]
+    ];
+    post.ensureIndex(postIndex);
 });
 
 // load post template from template file
