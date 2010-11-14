@@ -17,6 +17,19 @@ function save() {
     });
 }
 
+function remove() {
+    var self = this;
+    this.on('end', function(data) {
+        var doc = JSON.parse(data);
+        post.remove(doc).then(function(doc) {
+           self.sendJSON({
+                _id: doc._id
+            });
+           core.emit('blog.api.remove', doc);
+        });
+    });
+}
+
 function list(skip, limit, tags) {
     var self = this;
     skip = parseInt(skip) ? skip : 0;
@@ -64,6 +77,7 @@ function byId(id) {
 
 var api = [
 ['blog/save/$', [account.checkLogin, save], 'post'],
+['blog/remove/$', [account.checkLogin, remove], 'post'],
 ['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
 ['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
 ['blog/list/$', list, 'get'],
