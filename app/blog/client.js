@@ -196,7 +196,7 @@ function blogMainUser($) {
                 data: JSON.stringify({_id: id}),
                 dataType: 'json',
                 success: function(data) {
-                    np.emit('@ApiRemove', [id]);
+                    np.emit('@ApiRemove', [data]);
                 },
                 error: function(xhr, status) {
                     np.emit('#AjaxError', ["Failed to remove post", xhr, status]);
@@ -204,7 +204,7 @@ function blogMainUser($) {
             });
         }
     });
-    np.on('@ApiRemove', function(event, id) {
+    np.on('@ApiRemove', function(event, data) {
         np.api.list();
         np.growl({
             title: 'Post removed',
