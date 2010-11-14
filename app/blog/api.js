@@ -21,10 +21,8 @@ function remove() {
     var self = this;
     this.on('end', function(data) {
         var doc = JSON.parse(data);
-        post.remove(doc).then(function(doc) {
-           self.sendJSON({
-                _id: doc._id
-            });
+        post.remove({_id: new core.db.ObjectID(doc._id)}).then(function(doc) {
+           self.sendJSON({});
            core.emit('blog.api.remove', doc);
         });
     });
