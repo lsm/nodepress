@@ -64,30 +64,6 @@ process.nextTick(function() {
         ['published', -1], ['tags', 1], ['author', 1]
     ];
     post.ensureIndex(postIndex);
-    post.find({}).then(function(docs) {
-        var chain = np.genji.pattern.control.chain;
-        chain(docs, function(doc, idx, arr, next) {
-            if (!(doc.published instanceof Date)) {
-                var updateDoc = {
-                    $set:{published: new Date(parseInt(doc.published)), created: new Date(doc.created)}
-                };
-                if (doc.modified) updateDoc['$set'].modified = new Date(parseInt(doc.modified));
-                post.update({_id: doc._id}, updateDoc).then(next);
-            } else {
-                next();
-            }
-        })();
-        chain(docs, function(doc, idx, arr, next) {
-            if (typeof doc._id === 'string') {
-                post.remove({_id: doc._id}).then(function() {
-                    doc._id = new np.db.ObjectID;
-                    post.save(doc).then(next);
-                });
-            } else {
-                next();
-            }
-        })();
-    });
 });
 
 // load post template from template file
