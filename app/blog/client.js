@@ -188,7 +188,28 @@ function blogMainUser($) {
                     np.emit('#AjaxError', ["Failed to save post", xhr, status]);
                 }
             });
+        },
+        remove: function(id) {
+           $.ajax({
+                url: '/_api/blog/remove/',
+                type: 'POST',
+                data: JSON.stringify({_id: id}),
+                dataType: 'json',
+                success: function(data) {
+                    np.emit('@ApiRemove', [id]);
+                },
+                error: function(xhr, status) {
+                    np.emit('#AjaxError', ["Failed to remove post", xhr, status]);
+                }
+            });
         }
+    });
+    np.on('@ApiRemove', function(event, id) {
+        np.api.list();
+        np.growl({
+            title: 'Post removed',
+            text: ' '
+        });
     });
     np.on('@ApiSave', function(event, data, publish) {
         postId = data._id;
@@ -253,7 +274,11 @@ function blogMainUser($) {
                 np.emit("#AjaxError", ['Failed to load post', xhr, status])
             }
         });
-    }
+    };
+
+    np.removePost = function(id) {
+       np.api.remove(id);
+    };
 }
 
 function initJs($) {
@@ -351,11 +376,16 @@ module.exports = {
 
                 // after rendered post
                 np.on('PostsRendered', function() {
-                    // add `edit` button for author
+                    // add `edit` and `remove` button for author
                     $('div.np-post-info').append('<a href="#np-toolbar-editor" class="np-post-edit np-left">edit</a>');
                     $('a.np-post-edit').bind('click', function(event) {
                         var postId = $(event.currentTarget).parent('.np-post-info').parent('.np-post').attr('id');
                         np.fillEditor(postId);
+                    });
+                    $('div.np-post-info').append('<a href="#" class="np-post-remove np-left">remove</a>');
+                    $('a.np-post-remove').bind('click', function(event) {
+                        var postId = $(event.currentTarget).parent('.np-post-info').parent('.np-post').attr('id');
+                        np.removePost(postId);
                     });
                 });
             }
