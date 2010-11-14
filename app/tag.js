@@ -5,7 +5,6 @@ factory = core.factory,
 management = require('./management'),
 Collection = core.db.Collection,
 settings = core.settings,
-now = core.util.now,
 chain = np.genji.pattern.control.chain;
 
 factory.register('tag', function(name) {return new Collection(name)}, ['tags'], true);
@@ -13,7 +12,7 @@ var tag = factory.tag;
 
 tag.extend({
     save: function(data) {
-        data.modified = now();
+        data.modified = new Date;
         return this._super(data);
     }
 });

@@ -67,13 +67,7 @@ function setupCore(settings) {
     np.emit = function() {
         event.emit.apply(event, arguments);
     }
-
-    // utilities
-    np.util = {
-        now: function() {
-            return (new Date()).getTime();
-        }
-    }
+    
     return np;
 }
 

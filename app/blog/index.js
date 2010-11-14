@@ -3,7 +3,6 @@ fs = require('fs'),
 Path = require('path'),
 Collection = core.db.Collection,
 factory = core.factory,
-_now = core.util.now,
 md5 = np.genji.util.crypto.md5;
 
 
