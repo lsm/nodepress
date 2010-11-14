@@ -71,7 +71,7 @@ function setupCore(settings) {
     // utilities
     np.util = {
         now: function() {
-            return new String((new Date()).getTime());
+            return (new Date()).getTime();
         }
     }
     return np;
