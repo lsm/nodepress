@@ -67,7 +67,7 @@ process.nextTick(function() {
     post.find({}).then(function(docs) {
         var chain = np.genji.pattern.control.chain;
         chain(docs, function(doc, idx, arr, next) {
-            if (! doc.published instanceof Date) {
+            if (!(doc.published instanceof Date)) {
                 var updateDoc = {
                     $set:{published: new Date(parseInt(doc.published)), created: new Date(doc.created)}
                 };
