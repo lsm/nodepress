@@ -318,7 +318,7 @@ module.exports = {
                 // bind events, insert date
                 var np = $.np;
                 $('.np-post-date').each(function(idx, npd) {
-                    npd.innerHTML = new Date(parseInt(npd.innerHTML)).toLocaleDateString();
+                    npd.innerHTML = new Date(npd.innerHTML).toLocaleDateString();
                 });
                 if (np.page == 'index') {
                     $('.np-post-tag').click(function(event) {
