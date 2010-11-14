@@ -68,7 +68,7 @@ function list(skip, limit, tags) {
 function byId(id) {
     var self = this;
     post.findOne({
-        _id: id
+        _id: new core.db.ObjectID(id)
     }).then(function(data) {
         self.sendJSON(data);
         core.event.emit('blog.api.id', id, data);
