@@ -68,7 +68,7 @@ function article(id) {
     post.count({}).then(function(num) {
         ctx.total = num;
         post.findOne({
-            _id: id
+            _id: new core.db.ObjectID(id)
         }).then(function(post) {
             if (post) {
                 if (post.hasOwnProperty("tags")) {
