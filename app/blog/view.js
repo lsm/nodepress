@@ -95,7 +95,7 @@ function article(id) {
 
 module.exports = [
     ['^/$', index, 'get'],
-    ['^/article/(\\w+)/.*/$', article, 'get'],
+    ['^/article/([0-9a-zA-Z]{24})/.*/$', article, 'get'],
     ['.*', function() {
         var self = this;
         view.render('error/404.html', {url: this.request.url}, function(html) {

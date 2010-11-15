@@ -79,7 +79,7 @@ var api = [
 ['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
 ['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
 ['blog/list/$', list, 'get'],
-['blog/id/([0-9a-fA-F]+)/$', byId, 'get']
+['blog/id/([0-9a-fA-F]{24})/$', byId, 'get']
 ];
 
 module.exports = api;
