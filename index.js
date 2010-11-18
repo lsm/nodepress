@@ -104,15 +104,24 @@ function setupApps(settings, np) {
         });
 
         urls.push([settings.apiPrefix || '^/_api/', apis]);
-        settings.middlewares.forEach(function(m) {
-            if (m.name == 'router') {
-                if (Array.isArray(m.urls)) {
-                    m.urls = m.urls.concat(urls);
-                } else {
-                    m.urls = urls;
+        if (Array.isArray(settings.middlewares)) {
+            settings.middlewares.forEach(function(m) {
+                if (m.name == 'router') {
+                    if (Array.isArray(m.urls)) {
+                        m.urls = m.urls.concat(urls);
+                    } else {
+                        m.urls = urls;
+                    }
                 }
+            });
+        } else {
+            var router = settings.middlewares.router;
+            if (Array.isArray(router.urls)) {
+                router.urls = router.urls.concat(urls);
+            } else {
+                router.urls = urls;
             }
-        });
+        }
     }
     
 }
