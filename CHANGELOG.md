@@ -19,6 +19,7 @@
         - should be able to re-connect when connection broken
     - promise: replaced by a simple one
     - view/client: add timestamp for static resource (js/css)
+    - introduce a tracing utility, can trace time/memory consumption of different system components
 
 0.1.7 (2010/10/19)
 ------------------
