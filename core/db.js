@@ -7,18 +7,18 @@ var genji = require('genji'),
 mongo = require('mongodb'),
 Base = genji.pattern.Base,
 Pool = genji.pattern.Pool,
-promise = genji.pattern.control.promise,
+deferred = genji.pattern.control.deferred,
 connPool, dbConfig;
 
 function connect(server, callback) {
     var type = typeof server;
     if (type  == 'string') {
-       mongo.connect(server, callback);
-       return;
+        mongo.connect(server, callback);
+        return;
     } else if (type == 'object' && !Array.isArray(server)) {
-       var db = new mongo.Db(server.dbname, new mongo.Server(server.host, server.port, server.serverOptions), server.dbOptions);
-       db.open(callback);
-       return;
+        var db = new mongo.Db(server.dbname, new mongo.Server(server.host, server.port, server.serverOptions), server.dbOptions);
+        db.open(callback);
+        return;
     }
     throw new Error('Server configuration not correct.');
 }
@@ -73,117 +73,149 @@ var Db = Base(function(config) {
     
     giveDb: function(callback) {
         if (this.pool) {
-            this.pool.pop(callback);
+            this.pool.pop(function(db) {
+                callback(null, db);
+            });
         } else {
             connect(this.config, function(err, db) {
-                if (err) throw err;
-                callback(db);
+                callback(err, db);
             });
         }
     },
 
     giveCollection: function(name, callback) {
-        this.giveDb(function(db) {
-            db.collection(name, function(err, coll) {
-                if (err) throw err;
-                callback(coll);
-            });
+        this.giveDb(function(err, db) {
+            if (err) {
+                callback(err);
+            } else {
+                db.collection(name, function(err, coll) {
+                    callback(err, coll);
+                });
+            }
         });
     },
 
     _find: function(collectionName, selector, fields, options, callback) {
-        this._findEach(collectionName, selector, fields, options, function(cursor) {
-            cursor.toArray(function(err, result) {
-               if (err) throw err;
-               callback(result);
-            });
+        this._findEach(collectionName, selector, fields, options, function(err, cursor) {
+            if (err) {
+                callback(err);
+            } else {
+                cursor.toArray(function(err, result) {
+                    callback(err, result);
+                });
+            }
         });
     },
 
     _findEach: function(collectionName, selector, fields, options, callback) {
         var self = this;
-        this.giveCollection(collectionName, function(coll) {
-            coll.find(selector, fields, options, function(err, cursor) {
-                if (err) throw err;
-                var fetchAll = cursor.fetchAllRecords;
-                cursor.fetchAllRecords = function(callback) {
-                    fetchAll.call(cursor, function(err, result) {
-                        callback(err, result);
-                        if(!cursor.cursorId.greaterThan(cursor.db.bson_serializer.Long.fromInt(0))) {
-                            // free db when there's no data to fetch
-                            // only works for `fetchAllRecords`, `toArray`, `each`, `nextObject`, `fetchFirstResults`
-                           self.freeDb(cursor.db);
+        this.giveCollection(collectionName, function(err, coll) {
+            if (err) {
+                callback(err);
+            } else {
+                coll.find(selector, fields, options, function(err, cursor) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        var fetchAll = cursor.fetchAllRecords;
+                        cursor.fetchAllRecords = function(callback) {
+                            fetchAll.call(cursor, function(err, result) {
+                                callback(err, result);
+                                if(!cursor.cursorId.greaterThan(cursor.db.bson_serializer.Long.fromInt(0))) {
+                                    // free db when there's no data to fetch
+                                    // only works for `fetchAllRecords`, `toArray`, `each`, `nextObject`, `fetchFirstResults`
+                                    self.freeDb(cursor.db);
+                                }
+                            });
                         }
-                    });
-                }
-                callback(cursor);
-            });
+                        callback(cursor);
+                    }
+                });
+            }
         });
     },
 
     _findOne: function(collectionName, selector, options, callback) {
         var me = this;
-        this.giveCollection(collectionName, function(coll) {
-            coll.findOne(selector, options, function(err, result) {
-                if (err) throw err;
-                callback(result);
-                me.freeDb(coll.db);
-            });
+        this.giveCollection(collectionName, function(err, coll) {
+            if (err) {
+                callback(err);
+            } else {
+                coll.findOne(selector, options, function(err, result) {
+                    callback(err, result);
+                    me.freeDb(coll.db);
+                });
+            }
         });
     },
 
     _save: function(collectionName, data, options, callback) {
         var me = this;
-        this.giveCollection(collectionName, function(coll) {
-            coll.save(data, options, function(err, doc) {
-                if (err) throw err;
-                callback(doc);
-                me.freeDb(coll.db);
-            });
+        this.giveCollection(collectionName, function(err, coll) {
+            if (err) {
+                callback(err);
+            } else {
+                coll.save(data, options, function(err, doc) {
+                    callback(err, doc);
+                    me.freeDb(coll.db);
+                });
+            }
         });
     },
 
     _update: function(collectionName, spec, doc, options, callback) {
         var self = this;
-        this.giveCollection(collectionName, function(coll) {
-           coll.update(spec, doc, options, function(err, updated) {
-               if (err) throw err;
-               callback(updated);
-               self.freeDb(coll.db);
-           });
+        this.giveCollection(collectionName, function(err, coll) {
+            if (err) {
+                callback(err);
+            } else {
+                coll.update(spec, doc, options, function(err, updated) {
+                    callback(err, updated);
+                    self.freeDb(coll.db);
+                });
+            }
         });
     },
 
     _remove: function(collectionName, selector, callback) {
         var me = this;
-        this.giveCollection(collectionName, function(coll) {
-            coll.remove(selector, function(err, coll) {
-                if (err) throw err;
-                callback(coll);
-                me.freeDb(coll.db);
-            });
+        this.giveCollection(collectionName, function(err, coll) {
+            if (err) {
+                callback(err);
+            } else {
+                coll.remove(selector, function(err, coll) {
+                    callback(err, coll);
+                    me.freeDb(coll.db);
+                });
+            }
         });
     },
 
     _count: function(collectionName, selector, callback) {
         var me = this;
-        this.giveCollection(collectionName, function(coll) {
-            coll.count(selector, function(err, num) {
-                if (err) throw err;
-                callback(num);
-                me.freeDb(coll.db);
-            });
+        this.giveCollection(collectionName, function(err, coll) {
+            if (err) {
+                callback(err);
+            } else {
+                coll.count(selector, function(err, num) {
+                    callback(err, num);
+                    me.freeDb(coll.db);
+                });
+            }
         });
     },
 
     _ensureIndex: function(collectionName, fieldOrSpec, unique, callback) {
         var self = this;
-        this.giveDb(function(db) {
-            db.ensureIndex(collectionName, fieldOrSpec, unique, function(err, res) {
-                if (err) throw err;
-                callback(res);
-                self.freeDb(db);
-            });
+        this.giveDb(function(err, db) {
+            if (err) {
+                callback(err);
+            } else {
+                db.ensureIndex(collectionName, fieldOrSpec, unique, function(err, res) {
+                    callback(err, res);
+                    self.freeDb(db);
+                });
+            }
         });
     }
 });
@@ -195,36 +227,36 @@ var Collection = Db({
     },
     
     find: function(selector, fields, options) {
-        var _find = promise(this._find, this);
+        var _find = deferred(this._find, this);
         return _find(this.name, selector, fields, options);
     },
 
     findEach: function(selector, fields, options) {
-        return promise(this._findEach, this)(this.name, selector, fields, options);
+        return deferred(this._findEach, this)(this.name, selector, fields, options);
     },
 
     findOne: function(selector, options) {
-        return promise(this._findOne, this)(this.name, selector, options || {});
+        return deferred(this._findOne, this)(this.name, selector, options || {});
     },
 
     save: function(data, options) {
-        return promise(this._save, this)(this.name, data, options);
+        return deferred(this._save, this)(this.name, data, options);
     },
 
     update: function(spec, doc, options) {
-        return promise(this._update, this)(this.name, spec, doc, options);
+        return deferred(this._update, this)(this.name, spec, doc, options);
     },
 
     remove: function(selector) {
-        return promise(this._remove, this)(this.name, selector);
+        return deferred(this._remove, this)(this.name, selector);
     },
 
     count: function(selector) {
-        return promise(this._count, this)(this.name, selector);
+        return deferred(this._count, this)(this.name, selector);
     },
 
     ensureIndex: function(spec, unique) {
-        return promise(this._ensureIndex, this)(this.name, spec, unique);
+        return deferred(this._ensureIndex, this)(this.name, spec, unique);
     }
 });
 
