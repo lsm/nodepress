@@ -128,7 +128,7 @@ var Db = Base(function(config) {
                                 }
                             });
                         }
-                        callback(cursor);
+                        callback(err, cursor);
                     }
                 });
             }
