@@ -2,7 +2,7 @@ var Path = require('path');
 
 setupRequirePath();
 
-var apis = [], urls = [];
+var apis = [], urls = [], jsonrpcProviders = [];
 
 
 function setupRequirePath() {
@@ -100,26 +100,27 @@ function setupApps(settings, np) {
             if (module.hasOwnProperty('client')) {
                 np.client.inject(module.client);
             }
+            if (module.hasOwnProperty('jsonrpc')) {
+                jsonrpcProviders = jsonrpcProviders.concat(module['jsonrpc']);
+            }
             np.app[appName] = module;
         });
 
         urls.push([settings.apiPrefix || '^/_api/', apis]);
-        if (Array.isArray(settings.middlewares)) {
-            settings.middlewares.forEach(function(m) {
-                if (m.name == 'router') {
-                    if (Array.isArray(m.urls)) {
-                        m.urls = m.urls.concat(urls);
-                    } else {
-                        m.urls = urls;
-                    }
-                }
-            });
-        } else {
+        if (settings.middlewares.router) {
             var router = settings.middlewares.router;
             if (Array.isArray(router.urls)) {
                 router.urls = router.urls.concat(urls);
             } else {
                 router.urls = urls;
+            }
+        }
+        if (settings.middlewares.jsonrpc) {
+            var jsonrpc = settings.middlewares.jsonrpc;
+            if (Array.isArray(jsonrpc.providers)) {
+               jsonrpc.providers = jsonrpc.providers.concat(jsonrpcProviders);
+            } else {
+               jsonrpc.providers = jsonrpcProviders;
             }
         }
     }
