@@ -149,6 +149,21 @@ var Db = Base(function(config) {
         });
     },
 
+    _findAndModify: function(collectionName, selector, sort, update, options, callback) {
+        var me = this;
+        this.giveCollection(collectionName, function(err, coll) {
+            if (err) {
+                console.log(err);
+                callback(err);
+            } else {
+                coll.findAndModify(selector, sort, update, options, function(err, doc) {
+                    callback(err, doc);
+                    me.freeDb(coll.db);
+                });
+            }
+        });
+    },
+
     _save: function(collectionName, data, options, callback) {
         var me = this;
         this.giveCollection(collectionName, function(err, coll) {
@@ -228,7 +243,7 @@ var Collection = Db({
     
     find: function(selector, fields, options) {
         var _find = deferred(this._find, this);
-        return _find(this.name, selector, fields, options);
+        return _find(this.name, selector, fields);
     },
 
     findEach: function(selector, fields, options) {
@@ -237,6 +252,10 @@ var Collection = Db({
 
     findOne: function(selector, options) {
         return deferred(this._findOne, this)(this.name, selector, options || {});
+    },
+
+    findAndModify: function(selector, sort, update, options) {
+        return deferred(this._findAndModify, this)(this.name, selector, sort, update, options || {});
     },
 
     save: function(data, options) {
