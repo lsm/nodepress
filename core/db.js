@@ -243,7 +243,7 @@ var Collection = Db({
     
     find: function(selector, fields, options) {
         var _find = deferred(this._find, this);
-        return _find(this.name, selector, fields);
+        return _find(this.name, selector, fields, options);
     },
 
     findEach: function(selector, fields, options) {
