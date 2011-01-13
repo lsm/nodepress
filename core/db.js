@@ -153,7 +153,6 @@ var Db = Base(function(config) {
         var me = this;
         this.giveCollection(collectionName, function(err, coll) {
             if (err) {
-                console.log(err);
                 callback(err);
             } else {
                 coll.findAndModify(selector, sort, update, options, function(err, doc) {
@@ -232,6 +231,20 @@ var Db = Base(function(config) {
                 });
             }
         });
+    },
+
+    _distinct: function(collectionName, key, query, callback) {
+        var self = this;
+        this.giveCollection(collectionName, function(err, coll) {
+            if (err) {
+                callback(err);
+            } else {
+                coll.distinct(key, query, function(err, res) {
+                    callback(err, res);
+                    self.freeDb(coll.db);
+                });
+            }
+        });
     }
 });
 
@@ -276,6 +289,10 @@ var Collection = Db({
 
     ensureIndex: function(spec, unique) {
         return deferred(this._ensureIndex, this)(this.name, spec, unique);
+    },
+
+    distinct: function(key, query) {
+        return deferred(this._distinct, this)(this.name, key, query);
     }
 });
 
