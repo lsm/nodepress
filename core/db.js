@@ -301,6 +301,7 @@ var GridFS = Db({
     init: function(rootCollection) {
         this._super();
         this.root = rootCollection || 'fs';
+        this.filesCollection = this.root + '.files';
     },
 
     _copyFromFile: function(path, filename, callback) {
@@ -321,7 +322,21 @@ var GridFS = Db({
 
     copyFromFile: function(path, filename) {
         return deferred(this._copyFromFile, this)(path, filename);
+    },
+
+    exists: function(selector) {
+        var _exists = function(selector, callback) {
+            this._findOne(this.filesCollection, selector, {fields: {_id: 1}}, function(err, file) {
+                if (err) {
+                    callback(err);
+                } else {
+                    callback(null, file ? true : false);
+                }
+            });
+        }
+        return deferred(_exists, this)(selector);
     }
+
 });
 
 module.exports = {
