@@ -1,0 +1,1 @@
+exports.UploadHandler = require('./upload');

@@ -8,11 +8,13 @@ var apis = [], urls = [], jsonrpcProviders = [];
 function setupRequirePath() {
     [
         Path.join(__dirname, "/lib"),
-        Path.join(__dirname, "/lib/genji/lib"),
+        //Path.join(__dirname, "/lib/genji/lib"),
+        "/Users/zai/workspace/genji/lib/",
         Path.join(__dirname, "/lib/nomnomargs/lib"),
         Path.join(__dirname, "/lib/fugue/lib"),
         Path.join(__dirname, "/lib/node-mongodb-native/lib"),
         Path.join(__dirname, "/lib/UglifyJS/lib"),
+        Path.join(__dirname, "/lib/formidable/lib"),
         Path.join(__dirname, "/lib/node-markdown/lib")
     ].forEach(function(path) {
         require.paths.unshift(path);
@@ -57,6 +59,11 @@ function setupCore(settings) {
             staticUrl: settings.client.staticUrl,
             combinedScriptPrefix: settings.client.combinedScriptPrefix
         });
+    }
+
+    // setup handler
+    if (settings.handler) {
+        np.handler = require('./handler');
     }
 
     // the `np` object can act as an event emitter
