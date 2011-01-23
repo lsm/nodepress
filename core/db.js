@@ -7,8 +7,9 @@ var genji = require('genji'),
 mongo = require('mongodb'),
 Base = genji.pattern.Base,
 Pool = genji.pattern.Pool,
+Mime = genji.web.mime,
 deferred = genji.pattern.control.deferred,
-connPool, dbConfig;
+connPool, dbConfig, GridStore = mongo.GridStore;
 
 function connect(server, callback) {
     var type = typeof server;
@@ -296,9 +297,37 @@ var Collection = Db({
     }
 });
 
+var GridFS = Db({
+    init: function(rootCollection) {
+        this._super();
+        this.root = rootCollection || 'fs';
+    },
+
+    _copyFromFile: function(path, filename, callback) {
+        var self = this;
+        this.giveDb(function(err, db) {
+            if (err) {
+                callback(err);
+            } else {
+                var mimeType = Mime.lookup(path);
+                var gs = new GridStore(db, filename, "w", {root: self.root, content_type: mimeType});
+                gs.writeFile(path, function(err, gs) {
+                    callback(err, gs);
+                    self.freeDb(db);
+                });
+            }
+        });
+    },
+
+    copyFromFile: function(path, filename) {
+        return deferred(this._copyFromFile, this)(path, filename);
+    }
+});
+
 module.exports = {
     init: init,
     Db: Db,
     Collection: Collection,
+    GridFS: GridFS,
     ObjectID: mongo.BSONPure.ObjectID
 }
