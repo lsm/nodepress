@@ -16,7 +16,7 @@
     - introduce a tracing utility, can trace time/memory consumption of different system components
     - introduce [head.js](http://github.com/headjs/headjs)
 
-0.1.8 (?)
+0.1.8 (2011/1/31)
 ---------
 - project:    
     - bin/nodepress support watch/reload server for development
