@@ -1,26 +1,34 @@
-0.1.9 (?)
+
+0.1.10(?)
 ---------
 - core:
-    - try to implement `same code run both on client/server side`
-- account:
-    - password recovery, change password, user registration and information
-    - use form for login
+    - run same code both on client/server side (jsdom)
 
-0.1.8 (?)
+0.1.9 (?)
 ---------
 - project:
     - support multi-process and daemonization
+- account:
+    - password recovery, change password, user registration and information
+    - use form for login
+- core:
+    - view/client: add timestamp for static resource (js/css) and etag for file-like resource
+    - introduce a tracing utility, can trace time/memory consumption of different system components
+    - introduce [head.js](http://github.com/headjs/headjs)
+
+0.1.8 (?)
+---------
+- project:    
     - bin/nodepress support watch/reload server for development
 - core:
     - rewrite `auth` base on the new cookie middleware of `genji`
     - db: 
-        - add 4 new methods: `freeDb`, `findEach`, `update`, `ensureIndex`
+        - new methods: `freeDb`, `findEach`, `update`, `ensureIndex`, `distinct`
+        - GridFS: `exists`, `copyFromFile`
         - support no-pooling
-        - should be able to re-connect when connection broken
     - promise: replaced by a simple one
-    - view/client: add timestamp for static resource (js/css)
-    - introduce a tracing utility, can trace time/memory consumption of different system components
-    - introduce [head.js](http://github.com/headjs/headjs)
+- handler:
+    - upload handler (deps: formidable)
 
 0.1.7 (2010/10/19)
 ------------------
