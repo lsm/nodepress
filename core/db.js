@@ -7,6 +7,7 @@ var genji = require('genji'),
 mongo = require('mongodb'),
 Base = genji.pattern.Base,
 Pool = genji.pattern.Pool,
+extend = genji.pattern.extend,
 Mime = genji.web.mime,
 deferred = genji.pattern.control.deferred,
 connPool, dbConfig, GridStore = mongo.GridStore;
@@ -78,18 +79,30 @@ var Db = Base(function(config) {
                 callback(null, db);
             });
         } else {
+            var self = this;
             connect(this.config, function(err, db) {
+                if (err) {
+                    callback(err);
+                    self.freeDb(db);
+                    return;
+                }
                 callback(err, db);
             });
         }
     },
 
     giveCollection: function(name, callback) {
+        var self = this;
         this.giveDb(function(err, db) {
             if (err) {
                 callback(err);
             } else {
                 db.collection(name, function(err, coll) {
+                    if (err) {
+                        callback(err);
+                        self.freeDb(db);
+                        return;
+                    }
                     callback(err, coll);
                 });
             }
@@ -117,10 +130,16 @@ var Db = Base(function(config) {
                 coll.find(selector, fields, options, function(err, cursor) {
                     if (err) {
                         callback(err);
+                        self.freeDb(coll.db);
                     } else {
                         var fetchAll = cursor.fetchAllRecords;
                         cursor.fetchAllRecords = function(callback) {
                             fetchAll.call(cursor, function(err, result) {
+                                if (err) {
+                                    callback(err);
+                                    self.freeDb(cursor.db);
+                                    return;
+                                }
                                 callback(err, result);
                                 if(!cursor.cursorId.greaterThan(cursor.db.bson_serializer.Long.fromInt(0))) {
                                     // free db when there's no data to fetch
@@ -304,19 +323,32 @@ var GridFS = Db({
         this.filesCollection = this.root + '.files';
     },
 
-    _copyFromFile: function(path, filename, callback) {
+    _getGridStore: function(filename, mode, options, callback) {
+        mode = mode || 'r';
+        options = extend(options || {}, {root: this.root});
         var self = this;
         this.giveDb(function(err, db) {
             if (err) {
                 callback(err);
-            } else {
-                var mimeType = Mime.lookup(path);
-                var gs = new GridStore(db, filename, "w", {root: self.root, content_type: mimeType});
-                gs.writeFile(path, function(err, gs) {
-                    callback(err, gs);
-                    self.freeDb(db);
-                });
+                self.freeDb(db);
+                return;
             }
+            callback(null, new GridStore(db, filename, mode, options));
+        });
+    },
+
+    _copyFromFile: function(path, filename, callback) {
+        var self = this, mimeType = Mime.lookup(path);
+        this._getGridStore(filename, 'w', {content_type: mimeType}, function(err, gs) {
+            if (err) {
+                callback(err);
+                self.freeDb(gs.db);
+                return;
+            }
+            gs.writeFile(path, function(err, gs) {
+                callback(err, gs);
+                self.freeDb(gs.db);
+            });
         });
     },
 
@@ -324,19 +356,47 @@ var GridFS = Db({
         return deferred(this._copyFromFile, this)(path, filename);
     },
 
+    _exists: function(selector, callback) {
+        this._findOne(this.filesCollection, selector, {fields: {_id: 1, filename: 1}}, function(err, file) {
+            if (err) {
+                callback(err);
+            } else {
+                callback(null, file ? true : false, file);
+            }
+        });
+    },
+
     exists: function(selector) {
-        var _exists = function(selector, callback) {
-            this._findOne(this.filesCollection, selector, {fields: {_id: 1}}, function(err, file) {
-                if (err) {
-                    callback(err);
-                } else {
-                    callback(null, file ? true : false);
-                }
+        return deferred(this._exists, this)(selector);
+    },
+
+    readFile: function(selector) {
+        var self = this,
+        _readFile = function(selector, callback) {
+            self._findOne(self.filesCollection, selector, {}, function(err, file) {
+            if (err) {
+                return callback(err);
+            }
+            self._getGridStore(file.filename, 'r', null, function(err, gs) {
+                    if (err) {
+                        return callback(err);
+                    }
+                    gs.open(function(err, gs) {
+                        if (err) {
+                            callback(err);
+                            self.freeDb(gs.db);
+                            return;
+                        }
+                        gs.read(function(err, contents) {
+                            callback(err, contents, file);
+                            self.freeDb(gs.db);
+                        });
+                    });
+                });
             });
         }
-        return deferred(_exists, this)(selector);
+        return deferred(_readFile, this)(selector);
     }
-
 });
 
 module.exports = {

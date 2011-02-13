@@ -1,6 +1,9 @@
 
 0.1.10(?)
 ---------
+- account:
+    - password recovery, change password, user registration and information
+    - use form for login
 - core:
     - run same code both on client/server side (jsdom)
 
@@ -8,13 +11,13 @@
 ---------
 - project:
     - support multi-process and daemonization
-- account:
-    - password recovery, change password, user registration and information
-    - use form for login
 - core:
     - view/client: add timestamp for static resource (js/css) and etag for file-like resource
-    - introduce a tracing utility, can trace time/memory consumption of different system components
     - introduce [head.js](http://github.com/headjs/headjs)
+    - db:
+        - set query options in chaining functions: find(query).limit(19).offset(10).fields({id: 1, name: 1})
+        - GridStore: `readFile`
+        - generate deferred version functions in constructor
 
 0.1.8 (2011/1/31)
 ---------
