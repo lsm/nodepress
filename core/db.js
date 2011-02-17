@@ -377,6 +377,10 @@ var GridFS = Db({
             if (err) {
                 return callback(err);
             }
+            if (!file) {
+                callback('file not found');
+                return;
+            }
             self._getGridStore(file.filename, 'r', null, function(err, gs) {
                     if (err) {
                         return callback(err);
