@@ -1,1 +1,1 @@
-exports.UploadHandler = require('./upload');
+exports.FormHandler = require('./form');
