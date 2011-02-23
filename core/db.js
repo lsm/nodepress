@@ -271,6 +271,20 @@ var Db = Base(function(config) {
                 });
             }
         });
+    },
+
+    _mapReduce: function(collectionName, map, reduce, options, callback) {
+        var self = this;
+        this.giveCollection(collectionName, function(err, coll) {
+            if (err) {
+                callback(err);
+            } else {
+                coll.mapReduce(map, reduce, options, function(err, coll) {
+                    callback(err, coll);
+                    self.freeDb(coll.db);
+                });
+            }
+        });
     }
 });
 
@@ -406,6 +420,34 @@ var GridFS = Db({
             });
         }
         return deferred(_readFile, this)(selector);
+    },
+    
+    writeFile: function(filename, data, mode, options) {
+        var self = this
+        , _writeFile = function(filename, data, mode, options, callback) {
+            self._getGridStore(filename, mode, options, function(err, gs) {
+                if (err) {
+                    callback(err);
+                    self.freeDb(gs.db);
+                    return;
+                }
+                gs.open(function(err, gs) {
+                    if (err) {
+                        callback(err);
+                        self.freeDb(gs.db);
+                        return;
+                    }
+                    gs.write(data, true, function(err, gs) {
+                        callback(err, gs);
+                        self.freeDb(gs.db);
+                    });
+                });
+            });
+        };
+        mode = mode || 'w';
+        options = options || {};
+        options['content_type'] = options['content_type'] || Mime.lookup(filename);
+        return deferred(_writeFile, this)(filename, data, mode, options);
     }
 });
 
