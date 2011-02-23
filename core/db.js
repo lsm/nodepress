@@ -96,28 +96,37 @@ var Db = Base(function(config) {
         this.giveDb(function(err, db) {
             if (err) {
                 callback(err);
-            } else {
-                db.collection(name, function(err, coll) {
-                    if (err) {
-                        callback(err);
-                        self.freeDb(db);
-                        return;
-                    }
-                    callback(err, coll);
-                });
+                return;
             }
+            db.collection(name, function(err, coll) {
+                if (err) {
+                    callback(err);
+                    self.freeDb(db);
+                    return;
+                }
+                callback(err, coll);
+            });
         });
     },
 
     _find: function(collectionName, selector, fields, options, callback) {
-        this._findEach(collectionName, selector, fields, options, function(err, cursor) {
+        var self = this;
+        this.giveCollection(collectionName, function(err, coll) {
             if (err) {
                 callback(err);
-            } else {
+                return;
+            }
+            coll.find(selector, fields, options, function(err, cursor) {
+                if (err) {
+                    callback(err);
+                    self.freeDb(coll.db);
+                    return;
+                }
                 cursor.toArray(function(err, result) {
                     callback(err, result);
+                    self.freeDb(cursor.db);
                 });
-            }
+            });
         });
     },
 
@@ -126,32 +135,29 @@ var Db = Base(function(config) {
         this.giveCollection(collectionName, function(err, coll) {
             if (err) {
                 callback(err);
-            } else {
-                coll.find(selector, fields, options, function(err, cursor) {
-                    if (err) {
-                        callback(err);
-                        self.freeDb(coll.db);
+                return;
+            }
+            coll.find(selector, fields, options, function(err, cursor) {
+                if (err) {
+                    callback(err);
+                    self.freeDb(coll.db);
+                    return;
+                }
+                cursor.each(function(err, result) {
+                    if (err === null) {
+                        callback(err, null);
+                        self.freeDb(cursor.db);
+                        return;
+                    }
+                    if (result !== null) {
+                        callback(err, result);
                     } else {
-                        var fetchAll = cursor.fetchAllRecords;
-                        cursor.fetchAllRecords = function(callback) {
-                            fetchAll.call(cursor, function(err, result) {
-                                if (err) {
-                                    callback(err);
-                                    self.freeDb(cursor.db);
-                                    return;
-                                }
-                                callback(err, result);
-                                if(!cursor.cursorId.greaterThan(cursor.db.bson_serializer.Long.fromInt(0))) {
-                                    // free db when there's no data to fetch
-                                    // only works for `fetchAllRecords`, `toArray`, `each`, `nextObject`, `fetchFirstResults`
-                                    self.freeDb(cursor.db);
-                                }
-                            });
-                        }
-                        callback(err, cursor);
+                        // end of result
+                        callback(null, null);
+                        self.freeDb(cursor.db);
                     }
                 });
-            }
+            });
         });
     },
 
