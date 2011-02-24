@@ -53,6 +53,9 @@ if (options.bind) {
     host = bind[0];
     port = bind[1];
 }
+if (options.path) {
+    require.paths.push(options.path);
+}
 
 // run command
 switch(options.command) {
@@ -130,7 +133,11 @@ function copy(src, dest) {
  */
 function start(bootFile) {
     var np = require('../index');
-    var settings = require(Path.join(options.path, bootFile));
+    if (bootFile[0] === '.' || bootFile[0] !== '/') {
+        bootFile = Path.join(options.path, bootFile);
+    }
+    process.argv.push('--path='+options.path);
+    var settings = require(bootFile);
     settings.host = host || settings.host || '127.0.0.1';
     settings.port = port || settings.port || 8000;
     np.startServer(settings);
@@ -145,6 +152,7 @@ function dev(bootFile) {
     args[3] = bootFile;
     args.shift(); // remove `node`
     require('../index');
+    args.push('--path='+options.path);
     var runScript = require('genji/util/manager').runScript;
     runScript(args, process.cwd());
 }

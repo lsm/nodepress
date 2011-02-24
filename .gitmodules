@@ -22,3 +22,6 @@
 [submodule "lib/formidable"]
 	path = lib/formidable
 	url = git://github.com/felixge/node-formidable.git
+[submodule "lib/cluster"]
+	path = lib/cluster
+	url = git://github.com/LearnBoost/cluster.git

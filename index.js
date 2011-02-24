@@ -65,6 +65,9 @@ function setupCore(settings) {
         np.handler = require('./handler');
     }
 
+    // env
+    process.env['NODE_ENV'] = settings.env;
+
     // the `np` object can act as an event emitter
     np.on = function(type, callback) {
         event.on(type, callback);
@@ -130,7 +133,26 @@ function setupApps(settings, np) {
             }
         }
     }
-    
+}
+
+function setupCluster(settings, server) {
+    var _cluster = require('cluster'),
+    cluster = _cluster(server);
+    for (var env in settings) {
+        env !== 'common' && cluster['in'](env);
+        var options = settings[env].options,
+        plugins = settings[env].plugins;
+        // set options
+        for (var k in options) {
+            cluster.set(k, options[k]);
+        }
+        // plugins
+        Array.isArray(plugins) && plugins.forEach(function(plugin) {
+            var name = plugin.shift();
+            cluster.use(_cluster[name].apply(_cluster, plugin));
+        })
+    }
+    return cluster;
 }
 
 function createServer(settings, np) {
@@ -141,17 +163,29 @@ function createServer(settings, np) {
         np.settings = settings;
         setupApps(settings, np);
     }
-    return np.genji.web.createServer(settings.middlewares);
+    var server = np.genji.web.createServer(settings.middlewares);
+    return settings.cluster ? setupCluster(settings.cluster, server) : server;
 }
 
 function startServer(settings) {
     // start server
     var server = createServer(settings);
-    server.listen(settings.port, settings.host, function() {
-        if (settings.env == 'development') {
-            console.log('Server started at: http://%s:%s', settings.host, settings.port);
-        }
-    });
+    function listen() {
+        server.listen(settings.port, settings.host, function() {
+            if (settings.env === 'development') {
+                console.log('Server started at: http://%s:%s', settings.host, settings.port);
+            }
+        });
+    }
+    if (require('net').isIP(settings.host) === 0) {
+        require('dns').lookup(settings.host, function(err, ip, addressType) {
+            if(err) throw err;
+            settings.host = ip;
+            listen();
+        });
+    } else {
+        listen();
+    }
 }
 
 exports.createServer = createServer;
