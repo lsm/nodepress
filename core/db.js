@@ -390,10 +390,10 @@ var GridFS = Db({
         return deferred(this._exists, this)(selector);
     },
 
-    readFile: function(selector) {
+    readFile: function(selector, options) {
         var self = this,
-        _readFile = function(selector, callback) {
-            self._findOne(self.filesCollection, selector, {}, function(err, file) {
+        _readFile = function(selector, options, callback) {
+            self._findOne(self.filesCollection, selector, options, function(err, file) {
             if (err) {
                 return callback(err);
             }
@@ -419,7 +419,7 @@ var GridFS = Db({
                 });
             });
         }
-        return deferred(_readFile, this)(selector);
+        return deferred(_readFile, this)(selector, options || {});
     },
     
     writeFile: function(filename, data, mode, options) {
