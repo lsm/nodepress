@@ -7,9 +7,8 @@ post = factory.post,
 settings = core.settings;
 
 
-function index() {
-    var self = this;
-    var user = auth.checkCookie(this.getCookie(auth.cookieName), auth.cookieSecret)[0];
+function index(handler) {
+    var user = auth.checkCookie(handler.getCookie(auth.cookieName), auth.cookieSecret)[0];
     var ctx = core.app.blog.ctx;
     var scriptGroup = ["main"];
     var inDev = settings.env == "development";
@@ -22,7 +21,7 @@ function index() {
         ctx.is_owner = undefined;
     }
     // combine if not in dev model
-    ctx.scripts = [{js: client.getScripts("js", scriptGroup, !inDev), css: client.getScripts("css", scriptGroup, !inDev)}];
+    ctx.scripts = [{js: client.getHeadJS(scriptGroup), css: client.getScripts("css", scriptGroup, !inDev)}];
     // compress if not in dev model
     ctx.initJs = client.getCode('init.js', !inDev);
     ctx.initUserJs = client.getCode('initUser.js', !inDev);
@@ -48,15 +47,14 @@ function index() {
             ctx.posts = posts;
             ctx.page = 'index';
             view.render('index.html', ctx, function(html) {
-                self.sendHTML(html);
+                handler.sendHTML(html);
             });
         });
     });
 }
 
-function article(id) {
-    var self = this;
-    var user = auth.checkCookie(this.getCookie(auth.cookieName), auth.cookieSecret)[0];
+function article(handler, id) {
+    var user = auth.checkCookie(handler.getCookie(auth.cookieName), auth.cookieSecret)[0];
     var ctx = core.app.blog.ctx;
     if (user) {
         ctx.is_owner = [{
@@ -84,10 +82,10 @@ function article(id) {
                 ctx.posts = [post];
                 ctx.page = 'article';
                 view.render('article.html', ctx, null, function(html) {
-                    self.sendHTML(html);
+                    handler.sendHTML(html);
                 });
             } else {
-                self.error(404, 'Article not found');
+                handler.error(404, 'Article not found');
             }
         });
     });
@@ -96,10 +94,9 @@ function article(id) {
 module.exports = [
     ['^/$', index, 'get'],
     ['^/article/([0-9a-zA-Z]{24})/.*/$', article, 'get'],
-    ['.*', function() {
-        var self = this;
-        view.render('error/404.html', {url: this.request.url}, function(html) {
-            self.error(404, html);
+    ['.*', function(handler) {
+        view.render('error/404.html', {url: handler.request.url}, function(html) {
+            handler.error(404, html);
         })
     }, 'notfound']
 ];

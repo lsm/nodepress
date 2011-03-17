@@ -9,13 +9,12 @@ tracker;
 factory.register('setting', function(name) {return new Collection(name)}, ['settings'], true);
 var setting = factory.setting;
 
-function getTracker(callback) {
-    var self = this;
+function getTracker(handler, callback) {
     function send(tracker) {
         if (callback) {
             callback(tracker);
         } else {
-            self.send(tracker.code);
+            handler && handler.send(tracker.code);
         }
     }
     if (tracker) {
@@ -32,9 +31,8 @@ function getTracker(callback) {
     });
 }
 
-function saveTracker() {
-    var self = this;
-    self.on('end', function(data) {
+function saveTracker(handler) {
+    handler.on('end', function(data) {
         setting.save({
             _id: 'defaultTracker',
             code: data
@@ -42,25 +40,24 @@ function saveTracker() {
             tracker = {
                 code: data
             };
-            self.send('ok');
+            handler.send('ok');
             core.emit('management.api.saveTracker', doc);
         });
     });
 }
 
-function saveSetting() {
-    var self = this;
-    self.on('end', function(data) {
+function saveSetting(handler) {
+    handler.on('end', function(data) {
         data = JSON.parse(data);
         setting.save(data).then(function() {
-            self.send('Setting saved');
+            handler.send('Setting saved');
             core.emit('management.api.saveSetting', data);
         });
     });
 }
 
 // get tracker code from db
-getTracker(function() {});
+getTracker(null, function() {});
 
 var api = [
     [

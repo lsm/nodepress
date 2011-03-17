@@ -12,13 +12,13 @@ factory.register('user', function(name) {return new Collection(name)}, ['users']
 var user = factory.user;
 
 
-function checkLogin(failure) {
-    var validCookie = auth.checkCookie(this.getCookie(cookieName), cookieSecret);
+function checkLogin(handler, failure) {
+    var validCookie = auth.checkCookie(handler.getCookie(cookieName), cookieSecret);
     if (validCookie) {
         // valid user
-        this.username = validCookie[0];
-        this.userExpire = validCookie[1];
-        this.userData = validCookie[2];
+        handler.username = validCookie[0];
+        handler.userExpire = validCookie[1];
+        handler.userData = validCookie[2];
         return true;
     }
     // not a logged in user
@@ -28,41 +28,39 @@ function checkLogin(failure) {
             break;
         case 'string':
         case 'undefined':
-            this.error(401, failure || 'Login failed');
+            handler.error(401, failure || 'Login failed');
             break;
     }
     return false;
 }
 
-function signin() {
-    if (checkLogin.call(this, false)) {
+function signin(handler) {
+    if (checkLogin(handler, false)) {
         // already logged in
         this.send("ok");
         return;
     }
-    var self = this;
-    this.on('end', function(data) {
-        var p = querystring.parse(data);
-        if (p.hasOwnProperty("username") && p.hasOwnProperty("password")) {
+    handler.on('end', function(params) {
+        if (params.hasOwnProperty("username") && params.hasOwnProperty("password")) {
             user.findOne({
-                username: p['username']
+                username: params.username
             }).then(function(res) {
                 var expire = new Date(+new Date + 7*24*3600*1000);
                 if (res) {
-                    var signed = auth.signin(p, res["password"], expire);
+                    var signed = auth.signin(params, res.password, expire);
                     if (signed) {
-                        self.setCookie(cookieName, signed, {
+                        handler.setCookie(cookieName, signed, {
                             expires: expire,
                             path: "/"
                         });
-                        self.send("ok");
+                        handler.send("ok");
                         return;
                     }
                 }
-                self.error(401, 'Wrong username/password pair.');
+                handler.error(401, 'Wrong username/password pair.');
             });
         } else {
-            self.error(403, 'Please enter username and password.');
+            handler.error(403, 'Please enter username and password.');
         }
     });
 }
