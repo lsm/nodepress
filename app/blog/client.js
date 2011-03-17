@@ -358,8 +358,9 @@ module.exports = {
                 dom.input = $('#np-textarea'),
                 dom.previewDiv = $('#np-preview'),
                 dom.editor = $('.np-editor'),
-                dom.save = $('#np-save'),
-                dom.publish = $('#np-publish');
+                dom.save = $('#np-editor-save'),
+                dom.cancel = $('#np-editor-cancel'),
+                dom.publish = $('#np-editor-publish');
                 function convert() {
                     np.preview(dom.input, dom.previewDiv);
                 }
@@ -374,6 +375,9 @@ module.exports = {
                 });
                 dom.publish.click(function(event) {
                     np.api.save(true);
+                });
+                dom.cancel.click(function(event) {
+                    np.resetEditor();
                 });
 
                 // after rendered post

@@ -214,6 +214,10 @@ top:30px;
     float: right;
 }
 
+#np-editor-cancel {
+    float: left;
+}
+
 #np-preview {
     background-color: #EEEEEE;
     word-wrap:break-word;
