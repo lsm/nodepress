@@ -346,10 +346,12 @@ module.exports = {
             code: function($) {
                 var np = $.np;
                 var dom = np.dom;
-                dom.tabs = $("#np-tabs").tabs("div.np-tab", {
+                // construct the tabs
+                $("#np-tabs").tabs("div.np-tab", {
                     history: true ,
                     effect: 'default'
-                }),
+                });
+                dom.tabs = $("#np-tabs").data('tabs'),
                 // editor
                 dom.title = $('#np-title'),
                 dom.tags = $('#np-tags'),
@@ -381,6 +383,7 @@ module.exports = {
                     $('a.np-post-edit').bind('click', function(event) {
                         var postId = $(event.currentTarget).parent('.np-post-info').parent('.np-post').attr('id');
                         np.fillEditor(postId);
+                        np.dom.tabs.click(1);
                     });
                     $('div.np-post-info').append('<a href="#" class="np-post-remove np-left">remove</a>');
                     $('a.np-post-remove').bind('click', function(event) {

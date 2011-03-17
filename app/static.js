@@ -6,7 +6,7 @@ settings = core.settings,
 path = require('path'),
 compress = settings.env != "development";
 
-function handleFile(handler, type, basename) {
+function handleScript(handler, type, basename) {
     var path = '/'+type+'/';
     if (compress && type == 'js') {
         var meta = client.getScriptMeta(type, basename, path);
@@ -18,6 +18,11 @@ function handleFile(handler, type, basename) {
         handler.setRoot(client.staticRoot);
         handler.staticFile(path+basename);
     }
+}
+
+function handleFile(handler, path) {
+    handler.setRoot(client.staticRoot);
+    handler.staticFile(path);
 }
 
 function buildjs(handler, name) {
@@ -46,5 +51,6 @@ function nodepressRes(handler, type, group) {
 exports.view = [
     ['^/static/js/(main|user).js\\?[0-9a-zA-Z]{32}$', buildjs, 'get', FileHandler],
     ['^/static/(js|css)/' + client.combinedScriptPrefix + '(\\w+).(js|css)$', nodepressRes, 'get', FileHandler],
-    ['^/static/(js|css)/(.*)\\?[0-9a-zA-Z]{32}$', handleFile, 'get', FileHandler]
+    ['^/static/(js|css)/(.*)\\?[0-9a-zA-Z]{32}$', handleScript, 'get', FileHandler]
+    , ['^/static/(.*)$', handleFile, 'get', FileHandler]
 ];

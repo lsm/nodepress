@@ -32,7 +32,7 @@ function getTracker(handler, callback) {
 }
 
 function saveTracker(handler) {
-    handler.on('end', function(data) {
+    handler.on('end', function(params, data) {
         setting.save({
             _id: 'defaultTracker',
             code: data
@@ -47,7 +47,7 @@ function saveTracker(handler) {
 }
 
 function saveSetting(handler) {
-    handler.on('end', function(data) {
+    handler.on('end', function(params, data) {
         data = JSON.parse(data);
         setting.save(data).then(function() {
             handler.send('Setting saved');

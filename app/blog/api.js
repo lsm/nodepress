@@ -6,8 +6,9 @@ factory = core.factory,
 post = factory.post;
 
 function save(handler) {
-    handler.on('end', function(data) {
-        post.save(data, handler.username).then(function(doc) {
+    handler.on('end', function(params, raw) {
+        var doc = JSON.parse(raw);
+        post.save(doc, handler.username).then(function(doc) {
             handler.sendJSON({
                 _id: doc._id
             });
@@ -19,7 +20,7 @@ function save(handler) {
 }
 
 function remove(handler) {
-    handler.on('end', function(data) {
+    handler.on('end', function(params, data) {
         var doc = JSON.parse(data);
         post.remove({_id: new core.db.ObjectID(doc._id)}).then(function(doc) {
            handler.sendJSON({});

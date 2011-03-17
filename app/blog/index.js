@@ -16,6 +16,7 @@ post.extend({
             data.created = new Date();
             data.author = author;
         } else {
+            data._id = new core.db.ObjectID(data._id);
             data.modified = new Date();
         }
         if (data.hasOwnProperty('published') && data.published == 1) {
