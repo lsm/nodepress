@@ -25,3 +25,6 @@
 [submodule "lib/cluster"]
 	path = lib/cluster
 	url = git://github.com/LearnBoost/cluster.git
+[submodule "lib/uglifyjs"]
+	path = lib/uglifyjs
+	url = git://github.com/mishoo/UglifyJS.git
