@@ -3,47 +3,48 @@ core = np,
 client = core.client,
 view = core.view,
 settings = core.settings,
-path = require('path');
+path = require('path'),
+compress = settings.env != "development";
 
-function handleFile(path) {
-    this.setRoot(client.staticRoot);
-    this.staticFile(path);
+function handleFile(handler, type, basename) {
+    var path = '/'+type+'/';
+    if (compress && type == 'js') {
+        var meta = client.getScriptMeta(type, basename, path);
+        handler.sendAsFile(function(callback) {
+            var code = client.getCode({type: type, url: path, basename: basename}, true);
+            callback(code);
+        }, {'type': 'application/javascript', etag: meta.hash, length: meta.length});
+    } else {
+        handler.setRoot(client.staticRoot);
+        handler.staticFile(path+basename);
+    }
 }
 
-function mainJs() {
-    var self = this;
-    view.render('js/main.js.mu', {code: client.getCode('main.js')}, null, function(js) {
-        self.send(js , 200, {'Content-Type': 'application/javascript'});
+function buildjs(handler, name) {
+    name = name +'.js';
+    var tplName = 'js/'+name+'.mu';
+    view.render(tplName, {code: client.getCode({url: '/js/', basename: name}, compress)}, null, function(js) {
+        handler.sendAsFile(js , {'type': 'application/javascript'});
     });
 }
 
-function userJs() {
-    var self = this;
-    view.render('js/user.js.mu', {code: client.getCode('user.js')}, null, function(js) {
-        self.send(js , 200, {'Content-Type': 'application/javascript'});
-    });
-}
-
-function nodepressRes(type, group) {
-    var self = this;
-    var compress = settings.env != "development";
+function nodepressRes(handler, type, group) {
     try {
         client.getCombined(type, group, compress, function(code) {
             if (code) {
-                self.send(code, 200, {
-                    'Content-Type': type == "js" ? 'application/javascript' : "text/css"
+                handler.sendAsFile(code, {
+                    'type': type == "js" ? 'application/javascript' : "text/css"
                 });
             }
         });
     } catch(e) {
-        self.setStatus(404);
-        self.sendHTML("File not found");
+        handler.setStatus(404);
+        handler.sendHTML("File not found");
     }
 }
 
 exports.view = [
-    ['^/static/js/main.js$', mainJs, 'get'],
-    ['^/static/js/user.js$', userJs, 'get'],
-    ['^/static/(js|css)/' + client.combinedScriptPrefix + '(\\w+).(js|css)$', nodepressRes, 'get'],
-    ['^/static/(.*)$', handleFile, 'get', FileHandler]
+    ['^/static/js/(main|user).js\\?[0-9a-zA-Z]{32}$', buildjs, 'get', FileHandler],
+    ['^/static/(js|css)/' + client.combinedScriptPrefix + '(\\w+).(js|css)$', nodepressRes, 'get', FileHandler],
+    ['^/static/(js|css)/(.*)\\?[0-9a-zA-Z]{32}$', handleFile, 'get', FileHandler]
 ];

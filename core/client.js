@@ -1,9 +1,14 @@
 var context = {},
-jsp = require("parse-js"),
-pro = require("process"),
+ugjs = require('uglifyjs'),
+jsp = ugjs.parser,
+pro = ugjs.uglify,
 url = require("url"),
 fs = require("fs"),
 cache, staticUrl, staticRoot, combinedScriptPrefix,
+crypto = require('genji').util.crypto,
+md5 = crypto.md5,
+md5file = crypto.md5file,
+headjs,
 Path = require("path");
 
 var scripts = {};
@@ -19,8 +24,15 @@ var scriptPaths = [];
 function init(options) {
     cache = options.cache;
     staticRoot = module.exports.staticRoot = options.staticRoot || Path.join(__dirname, '../static');
-    staticUrl = module.exports.staticUrl = options.staticUrl || 'http://127.0.0.1:8000/static/';
+    staticUrl = options.staticUrl || 'http://127.0.0.1:8000/static/';
+    if (staticUrl[staticUrl.length-1] != "/") staticUrl += "/";
+    module.exports.staticUrl = staticUrl;
     combinedScriptPrefix = module.exports.combinedScriptPrefix = options.combinedScriptPrefix || 'nodepress-';
+    md5file(Path.join(staticRoot, '/js/head.min.js'), function(err, hash) {
+        if (err) throw err;
+        headjs = '<script src="'+staticUrl+'js/head.min.js?'+hash+'"></script>\n';
+        addScript('js', 'head.min.js', '/js/', '/js/', 'head');
+    });
 }
 
 function inject(appClient) {
@@ -40,7 +52,9 @@ function inject(appClient) {
 // try to get content from file `root` + `path`
 function _getCodeFromFS(idx, script, callback) {
     fs.readFile(Path.join(staticRoot, script.dir, script.basename), "utf8", function(err, content) {
-        if (err) throw err;
+        if (err) {
+            callback(idx, '');
+        };
         // use `idx` as we need to reserve the script order in async operation (big file load slower)
         callback(idx, content);
     });
@@ -54,8 +68,13 @@ function _compress(code) {
     return "\n;" + pro.gen_code(ast) + ";";
 }
 
-function getCode(filename, compress) {
-    var ctx = context[filename], result = '';
+function _scriptCacheKey(script) {
+    return ['client', script.url, script.basename].join(':');
+}
+
+function getCode(script, compress) {
+    script = typeof script === 'string' ? {basename: script} : script;
+    var ctx = context[script.basename], result = '';
     if (ctx) {
         var tmp = [];
         for (var name in ctx) {
@@ -69,26 +88,73 @@ function getCode(filename, compress) {
         for (var i = 0; i < tmp.length; i++) {
             result +=  '\n\n/*'+ tmp[i]+ '*/\n;(' + ctx[tmp[i]].code.toString() + ')($);';
         }
-        if (compress) result = _compress(result);
+        if (compress) {
+            result = _compress(result);
+        }
+    } else if (compress) {
+        // try to get from cache
+        result = cache.get(_scriptCacheKey(script));
     }
-    return result;
+    return result || '';
 }
 
 // all parameters except `combinable`
 function addScript(type, basename, relativeDir, relativeUrl, group) {
     if (!scripts.hasOwnProperty(type)) throw new Error("`addScript` only support type of `js` or `css`");
-    scripts[type][relativeDir+basename] = {
+    var script = {
         basename: basename,
         dir: relativeDir,
         url: relativeUrl,
         group: group
     };
+    scripts[type][relativeDir+basename] = script;
+    _getCodeFromFS(0, script, function(idx, content) {
+        if (content) {
+            script.hash = md5(content);
+            script.length = Buffer.byteLength(content);
+            scripts[type][relativeDir+basename] = script;
+            // cache the minified content of js
+            if (type === 'js') {
+                var compressed = _compress(content);
+                cache.set(_scriptCacheKey(script), compressed);
+                script.length = Buffer.byteLength(compressed, 'binary');
+                scripts[type][relativeDir+basename] = script;
+            }
+        }
+    });
+}
+
+function getScriptMeta(type, basename, relativeDir) {
+    return scripts[type][relativeDir+basename];
+}
+
+function getHeadJS(groups) {
+    var js = scripts['js'], result = '<script language="javascript">head.js({{scripts}});</script>'
+    , replace = [];
+    for (var name in js) {
+        var script = js[name];
+        if (groups.indexOf(script.group) > -1) {
+            var path = Path.join(script.url, script.basename);
+            path = path[0] == "/" ? path.slice(1) : path;
+            // add content hash for caching and invalidation
+            if (script.hash) {
+                path += '?' + script.hash;
+            } else {
+                var code = getCode(script);
+                if (code) {
+                    path += '?' + md5(code);
+                }
+            }
+            replace.push('"' + staticUrl + path + '"');
+        }
+    }
+    replace = replace.join(',');
+    return headjs + result.replace('{{scripts}}', replace);
 }
 
 function getScripts(type, groups, combine) {
     var ret = "", path;
     if (typeof groups == "string") groups = [groups];
-    if (staticUrl[staticUrl.length-1] != "/") staticUrl += "/";
     if (combine) {
         // if combine is enabled, just use group name as the filename of combined scripts,
         // see how we handle combined files in `app/static.js`
@@ -102,6 +168,14 @@ function getScripts(type, groups, combine) {
             if (groups.indexOf(script.group) > -1) {
                 path = Path.join(script.url, script.basename);
                 path = path[0] == "/" ? path.slice(1) : path;
+                if (script.hash) {
+                    path += '?' + script.hash;
+                } else {
+                    var code = getCode(script);
+                    if (code) {
+                        path += '?' + md5(code);
+                    }
+                }
                 ret += scriptTpl[type].replace("{{src}}", staticUrl + path) + "\n";
             }
         }
@@ -141,7 +215,7 @@ function getCombined(type, group, compress, callback) {
    }
    toCombine.forEach(function(script, idx) {
        // try to find from the generated code first
-       var tmpCode = getCode(script.basename, compress);
+       var tmpCode = getCode(script, compress);
        if (tmpCode) {
            // found and combine with other scripts
            toReturn[idx] = tmpCode;
@@ -164,6 +238,8 @@ module.exports = {
     getCode: getCode,
     inject: inject,
     getScripts: getScripts,
+    getHeadJS: getHeadJS,
+    getScriptMeta: getScriptMeta,
     getCombined: getCombined,
     addScript: addScript
 }

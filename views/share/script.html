@@ -3,7 +3,7 @@
 {{/scripts}}
 
 <script type="text/javascript" language="javascript">
-    $(function() {
+    (head ? head.ready : $)(function() {
         $.np.cookieName = '{{cookieName}}';
         $.np.totalPosts = '{{total}}';
         $.np.page = '{{page}}';
