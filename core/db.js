@@ -144,13 +144,13 @@ var Db = Base(function(config) {
                     return;
                 }
                 cursor.each(function(err, result) {
-                    if (err === null) {
+                    if (err) {
                         callback(err, null);
                         self.freeDb(cursor.db);
                         return;
                     }
                     if (result !== null) {
-                        callback(err, result);
+                        callback(null, result);
                     } else {
                         // end of result
                         callback(null, null);
