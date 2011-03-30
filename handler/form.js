@@ -4,7 +4,7 @@ Handler = genji.web.handler.Handler;
 Simple = require('genji/web/handler/simple'),
 Cookie = require('genji/web/handler/cookie'),
 Path = require('path'),
-defaultExtentions = ['.png', '.jpg'],
+defaultExtentions = ['.png', '.jpg', '.jpeg'],
 maxFieldsSize = 8*1024*1024;
 
 var FormHandler = Handler({
