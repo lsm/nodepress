@@ -288,59 +288,114 @@ var Db = Base(function(config) {
     }
 });
 
+function makeOptionChain(fn, args, options) {
+    fn.field = function(_fields) {
+        options.fields = _fields;
+        return fn;
+    };
+    fn.skip = function(_skip) {
+        options.skip = _skip;
+        return fn;
+    };
+    fn.limit = function(_limit) {
+        options.limit = _limit;
+        return fn;
+    };
+    fn.sort = function(_sort) {
+        options.sort = _sort;
+        return fn;
+    };
+    fn.exec = function(args) {
+        return fn.apply(null, args);
+    }
+    ret.then = function(callback) {
+        defer || (defer = ret(collectionName, selector, fields, options));
+        return defer.then(callback);
+    };
+    ret.and = function(callback) {
+        defer || (defer = ret(collectionName, selector, fields, options));
+        return defer.and(callback);
+    };
+    ret.fail = function(callback) {
+        defer || (defer = ret(collectionName, selector, fields, options));
+        return defer.fail(callback);
+    };
+    return fn;
+}
+
 var Collection = Db({
-    init: function(name) {
+    init: function(name, errback) {
         this._super();
         this.name = name;
+        errback = errback || this.errback;
+        var asyncFunctions = [
+            '_find', '_findEach', '_findOne', '_findAndModify', '_save', '_update'
+            , '_remove', '_count', '_ensureIndex', '_distinct'
+        ];
+        // generate deferred version of async functions
+        asyncFunctions.forEach(function(fn) {
+            var func = deferred(this[fn], this);
+            this['_deferred'+fn] = typeof errback === 'function' ? function() {
+                    return func.apply(null, arguments).fail(errback);
+                } : func;
+        }, this);
     },
     
     find: function(selector, fields, options) {
-        var _find = deferred(this._find, this);
-        return _find(this.name, selector, fields, options);
+        return this._deferred_find(this.name, selector, fields, options);
     },
 
     findEach: function(selector, fields, options) {
-        return deferred(this._findEach, this)(this.name, selector, fields, options);
+        return this._deferred_findEach(this.name, selector, fields, options);
     },
 
     findOne: function(selector, options) {
-        return deferred(this._findOne, this)(this.name, selector, options || {});
+        return this._deferred_findOne(this.name, selector, options || {});
     },
 
     findAndModify: function(selector, sort, update, options) {
-        return deferred(this._findAndModify, this)(this.name, selector, sort, update, options || {});
+        return this._deferred_findAndModify(this.name, selector, sort, update, options || {});
     },
 
     save: function(data, options) {
-        return deferred(this._save, this)(this.name, data, options);
+        return this._deferred_save(this.name, data, options);
     },
 
     update: function(spec, doc, options) {
-        return deferred(this._update, this)(this.name, spec, doc, options);
+        return this._deferred_update(this.name, spec, doc, options);
     },
 
     remove: function(selector) {
-        return deferred(this._remove, this)(this.name, selector);
+        return this._deferred_remove(this.name, selector);
     },
 
     count: function(selector) {
-        return deferred(this._count, this)(this.name, selector);
+        return this._deferred_count(this.name, selector);
     },
 
     ensureIndex: function(spec, unique) {
-        return deferred(this._ensureIndex, this)(this.name, spec, unique);
+        return this._deferred_ensureIndex(this.name, spec, unique);
     },
 
     distinct: function(key, query) {
-        return deferred(this._distinct, this)(this.name, key, query);
+        return this._deferred_distinct(this.name, key, query);
     }
 });
 
 var GridFS = Db({
-    init: function(rootCollection) {
+    init: function(rootCollection, errback) {
         this._super();
         this.root = rootCollection || 'fs';
         this.filesCollection = this.root + '.files';
+        errback = errback || this.errback;
+        var asyncFunctions = ['_copyFromFile', '_exists', '_readFile', '_writeFile'];
+        // generate deferred version of async functions
+        asyncFunctions.forEach(function(fn) {
+            var func = deferred(this[fn], this);
+            this['_deferred'+fn] = typeof errback === 'function' ? function() {
+                    return func.apply(null, arguments).fail(errback);
+                } : func;
+        }, this);
     },
 
     _getGridStore: function(filename, mode, options, callback) {
@@ -373,7 +428,7 @@ var GridFS = Db({
     },
 
     copyFromFile: function(path, filename) {
-        return deferred(this._copyFromFile, this)(path, filename);
+        return this._deferred_copyFromFile(path, filename);
     },
 
     _exists: function(selector, callback) {
@@ -387,49 +442,23 @@ var GridFS = Db({
     },
 
     exists: function(selector) {
-        return deferred(this._exists, this)(selector);
+        return this._deferred_exists(selector);
     },
 
-    readFile: function(selector, options) {
-        var self = this,
-        _readFile = function(selector, options, callback) {
-            self._findOne(self.filesCollection, selector, options, function(err, file) {
+    _readFile: function(selector, options, callback) {
+        var self = this;
+        options = options || {};
+        self._findOne(self.filesCollection, selector, options, function(err, file) {
             if (err) {
                 return callback(err);
             }
             if (!file) {
-                callback('file not found');
+                callback(['file not found in `', self.filesCollection, '` with selector' , JSON.stringify(selector)].join(''));
                 return;
             }
             self._getGridStore(file.filename, 'r', null, function(err, gs) {
-                    if (err) {
-                        return callback(err);
-                    }
-                    gs.open(function(err, gs) {
-                        if (err) {
-                            callback(err);
-                            self.freeDb(gs.db);
-                            return;
-                        }
-                        gs.read(function(err, contents) {
-                            callback(err, contents, file);
-                            self.freeDb(gs.db);
-                        });
-                    });
-                });
-            });
-        }
-        return deferred(_readFile, this)(selector, options || {});
-    },
-    
-    writeFile: function(filename, data, mode, options) {
-        var self = this
-        , _writeFile = function(filename, data, mode, options, callback) {
-            self._getGridStore(filename, mode, options, function(err, gs) {
                 if (err) {
-                    callback(err);
-                    self.freeDb(gs.db);
-                    return;
+                    return callback(err);
                 }
                 gs.open(function(err, gs) {
                     if (err) {
@@ -437,17 +466,46 @@ var GridFS = Db({
                         self.freeDb(gs.db);
                         return;
                     }
-                    gs.write(data, true, function(err, gs) {
-                        callback(err, gs);
+                    gs.read(function(err, contents) {
+                        callback(err, contents, file);
                         self.freeDb(gs.db);
                     });
                 });
             });
-        };
+        });
+    },
+
+    readFile: function(selector, options) {
+        return this._deferred_readFile(selector, options);
+    },
+
+    _writeFile: function(filename, data, mode, options, callback) {
+        var self = this;
+        self._getGridStore(filename, mode, options, function(err, gs) {
+            if (err) {
+                callback(err);
+                self.freeDb(gs.db);
+                return;
+            }
+            gs.open(function(err, gs) {
+                if (err) {
+                    callback(err);
+                    self.freeDb(gs.db);
+                    return;
+                }
+                gs.write(data, true, function(err, gs) {
+                    callback(err, gs);
+                    self.freeDb(gs.db);
+                });
+            });
+        });
+    },
+    
+    writeFile: function(filename, data, mode, options) {
         mode = mode || 'w';
         options = options || {};
         options['content_type'] = options['content_type'] || Mime.lookup(filename);
-        return deferred(_writeFile, this)(filename, data, mode, options);
+        return this._deferred_writeFile(filename, data, mode, options);
     }
 });
 
