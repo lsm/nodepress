@@ -14,7 +14,7 @@ function getTracker(handler, callback) {
         if (callback) {
             callback(tracker);
         } else {
-            handler && handler.send(tracker.code);
+            handler && handler.sendJSON(tracker.code);
         }
     }
     if (tracker) {
