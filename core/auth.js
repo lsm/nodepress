@@ -4,14 +4,14 @@ var genji = require('genji'),
 
 function checkCookie(cookie) {
     if (cookie) {
-        return auth.verify(base64.decode(cookie), exports.cookieSecret);
+        return auth.verify(base64.decode(cookie), module.exports.cookieSecret);
     }
     return false;
 }
 
 function signin(user, credential, expire, data) {
     if (auth.checkPassword(credential, user["password"])) {
-        var signed = auth.sign(user['username'], expire, data, exports.cookieSecret);
+        var signed = auth.sign(user['username'], expire, data, module.exports.cookieSecret);
         return signed ? base64.encode(signed) : false;
     }
     return false;
