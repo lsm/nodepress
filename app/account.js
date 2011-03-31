@@ -37,7 +37,7 @@ function checkLogin(handler, failure) {
 function signin(handler) {
     if (checkLogin(handler, false)) {
         // already logged in
-        this.send("ok");
+        handler.send("ok");
         return;
     }
     handler.on('end', function(params) {

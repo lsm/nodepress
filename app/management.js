@@ -14,7 +14,7 @@ function getTracker(handler, callback) {
         if (callback) {
             callback(tracker);
         } else {
-            handler && handler.sendJSON(tracker.code);
+            handler && handler.send(tracker.code);
         }
     }
     if (tracker) {
@@ -32,7 +32,8 @@ function getTracker(handler, callback) {
 }
 
 function saveTracker(handler) {
-    handler.on('end', function(params, data) {
+    handler.on('end', function(params, buff) {
+        var data = buff.toString('utf8');
         setting.save({
             _id: 'defaultTracker',
             code: data
