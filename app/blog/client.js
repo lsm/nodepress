@@ -76,7 +76,7 @@ function mainJs($) {
             if (post.title) {
                 tmp.title = post.title;
             }
-            tmp.published = new Date(parseInt(post.published)).toLocaleDateString();
+            tmp.published = new Date(post.published).toLocaleDateString();
             if (post.hasOwnProperty("tags")) {
                 tmp.tags = [];
                 $.each(post.tags, function(idx, tag) {
