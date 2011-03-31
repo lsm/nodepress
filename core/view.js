@@ -10,7 +10,10 @@ function init(viewRoot, compress, cache) {
 }
 
 function render(tpl, ctx, options, callback) {
-    if (typeof options === 'function') callback = options;
+    if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+    }
     options = options || exports;
     nun.render(path.join(exports.viewRoot, tpl), ctx, options, function (err, output) {
         if (err) {
