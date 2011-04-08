@@ -1,0 +1,140 @@
+/*public*/
+body{margin:0;padding:0 0 10px;text-align:center;font-size:12px;font-family:Arial,"宋体";color:#000;background:#f3f3f3 url("../images/bg_x.jpg") repeat-x;word-wrap:break-word;word-break:break-all}
+body > div{margin-right:auto;margin-left:auto}
+img,a img{border:0px}
+input,select,textarea{font-size:12px}
+br{font-size:12px}
+div{padding:0;height:auto;text-align:left}
+p,dl,dt,dd,textarea,address,blockquote{margin:0;padding:0;height:auto;text-align:left}
+form,input,select,textarea,h1,h2,h3,h4,h5,h6{margin:0;padding:0}
+ul,li{margin:0;height:auto;text-align:left}
+h1{display:none}
+em,var,cite{font-style:normal}
+var,del{font-family:Verdana,Arial}
+a{color:#000;text-decoration:none}
+a:hover{text-decoration:underline}
+
+a.u{text-decoration:underline}
+a.u:hover{text-decoration:none}
+
+.ul,.uls{list-style:none;padding:0px}
+.ul li,.ul li p,.dl dt{white-space:nowrap;overflow:hidden}
+.sis,.x_12 li span,.x_12 li cite{white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;overflow:hidden}
+.alpha{background:#e7ee62;filter:alpha(opacity=50);-moz-opacity:0.2;opacity:0.2}
+.glow{display:block;height:16px;filter:glow(color=#5bad00,strength=2)}
+.inb,.inb a,.nav .r a,.dl dt b,.rank li p var{display:-moz-inline-block;display:-moz-inline-box;display:inline-block}
+
+.alg_c{text-align:center;clear:both}
+.alg_r{text-align:right}
+.alg_m{vertical-align:middle}
+.alg_lr{text-align:justify;text-justify:inter-ideograph}
+
+.red{color:#f00}
+.yallow{color:#ff0}
+.blue{color:#03f}
+.green{color:#6a3}
+.orange{color:#f90}
+.block{color:#000}
+.gray{color:#ccc}
+.white{color:#fff}
+.b{font-weight:bold}
+
+.hand{cursor:pointer}
+.txt{height:16px;padding:2px 0 0 2px}
+.are{line-height:20px;padding:4px}
+.pic img{border:1px solid #666}
+
+.w{width:940px;clear:both;overflow:hidden}
+.l{float:left}
+.r{float:right}
+
+.mat{margin-top:10px}
+.mat6{margin-top:6px}
+.mar10{margin-right:10px}
+
+.w206{width:206px}
+.w724{width:724px}
+
+.top .r form .hand,.top .r form .inb,.top .r .wel .inb,.h2 span a,.top2 ul li.n02 a.here,.top2 ul li.n03,.top2 ul li.n03 .hand{background:url("../images/bg.gif") no-repeat}
+
+.top{height:160px}
+.top .l{width:30%;padding-top:23px;font-size:26px;color:#6f6f6f}
+.top .l img{width:115px;height:115px;margin-right:10px;vertical-align:middle}
+.top .r{width:68%;height:160px}
+.top .r form,.top .r .wel{height:34px;margin-top:60px;padding:16px 6px 0 0;text-align:right;color:#000}
+.top .r .wel{font-size:14px}
+.top .r form{background:url("../images/line.gif") no-repeat 91% 0}
+.top .r form input{vertical-align:middle;border:0px}
+.top .r form .txt{width:100px;margin:0 6px 0 2px}
+.top .r form .hand,.top .r form .inb,.top .r .wel .inb{height:18px;line-height:18px;text-align:center;color:#fff}
+.top .r form .hand{width:55px;margin-right:16px;background-position:0 -8px}
+.top .r form .inb,.top .r .wel .inb{width:58px;background-position:-55px -8px}
+
+.top2{height:137px;padding-top:23px}
+.top2 img{float:left;display:block;width:115px;height:115px}
+.top2 ul{float:right;width:814px}
+.top2 ul li{float:left;width:100%}
+.top2 ul li.n01{height:38px;line-height:38px;font-size:26px;color:#6f6f6f}
+.top2 ul li.n02 a{float:left;display:block;width:65px;height:18px;margin-right:6px;line-height:18px;text-align:center;color:#217ec7}
+.top2 ul li.n02 a:hover{text-decoration:none}
+.top2 ul li.n02{height:23px}
+.top2 ul li.n02 a.here{color:#333;background-position:-149px -8px}
+.top2 ul li.n03{height:39px;padding-top:13px;background-position:0 -26px}
+.top2 ul li.n03 input{border:0px;vertical-align:middle}
+.top2 ul li.n03 .txts{width:695px;height:22px;margin:0 13px;padding:3px 0 0 3px;background-color:transparent}
+.top2 ul li.n03 .hand{width:77px;height:26px;font-size:14px;font-weight:bold;color:#fff;background-position:77px 26px}
+
+.tool{line-height:24px;overflow:hidden}
+.tool .l span{float:left;display:block;height:24px;color:#fff;background:url("../images/st.gif") no-repeat}
+.tool .l span.s_here{margin-right:4px;background-color:#5391c8;background-position:0 0}
+.tool .l span.s_here .sr{padding:0 5px;background-position:100% -24px}
+.tool .l span.s_here b{display:inline}
+.tool .l span.s_nor{margin-right:4px;background-position:0 24px}
+.tool .l span.s_nor .sr{padding:0 5px;background-position:0 24px}
+.tool .l span.s_nor .sr a{color:#b7b7b7}
+.tool .l span.s_nor .sr b{display:none}
+.tool .l span a{color:#fff}
+.tool .l span b{margin-left:6px;cursor:pointer}
+.tool .r a{margin-right:8px;font-size:14px}
+
+.bx{position:relative;width:690px;margin-top:10px;padding:14px 16px 16px;border:1px solid #d1d1d1;background-color:#fff}
+.bx .la,.bx .lb,.bx .ra,.bx .rb{position:absolute;display:block;width:3px;height:3px;font-size:0px;background:url("../images/bx.gif") no-repeat}
+.bx .la{top:-1px;left:-1px;background-position:0px 0px}
+.bx .lb{bottom:-1px;left:-1px;background-position:0px -3px}
+.bx .ra{top:-1px;right:-1px;background-position:-3px 0px}
+.bx .rb{bottom:-1px;right:-1px;background-position:-3px -3px}
+.lr_c{width:100%;overflow:hidden}
+
+.h2,.h2_c{width:100%;overflow:hidden;clear:both}
+.h2 em,.h2_c .cl{float:left;width:84%}
+.h2 span,.h2_c .cr{float:right;width:14%}
+
+.h2{line-height:32px;font-weight:normal}
+.h2 em{font-size:24px}
+.h2 span{font-size:12px}
+.h2 span cite{float:left}
+.h2 span a{float:right;display:block;width:36px;height:20px;margin-top:6px;line-height:20px;text-align:center;color:#fff;background-position:-113px -6px}
+.h2_c{margin-top:10px;padding-bottom:6px;line-height:24px}
+.h2_c .cl{font-size:16px}
+.h2_c .cl img{margin:10px 16px 0 0}
+.h2_c .cr{font-size:12px}
+.h2_c .cr a{color:#666}
+
+.ad206x60 img{width:206px;height:60px}
+
+.tag .t,.tag .f{background:url("../images/bx2.gif") no-repeat}
+
+.tag{background:url("../images/bg_y.gif") repeat-y}
+.tag .t{background-position:0px 0px}
+.tag .f{width:176px;padding:16px 15px 20px;line-height:24px;background-position:-206px 100%;overflow:hidden}
+.tag .f a{float:left;margin-right:10px;white-space:nowrap}
+.tag .f a.f18{font-size:18px}
+.tag .f a.f16{font-size:16px}
+.tag .f a.f14{font-size:14px}
+.tag .f a.f12{font-size:12px}
+
+.copy{line-height:20px;text-indent:10px;color:#666}
+
+.footer{margin:10px auto 0;padding-bottom:8px;line-height:20px;text-align:center;color:#5c5b5b}
+.footer p{text-align:center;color:#818180}
+.footer p a{margin:0 6px;color:#818180}
