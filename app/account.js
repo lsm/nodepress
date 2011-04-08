@@ -100,6 +100,12 @@ function initJs($) {
     dom.signin = $('#np-signin'),
     dom.signout = $('#np-signout');
     dom.signin.click($.np.signIn);
+    $('#np-login-form').keypress(function(event) {
+        if (event.which == '13') {
+            event.preventDefault();
+            $.np.signIn();
+        }
+    });
     dom.signout.click(function() {
         document.cookie = $.np.cookieName + "=" + ";path=/" + ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
         location.href = '/';
