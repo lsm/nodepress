@@ -1,9 +1,17 @@
-<div id="np-header" class="np-full-width">
-    <div class="np-info np-logo">
-        <a href="/">{{title}}</a>
-    </div>
-    <div class="np-delimiter"></div>
-    <div class="np-info np-head-info">
-        {{intro}}
+
+<div class="w top">
+    <div class="l"><a href="/" title="nodepress"><img src="{{staticUrl}}images/logo.gif" alt="{{title}}" />{{title}}</a></div>
+    <div class="r">
+        {{#is_owner}}
+         <div class="wel">Welcome, {{name}} &nbsp;&nbsp;<a id="np-signout" href="#signout" title="Sign out" class="inb">Sign out</a></div>
+        {{/is_owner}}
+        {{^is_owner}}
+        <form id="np-login-form" method="post" action="" name="">
+            <label for="">Username: </label><input type="text" id="np-username" name="username" class="txt" />
+            <label for="">Password:</label><input type="password" id="np-password" name="password" class="txt" />
+            <input id="np-signin" value="Sign in" class="hand" />
+<!--            <a href="#" title="Register" target="_blank" class="inb">Register</a>-->
+        </form>
+        {{/is_owner}}
     </div>
 </div>

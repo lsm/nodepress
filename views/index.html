@@ -1,34 +1,21 @@
 {{> share/header.html}}
-    <body>
-        <div class="np-main">
-            <!-- sign in/out -->
-            <div class="np-full-width">
-                {{#is_owner}}
-                <a id="np-signout" href="#signout" class="np-right">Sign out</a>
-                {{/is_owner}}
-                {{^is_owner}}
-                <div class="np-signin np-right">
-                    Username: <input id="np-username"></input>
-                    Password: <input id="np-password" type="password"></input>
-                    <button id="np-signin">Sign in</button>
-                </div>
-                {{/is_owner}}
-            </div>
+<body>
+    <!-- header -->
+    {{> share/top.html}}
 
-            <!-- header -->
-            {{> share/top.html}}
-            <!-- toolbar -->
-            {{> share/toolbar.html}}
-
-            <!-- posts list and sidebar -->
-            <div class="np-full-width">
-                <div id="np-content">
-                    {{> share/pager.html}}
-                    {{> share/posts.html}}
-                </div>
-                {{> share/sidebar.html}}
-            </div>
-            {{> share/footer.html}}
+    <div class="w mat">
+        <!-- toolbar -->
+        {{> share/toolbar.html}}
+        <div class="l w724">
+            <!-- posts list and filter -->
+            {{> share/pager.html}}
+            {{> share/posts.html}}
         </div>
-        {{> share/script.html}}
-{{> share/end.html}}
+        <div class="r w206">
+            <!-- sidebar -->
+            {{> share/sidebar.html}}
+            <div class="copy mat">&copy; Copyright 2010-2011</div>
+        </div>
+    </div>
+    {{> share/script.html}}
+    {{> share/end.html}}

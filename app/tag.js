@@ -124,18 +124,26 @@ function mainJs($) {
         var sidebar = $("#np-sidebar-tagcloud");
         var innerHTML = "";
         data.forEach(function(tag) {
-            innerHTML += '<div class="np-post-tag">' + tag._id + '</div>';
+            innerHTML += '<a href="#" class="f18 np-post-tag">' + tag._id + '</a>';
         });
         sidebar.attr("innerHTML", innerHTML);
         // bind event to tags
         var params = np.params;
         if (np.page == 'index') {
-            $('#np-sidebar-tagcloud .np-post-tag').click(function(event) {
+            sidebar.find('.np-post-tag').click(function(event) {
                 if (!params.tags) params.tags = [];
-                if (params.tags.indexOf(event.currentTarget.innerHTML) < 0) {
-                    $.merge(params.tags, [event.currentTarget.innerHTML]);
-                    np.emit('TagSelected', [params]);
+                var tag = event.currentTarget.innerHTML, idx = params.tags.indexOf(tag);
+                if (idx < 0) {
+                    // let's add the tag as a parameter
+                    $.merge(params.tags, [tag]);   
+                } else {
+                    // remove it
+                    params.tags = $.grep(params.tags, function(t) {
+                        return tag != t;
+                    });
                 }
+                np.params = params;
+                np.emit('TagSelected');
             });
         }
     });
@@ -143,7 +151,7 @@ function mainJs($) {
 
 function initJs($) {
     // get tags onload
-    $.np.api.getTagCloud();
+    $.np.page == 'index' && $.np.api.getTagCloud();
 }
 
 

@@ -4,21 +4,22 @@ client = core.client;
 // add scripts
 // js
 [
-{type: "js", basename: "jquery-1.4.2.js", group: "main"},
-{type: "js", basename: "jquery.gritter-1.6.js", group: "main"},
-{type: "js", basename: "jquery.tools.tabs-1.2.5.js", group: "main"},
-{type: "js", basename: "mustache-0.3.0.js", group: "main"},
-{type: "js", basename: "showdown-0.9.js", group: "main"},
-{type: "js", basename: "main.js", group: "main"},
-{type: "js", basename: "user.js", group: "user"}
+    {type: "js", basename: "jquery-1.4.2.js", group: "main"},
+    {type: "js", basename: "jquery.gritter-1.6.js", group: "main"},
+    {type: "js", basename: "jquery.tools.tabs-1.2.5.js", group: "main"},
+    {type: "js", basename: "mustache-0.3.0.js", group: "main"},
+    {type: "js", basename: "showdown-0.9.js", group: "main"},
+    {type: "js", basename: "main.js", group: "main"},
+    {type: "js", basename: "user.js", group: "user"}
 ].forEach(function(script) {
     client.addScript(script.type, script.basename, "/js/", "/js/", script.group);
 });
 // css
 [
-{type: "css", basename: "screen.css", group: "main"},
-{type: "css", basename: "jquery.gritter.css", group: "main"},
-{type: "css", basename: "tabs.css", group: "user"}
+//    {type: "css", basename: "screen.css", group: "main"},
+    {type: "css", basename: "style.css", group: "main"},
+    {type: "css", basename: "jquery.gritter.css", group: "main"},
+    {type: "css", basename: "tabs.css", group: "user"}
 ].forEach(function(script) {
     client.addScript(script.type, script.basename, "/css/", "/css/", script.group);
 });
@@ -94,10 +95,10 @@ function mainJs($) {
         //np.emit('PostContentAfterMU', [tpl, views]);
         dom.posts.attr('innerHTML', postsHTML);
         // bind event to tags
-        $('.np-post-tag').click(function(event) {
+        $('div.np-post-tags .np-post-tag').click(function(event) {
             if (params.tags.indexOf(event.currentTarget.innerHTML) < 0) {
                 $.merge(params.tags, [event.currentTarget.innerHTML]);
-                np.emit('TagSelected', [params]);
+                np.emit('TagSelected');
             }
         });
         np.emit('PostsRendered', [data, params]);
@@ -114,15 +115,21 @@ function mainJs($) {
         });
         dom.filterTags.attr('innerHTML', '');
         $.each(params.tags, function(idx, tag) {
-            dom.filterTags.prepend('<div class="np-filter-tag">'+ tag +'</div>');
+            dom.filterTags.prepend('<span class="s_nor np-filter-tag hand"><span class="sr"><a title="'+ tag +'">'+ tag +'</a><b>X</b></span></span>');
         });
-        $('#np-filter-tags div').click(function(event) {
-            var tag = event.currentTarget.innerHTML;
+        $('.np-filter-tag').click(function() {
+            var tag = $(this).find('a').attr('title');
             params.tags = $.grep(params.tags, function(t) {
                 return tag != t;
             });
             np.params = params;
-            buildTagsFilter(event);
+            buildTagsFilter();
+        }).hover(function handlerIn(e) {
+            $(this).removeClass('s_nor');
+            $(this).addClass('s_here');
+        }, function out() {
+            $(this).removeClass('s_here');
+            $(this).addClass('s_nor');
         });
     }
 
@@ -190,7 +197,7 @@ function blogMainUser($) {
             });
         },
         remove: function(id) {
-           $.ajax({
+            $.ajax({
                 url: '/_api/blog/remove/',
                 type: 'POST',
                 data: JSON.stringify({_id: id}),
@@ -225,11 +232,11 @@ function blogMainUser($) {
 
     var lastContent;
     /**
-        * convert markdown and show the converted in preview div
-        *
-        * @param {Object} input Input element (jQuery)
-        * @param {Object} preview Preview element (jQuery)
-        */
+     * convert markdown and show the converted in preview div
+     *
+     * @param {Object} input Input element (jQuery)
+     * @param {Object} preview Preview element (jQuery)
+     */
     np.preview = function(input, preview) {
         var content = input.attr('value');
         content = content === lastContent ? false : content;
@@ -277,7 +284,7 @@ function blogMainUser($) {
     };
 
     np.removePost = function(id) {
-       np.api.remove(id);
+        np.api.remove(id);
     };
 }
 
@@ -318,13 +325,16 @@ module.exports = {
                 // bind events, insert date
                 var np = $.np;
                 $('.np-post-date').each(function(idx, npd) {
-                    npd.innerHTML = new Date(npd.innerHTML).toLocaleDateString();
+                    var date = new Date(npd.innerHTML);
+                    $(this)
+                    .attr('innerHTML', [date.getFullYear(), date.getMonth(), date.getDate()].join('/'))
+                    .removeClass('np-hide');
                 });
                 if (np.page == 'index') {
-                    $('.np-post-tag').click(function(event) {
+                    $('div.np-post-tags .np-post-tag').click(function(event) {
                         var params = np.params;
                         params.tags = [event.currentTarget.innerHTML];
-                        np.emit('TagSelected', [params]);
+                        np.emit('TagSelected');
                     });
                 }
                 if (np.totalPosts != '') {
@@ -352,15 +362,15 @@ module.exports = {
                     effect: 'default'
                 });
                 dom.tabs = $("#np-tabs").data('tabs'),
-                // editor
-                dom.title = $('#np-title'),
-                dom.tags = $('#np-tags'),
-                dom.input = $('#np-textarea'),
-                dom.previewDiv = $('#np-preview'),
-                dom.editor = $('.np-editor'),
-                dom.save = $('#np-editor-save'),
-                dom.cancel = $('#np-editor-cancel'),
-                dom.publish = $('#np-editor-publish');
+                    // editor
+                        dom.title = $('#np-title'),
+                        dom.tags = $('#np-tags'),
+                        dom.input = $('#np-textarea'),
+                        dom.previewDiv = $('#np-preview'),
+                        dom.editor = $('.np-editor'),
+                        dom.save = $('#np-editor-save'),
+                        dom.cancel = $('#np-editor-cancel'),
+                        dom.publish = $('#np-editor-publish');
                 function convert() {
                     np.preview(dom.input, dom.previewDiv);
                 }
@@ -383,15 +393,15 @@ module.exports = {
                 // after rendered post
                 np.on('PostsRendered', function() {
                     // add `edit` and `remove` button for author
-                    $('div.np-post-info').append('<a href="#np-toolbar-editor" class="np-post-edit np-left">edit</a>');
+                    $('.np-post-info').append('<a href="#np-toolbar-editor" class="np-post-edit l">edit</a>');
                     $('a.np-post-edit').bind('click', function(event) {
-                        var postId = $(event.currentTarget).parent('.np-post-info').parent('.np-post').attr('id');
+                        var postId = $(this).parent('.np-post-info').attr('id');
                         np.fillEditor(postId);
                         np.dom.tabs.click(1);
                     });
-                    $('div.np-post-info').append('<a href="#" class="np-post-remove np-left">remove</a>');
+                    $('.np-post-info').append('<a href="#" class="np-post-remove l">del</a>');
                     $('a.np-post-remove').bind('click', function(event) {
-                        var postId = $(event.currentTarget).parent('.np-post-info').parent('.np-post').attr('id');
+                        var postId = $(this).parent('.np-post-info').attr('id');
                         np.removePost(postId);
                     });
                 });
