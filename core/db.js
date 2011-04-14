@@ -9,7 +9,8 @@ Base = genji.pattern.Base,
 Pool = genji.pattern.Pool,
 extend = genji.pattern.extend,
 Mime = genji.web.mime,
-deferred = genji.pattern.control.deferred,
+toArray = genji.pattern.toArray,
+defer = genji.pattern.control.defer,
 connPool, dbConfig, GridStore = mongo.GridStore;
 
 function connect(server, callback) {
@@ -109,14 +110,15 @@ var Db = Base(function(config) {
         });
     },
 
-    _find: function(collectionName, selector, fields, options, callback) {
+    _find: function(collectionName, selector, options, callback) {
         var self = this;
+        var arg = arguments;
         this.giveCollection(collectionName, function(err, coll) {
             if (err) {
                 callback(err);
                 return;
             }
-            coll.find(selector, fields, options, function(err, cursor) {
+            coll.find(selector, options, function(err, cursor) {
                 if (err) {
                     callback(err);
                     self.freeDb(coll.db);
@@ -130,14 +132,14 @@ var Db = Base(function(config) {
         });
     },
 
-    _findEach: function(collectionName, selector, fields, options, callback) {
+    _findEach: function(collectionName, selector, options, callback) {
         var self = this;
         this.giveCollection(collectionName, function(err, coll) {
             if (err) {
                 callback(err);
                 return;
             }
-            coll.find(selector, fields, options, function(err, cursor) {
+            coll.find(selector, options, function(err, cursor) {
                 if (err) {
                     callback(err);
                     self.freeDb(coll.db);
@@ -288,69 +290,103 @@ var Db = Base(function(config) {
     }
 });
 
-function makeOptionChain(fn, args, options) {
-    fn.field = function(_fields) {
-        options.fields = _fields;
-        return fn;
-    };
-    fn.skip = function(_skip) {
-        options.skip = _skip;
-        return fn;
-    };
-    fn.limit = function(_limit) {
-        options.limit = _limit;
-        return fn;
-    };
-    fn.sort = function(_sort) {
-        options.sort = _sort;
-        return fn;
-    };
-    fn.exec = function(args) {
+function makeOptionsChain(fn, supportedOptions) {
+    var options, args, optionBuilder = function optionBuilder() {
+        // put `options` at the end of arguments
+        args.push(options);
+        // call the deferred function
         return fn.apply(null, args);
+    };
+    var retFn = function retFn() {
+        options = {};
+        // only use to hold the arguments
+        args = toArray(arguments);
+        return optionBuilder;
+    };
+    // triggers for the real query
+    var triggers = ['then', 'and', 'done', 'fail'];
+    triggers.forEach(function(fnName) {
+        optionBuilder[fnName] = function() {
+            return optionBuilder()[fnName].apply(null, arguments);
+        };
+    });
+    supportedOptions.forEach(function(optionName) {
+        optionBuilder[optionName] = function(value) {
+            options[optionName] = value;
+            return optionBuilder;
+        };
+    });
+    if (optionBuilder.sort) {
+        // supported format: [['_id', -1]] or {_id: -1}
+       optionBuilder.sort = function(sortValue) {
+            if (!Array.isArray(sortValue)) {
+                var value = [];
+                for (var sortKey in sortValue) {
+                    value.push([sortKey, sortValue[sortKey]]);
+                }
+                sortValue = value;
+            }
+            options.sort = sortValue;
+            return optionBuilder;
+       }
     }
-    ret.then = function(callback) {
-        defer || (defer = ret(collectionName, selector, fields, options));
-        return defer.then(callback);
+    optionBuilder.setOptions = function(opts) {
+        // overwrite or set default options
+        options = opts || {};
+        return optionBuilder;
     };
-    ret.and = function(callback) {
-        defer || (defer = ret(collectionName, selector, fields, options));
-        return defer.and(callback);
-    };
-    ret.fail = function(callback) {
-        defer || (defer = ret(collectionName, selector, fields, options));
-        return defer.fail(callback);
-    };
-    return fn;
+    return retFn;
 }
+
+var cmdSupportedOptions = {
+    find: ['limit', 'sort', 'fields', 'skip', 'hint', 'explain', 'snapshot', 'timeout', 'tailable', 'batchSize'],
+    findOne: ['fields', 'timeout'],
+    save: ['safe'],
+    update: ['upsert', 'multi', 'safe']
+
+};
+cmdSupportedOptions.findEach = cmdSupportedOptions.find;
 
 var Collection = Db({
     init: function(name, errback) {
         this._super();
         this.name = name;
-        errback = errback || this.errback;
+        this.errback = errback || this.errback;
         var asyncFunctions = [
             '_find', '_findEach', '_findOne', '_findAndModify', '_save', '_update'
             , '_remove', '_count', '_ensureIndex', '_distinct'
         ];
-        // generate deferred version of async functions
+        // generate defer version of async functions
         asyncFunctions.forEach(function(fn) {
-            var func = deferred(this[fn], this);
-            this['_deferred'+fn] = typeof errback === 'function' ? function() {
-                    return func.apply(null, arguments).fail(errback);
-                } : func;
+            var func = defer(this[fn], this), pubName = fn.slice(1);
+            if (cmdSupportedOptions.hasOwnProperty(pubName)) {
+                func = makeOptionsChain(func, cmdSupportedOptions[pubName]);
+            }
+            this['_deferred'+fn] = func;
         }, this);
     },
-    
+
     find: function(selector, fields, options) {
-        return this._deferred_find(this.name, selector, fields, options);
+        options = options || {};
+        if (fields) {
+            options.fields = fields;
+        }
+        var ret = this._deferred_find(this.name, selector).setOptions(options);
+        return this.errback ? ret.fail(this.errback) : ret;
     },
 
     findEach: function(selector, fields, options) {
-        return this._deferred_findEach(this.name, selector, fields, options);
+        options = options || {};
+        if (fields) {
+            options.fields = fields;
+        }
+        var ret = this._deferred_findEach(this.name, selector).setOptions(options);
+        return this.errback ? ret.fail(this.errback) : ret;
     },
 
     findOne: function(selector, options) {
-        return this._deferred_findOne(this.name, selector, options || {});
+        var ret = this._deferred_findOne(this.name, selector).setOptions(options);
+        return this.errback ? ret.fail(this.errback) : ret;
     },
 
     findAndModify: function(selector, sort, update, options) {
@@ -358,11 +394,13 @@ var Collection = Db({
     },
 
     save: function(data, options) {
-        return this._deferred_save(this.name, data, options);
+        var ret = this._deferred_save(this.name, data).setOptions(options);
+        return this.errback ? ret.fail(this.errback) : ret;
     },
 
     update: function(spec, doc, options) {
-        return this._deferred_update(this.name, spec, doc, options);
+        var ret = this._deferred_update(this.name, spec, doc).setOptions(options);
+        return this.errback ? ret.fail(this.errback) : ret;
     },
 
     remove: function(selector) {
@@ -389,9 +427,9 @@ var GridFS = Db({
         this.filesCollection = this.root + '.files';
         errback = errback || this.errback;
         var asyncFunctions = ['_copyFromFile', '_exists', '_readFile', '_writeFile'];
-        // generate deferred version of async functions
+        // generate defer version of async functions
         asyncFunctions.forEach(function(fn) {
-            var func = deferred(this[fn], this);
+            var func = defer(this[fn], this);
             this['_deferred'+fn] = typeof errback === 'function' ? function() {
                     return func.apply(null, arguments).fail(errback);
                 } : func;
