@@ -29,6 +29,9 @@ client = core.client;
 function mainJs($) {
     var np = $.np;
     np.showdown = new Showdown.converter();
+    np.formatDate = function(date) {
+        return [date.getFullYear(), date.getMonth()+1, date.getDate()].join('/');
+    }
     np.data = {};
     var dom = np.dom;
     // rest apis and remote calls
@@ -77,7 +80,7 @@ function mainJs($) {
             if (post.title) {
                 tmp.title = post.title;
             }
-            tmp.published = new Date(post.published).toLocaleDateString();
+            tmp.published =  np.formatDate(new Date(post.published));
             if (post.hasOwnProperty("tags")) {
                 tmp.tags = [];
                 $.each(post.tags, function(idx, tag) {
@@ -101,6 +104,7 @@ function mainJs($) {
                 np.emit('TagSelected');
             }
         });
+        $('.np-post-date').removeClass('np-hide');
         np.emit('PostsRendered', [data, params]);
     });
 
@@ -163,7 +167,7 @@ function mainJs($) {
 }
 
 function blogMainUser($) {
-    var postId, published, created, np = $.np, dom = np.dom;
+    var postId, np = $.np, dom = np.dom;
     $.extend(np.api, {
         save: function(publish) {
             var post = {};
@@ -176,11 +180,6 @@ function blogMainUser($) {
             if (postId) post._id = postId;
             if (publish) {
                 post.published = 1;
-            }
-            if (published) {
-                // already published post
-                post.published = published;
-                post.created = created;
             }
 
             $.ajax({
@@ -256,8 +255,6 @@ function blogMainUser($) {
 
     np.fillEditor = function(id) {
         function fill(data) {
-            published = data.published;
-            created = data.created;
             postId = id;
             dom.title.attr('value', data.title);
             dom.input.attr('value', data.content);
@@ -327,7 +324,7 @@ module.exports = {
                 $('.np-post-date').each(function(idx, npd) {
                     var date = new Date(npd.innerHTML);
                     $(this)
-                    .attr('innerHTML', [date.getFullYear(), date.getMonth(), date.getDate()].join('/'))
+                    .attr('innerHTML', np.formatDate(date))
                     .removeClass('np-hide');
                 });
                 if (np.page == 'index') {

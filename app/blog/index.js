@@ -11,18 +11,25 @@ var post = factory.post;
 
 post.extend({
     save: function(data, author) {
-        if (typeof data === 'string') data = JSON.parse(data);
-        if (!data.hasOwnProperty('_id')) {
-            data.created = new Date();
-            data.author = author;
+        if (data) {
+            if (data.hasOwnProperty('published') && data.published == 1) {
+                data.published = new Date();
+            }
+            if (data.hasOwnProperty('_id')) {
+                // old post
+                var postId = new core.db.ObjectID(data._id);
+                data.modified = new Date();
+                delete data._id;
+                return this.update({_id: postId}, {$set: data});
+            } else {
+                // new post
+                data.created = new Date();
+                data.author = author;
+                return this._super(data);
+            }
         } else {
-            data._id = new core.db.ObjectID(data._id);
-            data.modified = new Date();
+            throw new Error('invalid data');
         }
-        if (data.hasOwnProperty('published') && data.published == 1) {
-            data.published = new Date();
-        }
-        return this._super(data);
     }
 });
 
