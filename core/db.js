@@ -343,7 +343,6 @@ var cmdSupportedOptions = {
     findOne: ['fields', 'timeout'],
     save: ['safe'],
     update: ['upsert', 'multi', 'safe']
-
 };
 cmdSupportedOptions.findEach = cmdSupportedOptions.find;
 
@@ -351,18 +350,21 @@ var Collection = Db({
     init: function(name, errback) {
         this._super();
         this.name = name;
-        this.errback = errback || this.errback;
+        errback = errback || this.errback;
         var asyncFunctions = [
             '_find', '_findEach', '_findOne', '_findAndModify', '_save', '_update'
             , '_remove', '_count', '_ensureIndex', '_distinct'
         ];
         // generate defer version of async functions
         asyncFunctions.forEach(function(fn) {
-            var func = defer(this[fn], this), pubName = fn.slice(1);
-            if (cmdSupportedOptions.hasOwnProperty(pubName)) {
-                func = makeOptionsChain(func, cmdSupportedOptions[pubName]);
-            }
-            this['_deferred'+fn] = func;
+            var func = defer(this[fn], this),
+            pubName = fn.slice(1),
+            deferredFn = errback 
+                ? function() { return func.apply(null, arguments).fail(errback);}
+                : func;
+            this['_deferred'+fn] = cmdSupportedOptions.hasOwnProperty(pubName)
+                ? makeOptionsChain(deferredFn, cmdSupportedOptions[pubName])
+                : deferredFn;
         }, this);
     },
 
@@ -371,8 +373,7 @@ var Collection = Db({
         if (fields) {
             options.fields = fields;
         }
-        var ret = this._deferred_find(this.name, selector).setOptions(options);
-        return this.errback ? ret.fail(this.errback) : ret;
+        return this._deferred_find(this.name, selector).setOptions(options);
     },
 
     findEach: function(selector, fields, options) {
@@ -380,13 +381,11 @@ var Collection = Db({
         if (fields) {
             options.fields = fields;
         }
-        var ret = this._deferred_findEach(this.name, selector).setOptions(options);
-        return this.errback ? ret.fail(this.errback) : ret;
+        return this._deferred_findEach(this.name, selector).setOptions(options);
     },
 
     findOne: function(selector, options) {
-        var ret = this._deferred_findOne(this.name, selector).setOptions(options);
-        return this.errback ? ret.fail(this.errback) : ret;
+        return this._deferred_findOne(this.name, selector).setOptions(options);
     },
 
     findAndModify: function(selector, sort, update, options) {
@@ -394,13 +393,11 @@ var Collection = Db({
     },
 
     save: function(data, options) {
-        var ret = this._deferred_save(this.name, data).setOptions(options);
-        return this.errback ? ret.fail(this.errback) : ret;
+        return this._deferred_save(this.name, data).setOptions(options);
     },
 
     update: function(spec, doc, options) {
-        var ret = this._deferred_update(this.name, spec, doc).setOptions(options);
-        return this.errback ? ret.fail(this.errback) : ret;
+        return this._deferred_update(this.name, spec, doc).setOptions(options);
     },
 
     remove: function(selector) {
