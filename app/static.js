@@ -3,33 +3,36 @@ core = np,
 client = core.client,
 view = core.view,
 settings = core.settings,
-path = require('path'),
+Path = require('path'),
 compress = settings.env != "development";
 
-function handleScript(handler, type, basename) {
+
+function getAbsPath(path) {
+    return Path.join(client.staticRoot, decodeURIComponent(path));
+}
+
+function handleScript(handler, type, basename, etag) {
     var path = '/'+type+'/';
     if (compress && type == 'js') {
         var meta = client.getScriptMeta(type, basename, path);
         handler.sendAsFile(function(callback) {
             var code = client.getCode({type: type, url: path, basename: basename}, true);
             callback(code);
-        }, {'type': 'application/javascript', etag: meta.hash, length: meta.length});
+        }, {'type': 'application/javascript', etag: etag || meta.hash, length: meta.length});
     } else {
-        handler.setRoot(client.staticRoot);
-        handler.staticFile(path+basename);
+        handler.staticFile(getAbsPath(path+basename), etag);
     }
 }
 
 function handleFile(handler, path) {
-    handler.setRoot(client.staticRoot);
-    handler.staticFile(path);
+    handler.staticFile(getAbsPath(path));
 }
 
-function buildjs(handler, name) {
+function buildjs(handler, name, etag) {
     name = name +'.js';
     var tplName = 'js/'+name+'.mu';
     view.render(tplName, {code: client.getCode({url: '/js/', basename: name}, compress)}, null, function(js) {
-        handler.sendAsFile(js , {'type': 'application/javascript'});
+        handler.sendAsFile(js , {'type': 'application/javascript', etag: etag});
     });
 }
 
@@ -49,8 +52,8 @@ function nodepressRes(handler, type, group) {
 }
 
 exports.view = [
-    ['^/static/js/(main|user).js\\?[0-9a-zA-Z]{32}$', buildjs, 'get', FileHandler],
+    ['^/static/js/(main|user).js\\?([0-9a-zA-Z]{32})$', buildjs, 'get', FileHandler],
     ['^/static/(js|css)/' + client.combinedScriptPrefix + '(\\w+).(js|css)$', nodepressRes, 'get', FileHandler],
-    ['^/static/(js|css)/(.*)\\?[0-9a-zA-Z]{32}$', handleScript, 'get', FileHandler]
+    ['^/static/(js|css)/(.*)\\?([0-9a-zA-Z]{32})$', handleScript, 'get', FileHandler]
     , ['^/static/(.*)$', handleFile, 'get', FileHandler]
 ];
