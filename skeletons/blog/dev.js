@@ -6,8 +6,7 @@ var settings = {
         poolSize: 5
     },
     client: {
-        staticUrl: 'http://127.0.0.1:8000/static/',
-        combinedScriptPrefix: 'nodepress-'
+        staticUrl: 'http://127.0.0.1:8000/static/'
     },
     auth: {
         cookieSecret: 'c00kie-key-4-hmac',
