@@ -27,7 +27,8 @@ function setupCore(settings) {
     EventEmitter = require('events').EventEmitter;
 
     // setup cache, event emitter, promise and filter.
-    np.cache = new genji.pattern.Cache;
+    var Cache = require('./core/cache');
+    np.cache = new Cache;
     var event = np.event = new EventEmitter;
     np.factory = new genji.pattern.Factory;
 
@@ -56,8 +57,7 @@ function setupCore(settings) {
         np.client.init({
             cache: np.cache,
             staticRoot: settings.client.staticRoot,
-            staticUrl: settings.client.staticUrl,
-            combinedScriptPrefix: settings.client.combinedScriptPrefix
+            staticUrl: settings.client.staticUrl
         });
     }
 
