@@ -117,20 +117,22 @@ function setupApps(settings, np) {
         });
 
         urls.push([settings.apiPrefix || '^/_api/', apis]);
-        if (settings.middlewares.router) {
-            var router = settings.middlewares.router;
-            if (Array.isArray(router.urls)) {
-                router.urls = router.urls.concat(urls);
-            } else {
-                router.urls = urls;
+        if (settings.middlewares) {
+            if (settings.middlewares.router) {
+                var router = settings.middlewares.router;
+                if (Array.isArray(router.urls)) {
+                    router.urls = router.urls.concat(urls);
+                } else {
+                    router.urls = urls;
+                }
             }
-        }
-        if (settings.middlewares.jsonrpc) {
-            var jsonrpc = settings.middlewares.jsonrpc;
-            if (Array.isArray(jsonrpc.providers)) {
-               jsonrpc.providers = jsonrpc.providers.concat(jsonrpcProviders);
-            } else {
-               jsonrpc.providers = jsonrpcProviders;
+            if (settings.middlewares.jsonrpc) {
+                var jsonrpc = settings.middlewares.jsonrpc;
+                if (Array.isArray(jsonrpc.providers)) {
+                    jsonrpc.providers = jsonrpc.providers.concat(jsonrpcProviders);
+                } else {
+                    jsonrpc.providers = jsonrpcProviders;
+                }
             }
         }
     }
