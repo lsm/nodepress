@@ -1,16 +1,31 @@
-{ "name": "nodepress"
-, "description": "High-level web framework, can be used as a blog by default"
-, "version": "0.1.7"
-, "homepage": "http://github.com/zir/nodepress"
-, "author": "Senmiao Liu <zir.echo@gmail.com> http://vitecho.com"
-, "repository" :
-  { "type" : "git"
-  , "url" : "http://github.com/zir/nodepress.git"
-  }
-, "bin": {"nodepress": "./bin/nodepress.js"}
-, "main": "./index.js"
-, "scripts": {
-    "install": "make -C lib/node-mongodb-native/"
-}
-, "engines": { "node": ">=0.2.2" }
+{
+    "name": "nodepress",
+    "description": "High-level web framework, can be used as a blog by default",
+    "version": "0.1.8",
+    "homepage": "http://github.com/zir/nodepress",
+    "author": "Senmiao Liu <zir.echo@gmail.com> http://vitecho.com",
+    "repository" : {
+        "type" : "git",
+        "url" : "http://github.com/zir/nodepress.git"
+    },
+    "bin": {
+        "nodepress": "./bin/nodepress.js"
+    },
+    "main": "./index.js",
+    "scripts": {
+        "install": "make -C lib/node-mongodb-native/"
+    },
+    "dependencies": {
+        "cluster": "=0.2.3",
+        "nomnom": "0.4.8",
+        "mongodb": "~0.9.4",
+        "nun": "0.1.3",
+        "node-markdown": "=0.1.0",
+        "genji": "0.0.3",
+        "formidable": "1.0.2",
+        "uglify-js": "1.0.1"
+    },
+    "engines": {
+        "node": ">=0.2.2"
+    }
 }
