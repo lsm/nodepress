@@ -11,7 +11,7 @@ var sys = require('sys'),
 childProcess = require('child_process'),
 Path = require('path'),
 fs = require('fs'),
-nomnom = require('../lib/nomnomargs/lib/nomnom'),
+nomnom = require('../lib/nomnom'),
 exec = childProcess.exec,
 spawn = childProcess.spawn;
 

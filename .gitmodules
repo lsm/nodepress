@@ -28,3 +28,6 @@
 [submodule "lib/uglifyjs"]
 	path = lib/uglifyjs
 	url = git://github.com/mishoo/UglifyJS.git
+[submodule "lib/nomnom"]
+	path = lib/nomnom
+	url = git://github.com/harthur/nomnom.git
