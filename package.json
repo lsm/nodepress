@@ -13,7 +13,7 @@
     },
     "main": "./index.js",
     "scripts": {
-        "install": "make -C lib/node-mongodb-native/"
+        "install": "make -C node_modules/mongodb/"
     },
     "dependencies": {
         "cluster": "0.2.3",
