@@ -1,24 +1,6 @@
 var Path = require('path');
 
-setupRequirePath();
-
 var apis = [], urls = [], jsonrpcProviders = [];
-
-
-function setupRequirePath() {
-    [
-        Path.join(__dirname, "/lib"),
-        Path.join(__dirname, "/lib/genji/lib"),
-        Path.join(__dirname, "/lib/nomnom"),
-        Path.join(__dirname, "/lib/fugue/lib"),
-        Path.join(__dirname, "/lib/node-mongodb-native/lib"),
-        Path.join(__dirname, "/lib/UglifyJS/lib"),
-        Path.join(__dirname, "/lib/formidable/lib"),
-        Path.join(__dirname, "/lib/node-markdown/lib")
-    ].forEach(function(path) {
-        require.paths.unshift(path);
-    });
-}
 
 function setupCore(settings) {
     // load dependences
