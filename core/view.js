@@ -1,5 +1,5 @@
 var path = require('path'),
-nun = require("nun"),
+nun = require("nunz"),
 md = require('node-markdown').Markdown;
 
 
