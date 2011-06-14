@@ -13,6 +13,7 @@ Path = require('path'),
 fs = require('fs'),
 nomnom = require('nomnom'),
 exec = childProcess.exec,
+genji = require('genji'),
 spawn = childProcess.spawn;
 
 /**
@@ -153,8 +154,7 @@ function dev(bootFile) {
     args.shift(); // remove `node`
     require('../index');
     args.push('--path='+options.path);
-    var runScript = require('genji/util/manager').runScript;
-    runScript(args, process.cwd());
+    genji.util.manager.runScript(args, process.cwd());
 }
 
 /* Helper functions */
