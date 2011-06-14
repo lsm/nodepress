@@ -1,6 +1,6 @@
 var path = require('path'),
 nun = require("nun"),
-md = require('markdown').Markdown;
+md = require('node-markdown').Markdown;
 
 
 function init(viewRoot, compress, cache) {
