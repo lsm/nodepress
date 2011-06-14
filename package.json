@@ -12,9 +12,6 @@
         "nodepress": "./bin/nodepress.js"
     },
     "main": "./index.js",
-    "scripts": {
-        "install": "make -C node_modules/mongodb/"
-    },
     "dependencies": {
         "cluster": "0.2.3",
         "nomnom": "0.4.8",
