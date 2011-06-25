@@ -67,13 +67,13 @@ var FormHandler = Handler({
 
     // we need instance methods of `Simple`/`Cookie` module except `init`
     include: {
-        send: SimpleCookieHandler.send,
-        sendJSON: SimpleCookieHandler.sendJSON,
-        sendHTML: SimpleCookieHandler.sendHTML,
+        send: SimpleCookieHandler.prototype.send,
+        sendJSON: SimpleCookieHandler.prototype.sendJSON,
+        sendHTML: SimpleCookieHandler.prototype.sendHTML,
         // allow it to parse cookies
-        setCookie: SimpleCookieHandler.setCookie,
-        getCookie: SimpleCookieHandler.getCookie,
-        clearCookie: SimpleCookieHandler.clearCookie
+        setCookie: SimpleCookieHandler.prototype.setCookie,
+        getCookie: SimpleCookieHandler.prototype.getCookie,
+        clearCookie: SimpleCookieHandler.prototype.clearCookie
     }
 });
 
