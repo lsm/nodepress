@@ -15,7 +15,7 @@
     "dependencies": {
         "cluster": "0.2.3",
         "nomnom": "0.4.8",
-        "mongodb": "~0.9.4",
+        "mongodb": "0.9.4",
         "nunz": "0.1.13",
         "node-markdown": "0.1.0",
         "genji": "0.0.3",
