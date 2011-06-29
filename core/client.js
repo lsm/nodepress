@@ -1,5 +1,5 @@
 var context = {},
-ugjs = require('uglifyjs'),
+ugjs = require('uglify-js'),
 jsp = ugjs.parser,
 pro = ugjs.uglify,
 url = require("url"),
