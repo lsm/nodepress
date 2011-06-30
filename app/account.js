@@ -11,6 +11,19 @@ querystring = require("querystring");
 factory.register('user', function(name) {return new Collection(name)}, ['users'], true);
 var user = factory.user;
 
+// create an admin account if not exits
+process.nextTick(function() {
+  user.findOne({username: 'admin'}).then(function(doc) {
+    if (!doc) {
+      user.save({username: 'admin', password: auth.makePassword('1')}).then(function(result) {
+        if (result._id) {
+          console.log('Your account created, \nusername: admin, \npassword: 1');
+        }
+      });
+    }
+  });
+});
+
 
 function checkLogin(handler, failure) {
     var validCookie = auth.checkCookie(handler.getCookie(cookieName), cookieSecret);

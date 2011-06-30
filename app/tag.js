@@ -67,8 +67,9 @@ function _rebuildTags() {
             docs.forEach(function(doc) {
                 _buildTags(doc);
             });
-            tag.giveDb(function(db) {
-                db.createIndex("tags", [[["posts", 1]], [["count", 1]]], false, function() {});
+            tag.giveDb(function(err, db) {
+                if (err) throw err;
+                db.ensureIndex("tags", [[["posts", 1]], [["count", 1]]], false, function() {});
             });
         }
     });
