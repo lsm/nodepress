@@ -1,11 +1,10 @@
-
 var Path = require('path');
 var staticUrl;
 var staticRoot;
 
 /**
  * Initialize module with settings
- * 
+ *
  * @param settings
  */
 function init(settings) {
@@ -15,47 +14,47 @@ function init(settings) {
 
 /**
  * Add a javascript file
- * 
+ *
  * @param {String} url Url of your js file relative to `staticUrl`
  * @param {String|Array} group Group(s) of this js
  * @param {String} path Path of the js file relative to `staticRoot`,
  * the script will be considered as a virtual script if you ignore this argument.
  */
 function addJs(url, group, path) {
-    
+
 }
 
 /**
  * Add a css file
- * 
+ *
  * @param url
  * @param group
  * @param path
  */
 function addCss(url, group, path) {
-    
+
 }
 
 /**
  * Get the js script tags use to include javascript in your html file
  * this is handled by head.js by default
- * 
+ *
  * @param {String|Array} group Name of the script group(s) (e.g. 'user', 'guest')
  * @param {Boolean} disableHeadJs Not to use head.js
  * @return {String}
  */
 function getJsTags(group, disableHeadJs) {
-    
+
 }
 
 /**
  * Get the css script tags use to include css in your html file
- * 
+ *
  * @param {String|Array} group Name of the script group(s) (e.g. 'user', 'guest')
  * @return {String}
  */
 function getCssTags(group) {
-    
+
 }
 
 /**
@@ -69,18 +68,18 @@ function addJsCode(url, code) {
 
 /**
  * Get source code according to url
- * 
+ *
  * @param {String} url Url of your script file relative to `staticUrl`
  * @param {Boolean} minify Minify source if `true`
  * @return {String} Source of the script
  */
 function getJsCode(url, minify) {
-    
+
 }
 
 /**
  * Get script meta by url
- * 
+ *
  * @param {String} url Url of your script file relative to `staticUrl`
  * @return {Object} Object with following format:
  * <code>
@@ -92,7 +91,7 @@ function getJsCode(url, minify) {
  * </code>
  */
 function getMeta(url) {
-    
+
 }
 
 // public api

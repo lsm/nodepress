@@ -3,300 +3,303 @@ var script = np.script;
 // add scripts
 // js
 [
-    {relativePath: "/js/jquery-1.4.2.js", group: "main"},
-    {relativePath: "/js/jquery.gritter-1.6.js", group: "main"},
-    {relativePath: "/js/jquery.tools.tabs-1.2.5.js", group: "main"},
-    {relativePath: "/js/mustache-0.3.0.js", group: "main"},
-    {relativePath: "/js/showdown-0.9.js", group: "main"}
+  {relativePath: "/js/jquery-1.4.2.js", group: "main"},
+  {relativePath: "/js/jquery.gritter-1.6.js", group: "main"},
+  {relativePath: "/js/jquery.tools.tabs-1.2.5.js", group: "main"},
+  {relativePath: "/js/mustache-0.3.0.js", group: "main"},
+  {relativePath: "/js/showdown-0.9.js", group: "main"}
 ].forEach(function(js) {
-    script.addJs(js.relativePath, js.group);
+  script.addJs(js.relativePath, js.group);
 });
 [
-    {relativePath: "/js/main.js", group: "main"},
-    {relativePath: "/js/user.js", group: "user"}
+  {relativePath: "/js/main.js", group: "main"},
+  {relativePath: "/js/user.js", group: "user"}
 ].forEach(function(js) {
-    script.addJs(js.relativePath, js.group);
+  script.addJs(js.relativePath, js.group);
 });
 // css
 [
 //    {type: "css", basename: "screen.css", group: "main"},
-    {relativePath: "/css/style.css", group: "main"},
-    {relativePath: "/css/jquery.gritter.css", group: "main"},
-    {relativePath: "/css/tabs.css", group: "user"}
+  {relativePath: "/css/style.css", group: "main"},
+  {relativePath: "/css/jquery.gritter.css", group: "main"},
+  {relativePath: "/css/tabs.css", group: "user"}
 ].forEach(function(css) {
-    script.addCss(css.relativePath, css.group);
+  script.addCss(css.relativePath, css.group);
 });
 
 // client side code
 function mainJs($) {
-    var np = $.np;
-    np.showdown = new Showdown.converter();
-    np.formatDate = function(date) {
-        return [date.getFullYear(), date.getMonth()+1, date.getDate()].join('/');
-    }
-    np.data = {};
-    var dom = np.dom;
-    // rest apis and remote calls
-    var api = {
-        list: function(query) {
-            np.params = query || np.params;
-            var skip = np.params.skip || 0;
-            var limit = np.params.limit || 20;
-            var tags = np.params.tags || [];
-            var url = '/_api/blog/list/' + skip + '/' + limit + '/';
-            if (tags.length > 0) {
-                url += tags.join(',') + '/';
-            }
-            $.ajax({
-                url: url,
-                type: 'GET',
-                dataType: 'json',
-                success: function(data, status) {
-                    np.params = {
-                        skip: skip,
-                        limit: limit,
-                        tags: tags
-                    };
-                    np.emit('@ApiList', [data, np.params]);
-                },
-                error: function(xhr, status) {
-                    np.emit('#AjaxError', ["Failed to load posts", xhr, status]);
-                }
-            });
+  var np = $.np;
+  np.showdown = new Showdown.converter();
+  np.formatDate = function(date) {
+    return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('/');
+  }
+  np.data = {};
+  var dom = np.dom;
+  // rest apis and remote calls
+  var api = {
+    list: function(query) {
+      np.params = query || np.params;
+      var skip = np.params.skip || 0;
+      var limit = np.params.limit || 20;
+      var tags = np.params.tags || [];
+      var url = '/_api/blog/list/' + skip + '/' + limit + '/';
+      if (tags.length > 0) {
+        url += tags.join(',') + '/';
+      }
+      $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: 'json',
+        success: function(data, status) {
+          np.params = {
+            skip: skip,
+            limit: limit,
+            tags: tags
+          };
+          np.emit('@ApiList', [data, np.params]);
+        },
+        error: function(xhr, status) {
+          np.emit('#AjaxError', ["Failed to load posts", xhr, status]);
         }
-    };
-    $.extend(np.api, api);
+      });
+    }
+  };
+  $.extend(np.api, api);
 
-    // render the posts list with content
-    np.on('@ApiList', function(event, data, params) {
-        var tpl = np.postTpl;
-        // keep the original content (markdown)
-        np.data.posts = data.posts;
-        var posts = [];
-        $.each(data.posts, function(idx, post) {
-            var tmp = {};
-            tmp._id = post._id;
-            if (post.content) {
-                tmp.content = np.showdown.makeHtml(post.content);
-            }
-            if (post.title) {
-                tmp.title = post.title;
-            }
-            tmp.published =  np.formatDate(new Date(post.published));
-            if (post.hasOwnProperty("tags")) {
-                tmp.tags = [];
-                $.each(post.tags, function(idx, tag) {
-                    tmp.tags[idx] = {
-                        name: tag
-                    };
-                });
-            }
-            posts.push(tmp);
+  // render the posts list with content
+  np.on('@ApiList', function(event, data, params) {
+    var tpl = np.postTpl;
+    // keep the original content (markdown)
+    np.data.posts = data.posts;
+    var posts = [];
+    $.each(data.posts, function(idx, post) {
+      var tmp = {};
+      tmp._id = post._id;
+      if (post.content) {
+        tmp.content = np.showdown.makeHtml(post.content);
+      }
+      if (post.title) {
+        tmp.title = post.title;
+      }
+      tmp.published = np.formatDate(new Date(post.published));
+      if (post.hasOwnProperty("tags")) {
+        tmp.tags = [];
+        $.each(post.tags, function(idx, tag) {
+          tmp.tags[idx] = {
+            name: tag
+          };
         });
-        //np.emit('PostContentBeforeMU', [tpl, views]); // event <=> hook ?
-        var postsHTML = Mustache.to_html(tpl, {
-            posts: posts
-        });
-        //np.emit('PostContentAfterMU', [tpl, views]);
-        dom.posts.attr('innerHTML', postsHTML);
-        // bind event to tags
-        $('div.np-post-tags .np-post-tag').click(function(event) {
-            if (params.tags.indexOf(event.currentTarget.innerHTML) < 0) {
-                $.merge(params.tags, [event.currentTarget.innerHTML]);
-                np.emit('TagSelected');
-            }
-        });
-        $('.np-post-date').removeClass('np-hide');
-        np.emit('PostsRendered', [data, params]);
+      }
+      posts.push(tmp);
     });
+    //np.emit('PostContentBeforeMU', [tpl, views]); // event <=> hook ?
+    var postsHTML = Mustache.to_html(tpl, {
+      posts: posts
+    });
+    //np.emit('PostContentAfterMU', [tpl, views]);
+    dom.posts.attr('innerHTML', postsHTML);
+    // bind event to tags
+    $('div.np-post-tags .np-post-tag').click(function(event) {
+      if (params.tags.indexOf(event.currentTarget.innerHTML) < 0) {
+        $.merge(params.tags, [event.currentTarget.innerHTML]);
+        np.emit('TagSelected');
+      }
+    });
+    $('.np-post-date').removeClass('np-hide');
+    np.emit('PostsRendered', [data, params]);
+  });
 
-    np.on('TagSelected', buildTagsFilter);
+  np.on('TagSelected', buildTagsFilter);
 
-    function buildTagsFilter(event) {
-        var params = np.params;
-        np.api.list({
-            skip: params.skip || 0,
-            limit:params.limit || 20,
-            tags: params.tags || []
+  function buildTagsFilter(event) {
+    var params = np.params;
+    np.api.list({
+      skip: params.skip || 0,
+      limit:params.limit || 20,
+      tags: params.tags || []
+    });
+    dom.filterTags.attr('innerHTML', '');
+    $.each(params.tags, function(idx, tag) {
+      dom.filterTags.prepend('<span class="s_nor np-filter-tag hand"><span class="sr"><a title="' + tag + '">' + tag + '</a><b>X</b></span></span>');
+    });
+    $('.np-filter-tag').click(
+      function() {
+        var tag = $(this).find('a').attr('title');
+        params.tags = $.grep(params.tags, function(t) {
+          return tag != t;
         });
-        dom.filterTags.attr('innerHTML', '');
-        $.each(params.tags, function(idx, tag) {
-            dom.filterTags.prepend('<span class="s_nor np-filter-tag hand"><span class="sr"><a title="'+ tag +'">'+ tag +'</a><b>X</b></span></span>');
-        });
-        $('.np-filter-tag').click(function() {
-            var tag = $(this).find('a').attr('title');
-            params.tags = $.grep(params.tags, function(t) {
-                return tag != t;
-            });
-            np.params = params;
-            buildTagsFilter();
-        }).hover(function handlerIn(e) {
-            $(this).removeClass('s_nor');
-            $(this).addClass('s_here');
-        }, function out() {
-            $(this).removeClass('s_here');
-            $(this).addClass('s_nor');
-        });
+        np.params = params;
+        buildTagsFilter();
+      }).hover(function handlerIn(e) {
+        $(this).removeClass('s_nor');
+        $(this).addClass('s_here');
+      }, function out() {
+        $(this).removeClass('s_here');
+        $(this).addClass('s_nor');
+      });
+  }
+
+  // build pager
+  np.on('@ApiList', buildPager);
+  function buildPager(event, data, params) {
+    var total = data.total;
+    if (params.skip + params.limit < total) {
+      dom.nextPage.unbind('click');
+      dom.nextPage.bind('click', function() {
+        params.skip += params.limit;
+        np.api.list(params);
+      });
+      dom.nextPage.removeClass('np-hide');
+    } else {
+      dom.nextPage.addClass('np-hide');
     }
-
-    // build pager
-    np.on('@ApiList', buildPager);
-    function buildPager(event, data, params) {
-        var total = data.total;
-        if (params.skip + params.limit < total) {
-            dom.nextPage.unbind('click');
-            dom.nextPage.bind('click', function() {
-                params.skip += params.limit;
-                np.api.list(params);
-            });
-            dom.nextPage.removeClass('np-hide');
-        } else {
-            dom.nextPage.addClass('np-hide');
-        }
-        if (params.skip > 0) {
-            dom.prevPage.unbind('click');
-            dom.prevPage.bind('click', function() {
-                var skip = params.skip - params.limit;
-                params.skip = skip > 0 ? skip : 0;
-                np.api.list(params);
-            });
-            dom.prevPage.removeClass('np-hide');
-        } else {
-            dom.prevPage.addClass('np-hide');
-        }
+    if (params.skip > 0) {
+      dom.prevPage.unbind('click');
+      dom.prevPage.bind('click', function() {
+        var skip = params.skip - params.limit;
+        params.skip = skip > 0 ? skip : 0;
+        np.api.list(params);
+      });
+      dom.prevPage.removeClass('np-hide');
+    } else {
+      dom.prevPage.addClass('np-hide');
     }
-    np.buildPager = buildPager;
+  }
+
+  np.buildPager = buildPager;
 }
 
 function userJs($) {
-    var postId, np = $.np, dom = np.dom;
-    $.extend(np.api, {
-        save: function(publish) {
-            var post = {};
-            post.title = dom.title.attr('value');
-            post.tags = [];
-            $.each(dom.tags.attr('value').split(','), function(idx, tag) {
-                if (tag) post.tags.push($.trim(tag));
-            });
-            post.content = dom.input.attr('value');
-            if (postId) post._id = postId;
-            if (publish) {
-                post.published = 1;
-            }
+  var postId, np = $.np, dom = np.dom;
+  $.extend(np.api, {
+    save: function(publish) {
+      var post = {};
+      post.title = dom.title.attr('value');
+      post.tags = [];
+      $.each(dom.tags.attr('value').split(','), function(idx, tag) {
+        if (tag) post.tags.push($.trim(tag));
+      });
+      post.content = dom.input.attr('value');
+      if (postId) post._id = postId;
+      if (publish) {
+        post.published = 1;
+      }
 
-            $.ajax({
-                url: '/_api/blog/save/',
-                type: 'POST',
-                data: JSON.stringify(post),
-                dataType: 'json',
-                success: function(data) {
-                    np.emit('@ApiSave', [data, publish]);
-                },
-                error: function(xhr, status) {
-                    np.emit('#AjaxError', ["Failed to save post", xhr, status]);
-                }
-            });
+      $.ajax({
+        url: '/_api/blog/save/',
+        type: 'POST',
+        data: JSON.stringify(post),
+        dataType: 'json',
+        success: function(data) {
+          np.emit('@ApiSave', [data, publish]);
         },
-        remove: function(id) {
-            $.ajax({
-                url: '/_api/blog/remove/',
-                type: 'POST',
-                data: JSON.stringify({_id: id}),
-                dataType: 'json',
-                success: function(data) {
-                    np.emit('@ApiRemove', [data]);
-                },
-                error: function(xhr, status) {
-                    np.emit('#AjaxError', ["Failed to remove post", xhr, status]);
-                }
-            });
+        error: function(xhr, status) {
+          np.emit('#AjaxError', ["Failed to save post", xhr, status]);
         }
-    });
-    np.on('@ApiRemove', function(event, data) {
-        np.api.list();
-        np.growl({
-            title: 'Post removed',
-            text: ' '
-        });
-    });
-    np.on('@ApiSave', function(event, data, publish) {
-        postId = data._id;
-        np.growl({
-            title: publish ? 'Published successfully' : 'Saved successfully',
-            text: ' '
-        });
-        if (publish) {
-            np.resetEditor();
-            np.api.list(np.params);
+      });
+    },
+    remove: function(id) {
+      $.ajax({
+        url: '/_api/blog/remove/',
+        type: 'POST',
+        data: JSON.stringify({_id: id}),
+        dataType: 'json',
+        success: function(data) {
+          np.emit('@ApiRemove', [data]);
+        },
+        error: function(xhr, status) {
+          np.emit('#AjaxError', ["Failed to remove post", xhr, status]);
         }
+      });
+    }
+  });
+  np.on('@ApiRemove', function(event, data) {
+    np.api.list();
+    np.growl({
+      title: 'Post removed',
+      text: ' '
     });
+  });
+  np.on('@ApiSave', function(event, data, publish) {
+    postId = data._id;
+    np.growl({
+      title: publish ? 'Published successfully' : 'Saved successfully',
+      text: ' '
+    });
+    if (publish) {
+      np.resetEditor();
+      np.api.list(np.params);
+    }
+  });
 
-    var lastContent;
-    /**
-     * convert markdown and show the converted in preview div
-     *
-     * @param {Object} input Input element (jQuery)
-     * @param {Object} preview Preview element (jQuery)
-     */
-    np.preview = function(input, preview) {
-        var content = input.attr('value');
-        content = content === lastContent ? false : content;
-        if (content !== false) {
-            lastContent = content;
-            preview.attr('innerHTML', np.showdown.makeHtml(content));
-        }
+  var lastContent;
+  /**
+   * convert markdown and show the converted in preview div
+   *
+   * @param {Object} input Input element (jQuery)
+   * @param {Object} preview Preview element (jQuery)
+   */
+  np.preview = function(input, preview) {
+    var content = input.attr('value');
+    content = content === lastContent ? false : content;
+    if (content !== false) {
+      lastContent = content;
+      preview.attr('innerHTML', np.showdown.makeHtml(content));
+    }
+  }
+
+  np.resetEditor = function() {
+    $.each([dom.title, dom.tags, dom.input], function(idx, item) {
+      item.attr('value', '');
+    });
+    dom.previewDiv.attr('innerHTML', '');
+    postId = null;
+  }
+
+  np.fillEditor = function(id) {
+    function fill(data) {
+      postId = id;
+      dom.title.attr('value', data.title);
+      dom.input.attr('value', data.content);
+      dom.tags.attr('value', data.tags.join(','));
     }
 
-    np.resetEditor = function() {
-        $.each([dom.title, dom.tags, dom.input], function(idx, item) {
-            item.attr('value', '');
-        });
-        dom.previewDiv.attr('innerHTML', '');
-        postId = null;
+    if (np.data.posts) {
+      $.each(np.data.posts, function(idx, el) {
+        if (el._id === postId) {
+          fill(el);
+        }
+      });
     }
+    $.ajax({
+      url: '/_api/blog/id/' + id + '/',
+      type: 'GET',
+      dataType: 'json',
+      success: function(data, status) {
+        fill(data);
+      },
+      error: function(xhr, status) {
+        np.emit("#AjaxError", ['Failed to load post', xhr, status])
+      }
+    });
+  };
 
-    np.fillEditor = function(id) {
-        function fill(data) {
-            postId = id;
-            dom.title.attr('value', data.title);
-            dom.input.attr('value', data.content);
-            dom.tags.attr('value', data.tags.join(','));
-        }
-        if (np.data.posts) {
-            $.each(np.data.posts, function(idx, el) {
-                if (el._id === postId) {
-                    fill(el);
-                }
-            });
-        }
-        $.ajax({
-            url: '/_api/blog/id/' + id + '/',
-            type: 'GET',
-            dataType: 'json',
-            success: function(data, status) {
-                fill(data);
-            },
-            error: function(xhr, status) {
-                np.emit("#AjaxError", ['Failed to load post', xhr, status])
-            }
-        });
-    };
-
-    np.removePost = function(id) {
-        np.api.remove(id);
-    };
+  np.removePost = function(id) {
+    np.api.remove(id);
+  };
 }
 
 function initJs($) {
-    // store the jquery object for later usage
-    var dom = $.np.dom;
-    dom.filter = $('#np-filter'),
+  // store the jquery object for later usage
+  var dom = $.np.dom;
+  dom.filter = $('#np-filter'),
     dom.filterTags = $('#np-filter-tags'),
     dom.posts = $('#np-posts'),
     dom.tabComments = $('#np-tab-comments');
-    // pager
-    dom.nextPage = $('#np-next-page');
-    dom.prevPage = $('#np-prev-page');
+  // pager
+  dom.nextPage = $('#np-next-page');
+  dom.prevPage = $('#np-prev-page');
 }
 
 function initJsBindEvents($) {
@@ -325,7 +328,8 @@ function initJsBindEvents($) {
     });
     np.emit('PostsRendered');
   }
-};
+}
+;
 
 function initUserJs($) {
   var np = $.np;
@@ -380,7 +384,8 @@ function initUserJs($) {
       np.removePost(postId);
     });
   });
-};
+}
+;
 
 script.addJsCode('/js/main.js', mainJs);
 script.addJsCode('/js/user.js', userJs);
