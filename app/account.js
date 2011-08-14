@@ -123,20 +123,9 @@ function initJs($) {
     });
 }
 
+np.script.addJsCode('/js/main.js', mainJs);
+np.script.addJsCode('/js/init.js', initJs);
+
 module.exports = {
-    checkLogin: checkLogin,
-    client: {
-        'main.js': {
-            'app.account': {
-                weight: 100,
-                code: mainJs
-            }
-        },
-        'init.js': {
-            'app.account': {
-                weight: 100,
-                code: initJs
-            }
-        }
-    }
-}
+    checkLogin: checkLogin
+};

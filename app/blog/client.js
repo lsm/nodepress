@@ -1,29 +1,31 @@
-var core = np,
-client = core.client;
+var script = np.script;
 
 // add scripts
 // js
 [
-    {type: "js", basename: "jquery-1.4.2.js", group: "main"},
-    {type: "js", basename: "jquery.gritter-1.6.js", group: "main"},
-    {type: "js", basename: "jquery.tools.tabs-1.2.5.js", group: "main"},
-    {type: "js", basename: "mustache-0.3.0.js", group: "main"},
-    {type: "js", basename: "showdown-0.9.js", group: "main"},
-    {type: "js", basename: "main.js", group: "main"},
-    {type: "js", basename: "user.js", group: "user"}
-].forEach(function(script) {
-    client.addScript(script.type, script.basename, "/js/", "/js/", script.group);
+    {relativePath: "/js/jquery-1.4.2.js", group: "main"},
+    {relativePath: "/js/jquery.gritter-1.6.js", group: "main"},
+    {relativePath: "/js/jquery.tools.tabs-1.2.5.js", group: "main"},
+    {relativePath: "/js/mustache-0.3.0.js", group: "main"},
+    {relativePath: "/js/showdown-0.9.js", group: "main"}
+].forEach(function(js) {
+    script.addJs(js.relativePath, js.group);
+});
+[
+    {relativePath: "/js/main.js", group: "main"},
+    {relativePath: "/js/user.js", group: "user"}
+].forEach(function(js) {
+    script.addJs(js.relativePath, js.group);
 });
 // css
 [
 //    {type: "css", basename: "screen.css", group: "main"},
-    {type: "css", basename: "style.css", group: "main"},
-    {type: "css", basename: "jquery.gritter.css", group: "main"},
-    {type: "css", basename: "tabs.css", group: "user"}
-].forEach(function(script) {
-    client.addScript(script.type, script.basename, "/css/", "/css/", script.group);
+    {relativePath: "/css/style.css", group: "main"},
+    {relativePath: "/css/jquery.gritter.css", group: "main"},
+    {relativePath: "/css/tabs.css", group: "user"}
+].forEach(function(css) {
+    script.addCss(css.relativePath, css.group);
 });
-
 
 // client side code
 function mainJs($) {
@@ -166,7 +168,7 @@ function mainJs($) {
     np.buildPager = buildPager;
 }
 
-function blogMainUser($) {
+function userJs($) {
     var postId, np = $.np, dom = np.dom;
     $.extend(np.api, {
         save: function(publish) {
@@ -297,112 +299,91 @@ function initJs($) {
     dom.prevPage = $('#np-prev-page');
 }
 
-
-module.exports = {
-    'main.js': {
-        'app.blog': {
-            weight: 20,
-            code: mainJs
-        }
-    },
-    'user.js': {
-        'app.blog.mainUser': {
-            weight: 30,
-            code: blogMainUser
-        }
-    },
-    'init.js' : {
-        'app.blog': {
-            weight: 20,
-            code: initJs
-        },
-        'app.blog.bindEvents': {
-            weight: 40,
-            code: function($) {
-                // bind events, insert date
-                var np = $.np;
-                $('.np-post-date').each(function(idx, npd) {
-                    var date = new Date(npd.innerHTML);
-                    $(this)
-                    .attr('innerHTML', np.formatDate(date))
-                    .removeClass('np-hide');
-                });
-                if (np.page == 'index') {
-                    $('div.np-post-tags .np-post-tag').click(function(event) {
-                        var params = np.params;
-                        params.tags = [event.currentTarget.innerHTML];
-                        np.emit('TagSelected');
-                    });
-                }
-                if (np.totalPosts != '') {
-                    // mustache and markdown rendered by server
-                    np.buildPager(null, {
-                        total: parseInt(np.totalPosts)
-                    }, {
-                        limit: 20,
-                        skip: 0
-                    });
-                    np.emit('PostsRendered');
-                }
-            }
-        }
-    },
-    'initUser.js': {
-        'app.blog.initUser': {
-            weight: 30,
-            code: function($) {
-                var np = $.np;
-                var dom = np.dom;
-                // construct the tabs
-                $("#np-tabs").tabs("div.np-tab", {
-                    history: true ,
-                    effect: 'default'
-                });
-                dom.tabs = $("#np-tabs").data('tabs'),
-                    // editor
-                        dom.title = $('#np-title'),
-                        dom.tags = $('#np-tags'),
-                        dom.input = $('#np-textarea'),
-                        dom.previewDiv = $('#np-preview'),
-                        dom.editor = $('.np-editor'),
-                        dom.save = $('#np-editor-save'),
-                        dom.cancel = $('#np-editor-cancel'),
-                        dom.publish = $('#np-editor-publish');
-                function convert() {
-                    np.preview(dom.input, dom.previewDiv);
-                }
-                // convert once onload
-                convert();
-                // bind events
-                dom.input.bind('input', function() {
-                    convert();
-                });
-                dom.save.click(function(event) {
-                    np.api.save();
-                });
-                dom.publish.click(function(event) {
-                    np.api.save(true);
-                });
-                dom.cancel.click(function(event) {
-                    np.resetEditor();
-                });
-
-                // after rendered post
-                np.on('PostsRendered', function() {
-                    // add `edit` and `remove` button for author
-                    $('.np-post-info').append('<a href="#np-toolbar-editor" class="np-post-edit l">edit</a>');
-                    $('a.np-post-edit').bind('click', function(event) {
-                        var postId = $(this).parent('.np-post-info').attr('id');
-                        np.fillEditor(postId);
-                        np.dom.tabs.click(1);
-                    });
-                    $('.np-post-info').append('<a href="#" class="np-post-remove l">del</a>');
-                    $('a.np-post-remove').bind('click', function(event) {
-                        var postId = $(this).parent('.np-post-info').attr('id');
-                        np.removePost(postId);
-                    });
-                });
-            }
-        }
-    }
+function initJsBindEvents($) {
+  // bind events, insert date
+  var np = $.np;
+  $('.np-post-date').each(function(idx, npd) {
+    var date = new Date(npd.innerHTML);
+    $(this)
+      .attr('innerHTML', np.formatDate(date))
+      .removeClass('np-hide');
+  });
+  if (np.page == 'index') {
+    $('div.np-post-tags .np-post-tag').click(function(event) {
+      var params = np.params;
+      params.tags = [event.currentTarget.innerHTML];
+      np.emit('TagSelected');
+    });
+  }
+  if (np.totalPosts != '') {
+    // mustache and markdown rendered by server
+    np.buildPager(null, {
+      total: parseInt(np.totalPosts)
+    }, {
+      limit: 20,
+      skip: 0
+    });
+    np.emit('PostsRendered');
+  }
 };
+
+function initUserJs($) {
+  var np = $.np;
+  var dom = np.dom;
+  // construct the tabs
+  $("#np-tabs").tabs("div.np-tab", {
+    history: true ,
+    effect: 'default'
+  });
+  dom.tabs = $("#np-tabs").data('tabs'),
+    // editor
+    dom.title = $('#np-title'),
+    dom.tags = $('#np-tags'),
+    dom.input = $('#np-textarea'),
+    dom.previewDiv = $('#np-preview'),
+    dom.editor = $('.np-editor'),
+    dom.save = $('#np-editor-save'),
+    dom.cancel = $('#np-editor-cancel'),
+    dom.publish = $('#np-editor-publish');
+  function convert() {
+    np.preview(dom.input, dom.previewDiv);
+  }
+
+  // convert once onload
+  convert();
+  // bind events
+  dom.input.bind('input', function() {
+    convert();
+  });
+  dom.save.click(function(event) {
+    np.api.save();
+  });
+  dom.publish.click(function(event) {
+    np.api.save(true);
+  });
+  dom.cancel.click(function(event) {
+    np.resetEditor();
+  });
+
+  // after rendered post
+  np.on('PostsRendered', function() {
+    // add `edit` and `remove` button for author
+    $('.np-post-info').append('<a href="#np-toolbar-editor" class="np-post-edit l">edit</a>');
+    $('a.np-post-edit').bind('click', function(event) {
+      var postId = $(this).parent('.np-post-info').attr('id');
+      np.fillEditor(postId);
+      np.dom.tabs.click(1);
+    });
+    $('.np-post-info').append('<a href="#" class="np-post-remove l">del</a>');
+    $('a.np-post-remove').bind('click', function(event) {
+      var postId = $(this).parent('.np-post-info').attr('id');
+      np.removePost(postId);
+    });
+  });
+};
+
+script.addJsCode('/js/main.js', mainJs);
+script.addJsCode('/js/user.js', userJs);
+script.addJsCode('/js/init.js', initJs);
+script.addJsCode('/js/init.js', initJsBindEvents);
+script.addJsCode('/js/initUser.js', initUserJs);

@@ -1,10 +1,10 @@
 var view = np.view,
-client = np.client,
 management = require('./management'),
 settings = np.settings,
 chain = np.genji.chain;
 
 var tag = np.db.collection('tags');
+var post = np.db.collection('posts');
 
 var api = np.genji.app('api', {root: '^/_api/'});
 
@@ -60,27 +60,24 @@ function _buildTags(doc) {
 
 function _rebuildTags() {
     // get all published posts
-    factory.post.find({"published": {$exists: true}}).then(function(docs) {
+    post.find({"published": {$exists: true}}).then(function(docs) {
         if (docs) {
             docs.forEach(function(doc) {
                 _buildTags(doc);
             });
-            tag.giveDb(function(err, db) {
-                if (err) throw err;
-                db.ensureIndex("tags", [[["posts", 1]], [["count", 1]]], false, function() {});
-            });
+          tag.ensureIndex([["posts", 1], ["count", 1]]);
         }
     });
 }
 
 // bind to events
-core.event.on("blog.api.save", _buildTags);
-core.event.on("tag.rebuild", _rebuildTags);
+np.on("blog.api.save", _buildTags);
+np.on("tag.rebuild", _rebuildTags);
 
 // check if we need to rebuild the `tags` collection
 tag.find({}).then(function(tags) {
     if (tags.length == 0) {
-        core.event.emit("tag.rebuild");
+        np.emit("tag.rebuild");
     }
 });
 
@@ -153,20 +150,5 @@ function initJs($) {
     $.np.page == 'index' && $.np.api.getTagCloud();
 }
 
-
-module.exports = {
-    client: {
-        'main.js': {
-            'app.tag': {
-                weight: 100,
-                code: mainJs
-            }
-        },
-        'init.js': {
-            'app.tag': {
-                weight: 100,
-                code: initJs
-            }
-        }
-    }
-};
+np.script.addJsCode('/js/main.js', mainJs);
+np.script.addJsCode('/js/init.js', initJs);

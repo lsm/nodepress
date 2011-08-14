@@ -1,6 +1,6 @@
 var auth = np.auth,
 view = np.view,
-client = np.client,
+script = np.script,
 settings = np.settings;
 
 var app = np.genji.app();
@@ -8,7 +8,7 @@ var app = np.genji.app();
 
 function index(handler) {
     var user = auth.checkCookie(handler.getCookie(auth.cookieName), auth.cookieSecret)[0];
-    var ctx = core.app.blog.ctx;
+    var ctx = np.app.blog.ctx;
     var scriptGroups = ["main"];
     var inDev = settings.env == "development";
     if (user) {
@@ -19,14 +19,14 @@ function index(handler) {
     } else {
         ctx.is_owner = undefined;
     }
-    ctx.scripts = [{js: client.getHeadJS(scriptGroups), css: client.getScripts("css", scriptGroups)}];
+    ctx.scripts = [{js: script.getHeadJS(scriptGroups), css: script.getScripts("css", scriptGroups)}];
     // compress if not in dev model
-    ctx.initJs = client.getCode('init.js', !inDev);
-    ctx.initUserJs = client.getCode('initUser.js', !inDev);
+    ctx.initJs = script.getCode('init.js', !inDev);
+    ctx.initUserJs = script.getCode('initUser.js', !inDev);
     post.count({}).then(function(num) {
         ctx.total = num;
         post.find({}, null, {
-            limit: core.app.blog.DEFAULT_POST_NUM,
+            limit: np.app.blog.DEFAULT_POST_NUM,
             sort:[["published", -1]]
         }).then(function(posts) {
             posts.forEach(function(item) {
@@ -53,7 +53,7 @@ function index(handler) {
 
 function article(handler, id) {
     var user = auth.checkCookie(handler.getCookie(auth.cookieName), auth.cookieSecret)[0];
-    var ctx = core.app.blog.ctx;
+    var ctx = np.app.blog.ctx;
     if (user) {
         ctx.is_owner = [{
             name: user
@@ -64,7 +64,7 @@ function article(handler, id) {
     post.count({}).then(function(num) {
         ctx.total = num;
         post.findOne({
-            _id: new core.db.ObjectID(id)
+            _id: new mongodb.ObjectID(id)
         }).then(function(post) {
             if (post) {
                 if (post.hasOwnProperty("tags")) {

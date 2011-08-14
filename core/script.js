@@ -1,5 +1,17 @@
 
+var Path = require('path');
+var staticUrl;
+var staticRoot;
 
+/**
+ * Initialize module with settings
+ * 
+ * @param settings
+ */
+function init(settings) {
+  staticUrl = settings.staticUrl;
+  staticRoot = settings.staticRoot || Path.join(__dirname, '../static');
+}
 
 /**
  * Add a javascript file
@@ -47,13 +59,22 @@ function getCssTags(group) {
 }
 
 /**
+ * Add a piece of source code to a url
+ *
+ * @param {String} url Relative url of the code
+ * @param {String|Function} code Source code
+ */
+function addJsCode(url, code) {
+}
+
+/**
  * Get source code according to url
  * 
  * @param {String} url Url of your script file relative to `staticUrl`
  * @param {Boolean} minify Minify source if `true`
  * @return {String} Source of the script
  */
-function getCode(url, minify) {
+function getJsCode(url, minify) {
     
 }
 
@@ -75,9 +96,11 @@ function getMeta(url) {
 }
 
 // public api
+exports.init = init;
 exports.addJs = addJs;
 exports.addCss = addCss;
 exports.getJsTags = getJsTags;
 exports.getCssTags = getCssTags;
-exports.getCode = getCode;
+exports.addJsCode = addJsCode;
+exports.getJsCode = getJsCode;
 exports.getMeta = getMeta;

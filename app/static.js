@@ -1,4 +1,4 @@
-var client = np.client,
+var script = np.script,
 view = np.view,
 settings = np.settings,
 Path = require('path'),
@@ -8,14 +8,14 @@ var app = np.genji.app();
 
 
 function getAbsPath(path) {
-    return Path.join(client.staticRoot, decodeURIComponent(path));
+    return Path.join(script.staticRoot, decodeURIComponent(path));
 }
 
 function handleScript(handler, type, basename, etag) {
     var path = '/'+type+'/';
     if (compress && type == 'js') {
-        var meta = client.getScriptMeta(path+basename);
-        var code = meta.compressed || client.getCode(meta, true);
+        var meta = script.getScriptMeta(path+basename);
+        var code = meta.compressed || script.getCode(meta, true);
         handler.sendAsFile(code, {'type': 'application/javascript', etag: etag || meta.hash, length: meta.length});
     } else {
         handler.staticFile(getAbsPath(path+basename), etag);
@@ -29,7 +29,7 @@ function handleFile(handler, path) {
 function buildjs(handler, groupName, etag) {
     groupName = groupName +'.js';
     var tplName = 'js/'+groupName+'.mu';
-    view.render(tplName, {code: client.getCode({url: '/js/' + groupName}, compress)}, null, function(js) {
+    view.render(tplName, {code: script.getCode({url: '/js/' + groupName}, compress)}, null, function(js) {
         handler.sendAsFile(js , {'type': 'application/javascript', etag: etag});
     });
 }

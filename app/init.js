@@ -42,14 +42,4 @@ function mainInitJs($) {
     });
 }
 
-module.exports = {
-    client: {
-        "/js/main.js": {
-            "app.init": {
-                // run before other apps
-                weight: 0,
-                code: mainInitJs
-            }
-        }
-    }
-};
+np.script.addJsCode('/js/main.js', mainInitJs);

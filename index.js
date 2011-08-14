@@ -22,7 +22,16 @@ function setupCore(settings) {
   if (settings.db) {
     var dbSettings = settings.db
     var dbServer = connect(dbSettings.host, dbSettings.port, {poolSize: dbSettings.poolSize || 2});
-    np.db = dbServer.db(dbSettings.name);
+    var db = dbServer.db(dbSettings.name);
+    var collections = {};
+    var getCollection = db.collection;
+    db.collection = function(collectionName) {
+      if (!collections.hasOwnProperty(collectionName)) {
+        collections[collectionName] = getCollection.call(db, collectionName);
+      }
+      return collections[collectionName];
+    };
+    np.db = db;
   }
 
   // setup auth
@@ -33,12 +42,12 @@ function setupCore(settings) {
   }
 
   // setup client
-  if (settings.client) {
-    np.client = require('./core/client');
-    np.client.init({
+  if (settings.script) {
+    np.script = require('./core/script');
+    np.script.init({
       cache: np.cache,
-      staticRoot: settings.client.staticRoot,
-      staticUrl: settings.client.staticUrl
+      staticRoot: settings.script.staticRoot,
+      staticUrl: settings.script.staticUrl
     });
   }
 
@@ -61,7 +70,7 @@ function setupApps(settings, np) {
         module = require('./app/' + app);
         appName = app;
       } else if (typeof app == 'object') {
-        module = require(app.require);
+        module = require(app.requirePath);
         appName = app.name;
       } else {
         throw new Error('format of `installedApps` setting not correct.');
@@ -71,10 +80,6 @@ function setupApps(settings, np) {
         for (var name in module['db']) {
           np.db[name] = module['db'][name];
         }
-      }
-
-      if (module.hasOwnProperty('client')) {
-        np.client.inject(module.client);
       }
       
       np.app[appName] = module;
@@ -110,7 +115,7 @@ function createServer(settings, np) {
     np.settings = settings;
     setupApps(settings, np);
   }
-  var server = np.genji.web.createServer(settings.middlewares);
+  var server = np.genji.createServer(settings.middlewares);
   return settings.cluster ? setupCluster(settings.cluster, server) : server;
 }
 

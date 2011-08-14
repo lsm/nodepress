@@ -1,6 +1,7 @@
 var account = require('../account'),
 auth = np.auth,
 view = np.view;
+var mongodb = require('mongodb-async').mongodb;
 
 var api = np.genji.app('api', {root: '^/_api/'});
 
@@ -11,7 +12,7 @@ function save(handler) {
             handler.sendJSON({
                 _id: doc._id
             });
-            core.event.emit('blog.api.save', doc);
+            np.emit('blog.api.save', doc);
         }).fail(function(err) {
             console.log(err.stack);
         });
@@ -21,9 +22,9 @@ function save(handler) {
 function remove(handler) {
     handler.on('end', function(params, data) {
         var doc = JSON.parse(data);
-        post.remove({_id: new core.db.ObjectID(doc._id)}).then(function(doc) {
+        post.remove({_id: new mongodb.ObjectID(doc._id)}).then(function(doc) {
            handler.sendJSON({});
-           core.emit('blog.api.remove', doc);
+           np.emit('blog.api.remove', doc);
         });
     });
 }
@@ -57,17 +58,17 @@ function list(handler, skip, limit, tags) {
                 posts: result,
                 total: num
             });
-            core.event.emit('blog.api.list', query, options, result);
+            np.emit('blog.api.list', query, options, result);
         });
     });
 }
 
 function byId(handler, id) {
     post.findOne({
-        _id: new core.db.ObjectID(id)
+        _id: new mongodb.ObjectID(id)
     }).then(function(data) {
         handler.sendJSON(data);
-        core.event.emit('blog.api.id', id, data);
+        np.emit('blog.api.id', id, data);
     });
 }
 

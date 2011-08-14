@@ -42,7 +42,7 @@ function saveTracker(handler) {
                 code: data
             };
             handler.send('ok');
-            core.emit('management.api.saveTracker', doc);
+            np.emit('management.api.saveTracker', doc);
         });
     });
 }
@@ -148,32 +148,21 @@ np.on('management.api.saveTracker', function(data) {
     if (data) np.cache.set('defaultTracker', data.code);
 });
 
+np.script.addJsCode('/js/user.js', management);
+np.script.addJsCode('/js/initUser.js', function($) {
+  var np = $.np;
+  var dom = np.dom;
+  // tracker
+  dom.tracker = $('#np-tracker'),
+    dom.saveSetting = $('#np-save-setting');
+  dom.saveTracker = $('#np-save-tracker');
+  dom.siteTitle = $('#np-siteTitle');
+  dom.siteIntro = $('#np-siteIntro');
+  np.api.getTracker();
+  dom.saveTracker.click(np.api.saveTracker);
+  dom.saveSetting.click(np.api.saveSetting);
+});
+
 module.exports = {
-    client: {
-        '/js/user.js': {
-            'app.management': {
-                weight: 100,
-                code: management
-            }
-        },
-        '/js/initUser.js': {
-            'app.management': {
-                weight: 100,
-                code: function($) {
-                    var np = $.np;
-                    var dom = np.dom;
-                    // tracker
-                    dom.tracker = $('#np-tracker'),
-                    dom.saveSetting = $('#np-save-setting');
-                    dom.saveTracker = $('#np-save-tracker');
-                    dom.siteTitle = $('#np-siteTitle');
-                    dom.siteIntro = $('#np-siteIntro');
-                    np.api.getTracker();
-                    dom.saveTracker.click(np.api.saveTracker);
-                    dom.saveSetting.click(np.api.saveSetting);
-                }
-            }
-        }
-    },
     getTracker: getTracker
-}
+};

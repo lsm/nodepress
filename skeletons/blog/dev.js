@@ -10,7 +10,7 @@ var settings = {
       name: 'nodepress',
         poolSize: 5
     },
-    client: {
+    script: {
         staticUrl: 'http://127.0.0.1:8000/static/'
     },
     auth: {

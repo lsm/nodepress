@@ -1,6 +1,7 @@
-fs = require('fs'),
+var fs = require('fs'),
 Path = require('path'),
 md5 = np.genji.md5;
+var mongodb = require('mongodb-async').mongodb;
 
 var post = np.db.collection('posts');
 
@@ -12,7 +13,7 @@ post.extend({
             }
             if (data.hasOwnProperty('_id')) {
                 // old post
-                var postId = new core.db.ObjectID(data._id);
+                var postId = new mongodb.ObjectID(data._id);
                 data.modified = new Date();
                 delete data._id;
                 return this.update({_id: postId}, {$set: data});
@@ -29,13 +30,13 @@ post.extend({
 });
 
 var defaultContext = {
-    staticUrl: core.client.staticUrl,
-    cookieName: core.auth.cookieName
+    staticUrl: np.script.staticUrl,
+    cookieName: np.auth.cookieName
 };
 
 process.nextTick(function() {
     // load settings from db
-    var setting = core.db.setting, cache = core.cache;
+    var setting = np.db.collection('settings'), cache = np.cache;
     setting.findOne({
         '_id': 'defaultTracker'
     }).then(function(trackerObj) {
@@ -69,7 +70,7 @@ process.nextTick(function() {
 });
 
 // load post template from template file
-fs.readFile(Path.join(core.view.viewRoot, '/share/posts.html'), 'utf8', function(err, data) {
+fs.readFile(Path.join(np.view.viewRoot, '/share/posts.html'), 'utf8', function(err, data) {
     if (err) throw err;
     // nun use `{{&` to escape which is not compatible with original mustache
     data = data.replace('{{&content}}', '{{{content}}}');
@@ -79,9 +80,9 @@ fs.readFile(Path.join(core.view.viewRoot, '/share/posts.html'), 'utf8', function
 
 require('./api');
 require('./view');
+require('./client');
 
 module.exports = {
     ctx: defaultContext,
-    client: require('./client'),
     DEFAULT_POST_NUM: 20
-}
+};
