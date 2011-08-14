@@ -1,14 +1,12 @@
-var core = np,
-view = core.view,
-client = core.client,
-factory = core.factory,
+var view = np.view,
+client = np.client,
 management = require('./management'),
-Collection = core.db.Collection,
-settings = core.settings,
-chain = np.genji.pattern.control.chain;
+settings = np.settings,
+chain = np.genji.chain;
 
-factory.register('tag', function(name) {return new Collection(name)}, ['tags'], true);
-var tag = factory.tag;
+var tag = np.db.collection('tags');
+
+var api = np.genji.app('api', {root: '^/_api/'});
 
 tag.extend({
     save: function(data) {
@@ -93,9 +91,9 @@ function getTagCloud(handler) {
     });
 }
 
-var api = [
+api.mount([
   ['tag/cloud/$', getTagCloud, "get"]
-];
+]);
 
 
 // client side code
@@ -157,7 +155,6 @@ function initJs($) {
 
 
 module.exports = {
-    db: {tag: tag},
     client: {
         'main.js': {
             'app.tag': {
@@ -171,6 +168,5 @@ module.exports = {
                 code: initJs
             }
         }
-    },
-    api: api
-}
+    }
+};

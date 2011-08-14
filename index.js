@@ -1,17 +1,16 @@
-var Path = require('path');
 
-var apis = [], urls = [], jsonrpcProviders = [];
+var genji = require('genji').short();
+var connect = require('mongodb-async').connect;
+var EventEmitter = require('events').EventEmitter;
 
 function setupCore(settings) {
   // load dependences
-  var np = {}, genji = np.genji = require('genji'),
-    EventEmitter = require('events').EventEmitter;
+  var np = new EventEmitter;
+  np.genji = genji;
 
-  // setup cache, event emitter, promise and filter.
+  // setup cache, event emitter.
   var Cache = require('./core/cache');
   np.cache = new Cache;
-  var event = np.event = new EventEmitter;
-  np.factory = new genji.pattern.Factory;
 
   // setup view
   if (settings.view) {
@@ -21,8 +20,9 @@ function setupCore(settings) {
 
   // setup db
   if (settings.db) {
-    np.db = require('./core/db');
-    np.db.init(settings.db.servers, settings.db.poolSize);
+    var dbSettings = settings.db
+    var dbServer = connect(dbSettings.host, dbSettings.port, {poolSize: dbSettings.poolSize || 2});
+    np.db = dbServer.db(dbSettings.name);
   }
 
   // setup auth
@@ -42,29 +42,18 @@ function setupCore(settings) {
     });
   }
 
-  // setup handler
-  if (settings.handler) {
-    np.handler = require('./handler');
-  }
+  // setup form handler
+  np.FormHandler = require('./core/form');
 
   // env
   process.env['NODE_ENV'] = settings.env;
-
-  // the `np` object can act as an event emitter
-  np.on = function(type, callback) {
-    event.on(type, callback);
-  }
-
-  np.emit = function() {
-    event.emit.apply(event, arguments);
-  }
-
+  
   return np;
 }
 
 function setupApps(settings, np) {
-  if (Array.isArray(settings.installedApps) && settings.installedApps.length > 0) {
-    var apps = settings.installedApps;
+  var apps = settings.installedApps;
+  if (Array.isArray(apps) && apps.length > 0) {
     np.app = {};
     apps.forEach(function(app) {
       var module, appName;
@@ -75,47 +64,21 @@ function setupApps(settings, np) {
         module = require(app.require);
         appName = app.name;
       } else {
-        throw new Error('setting format of `installedApps` not correct.');
+        throw new Error('format of `installedApps` setting not correct.');
       }
-      if (module.hasOwnProperty('api')) {
-        apis = apis.concat(module['api']);
-      }
+
       if (module.hasOwnProperty('db')) {
         for (var name in module['db']) {
           np.db[name] = module['db'][name];
         }
       }
-      if (module.hasOwnProperty('view')) {
-        urls = urls.concat(module['view']);
-      }
+
       if (module.hasOwnProperty('client')) {
         np.client.inject(module.client);
       }
-      if (module.hasOwnProperty('jsonrpc')) {
-        jsonrpcProviders = jsonrpcProviders.concat(module['jsonrpc']);
-      }
+      
       np.app[appName] = module;
     });
-
-    urls.push([settings.apiPrefix || '^/_api/', apis]);
-    if (settings.middlewares) {
-      if (settings.middlewares.router) {
-        var router = settings.middlewares.router;
-        if (Array.isArray(router.urls)) {
-          router.urls = router.urls.concat(urls);
-        } else {
-          router.urls = urls;
-        }
-      }
-      if (settings.middlewares.jsonrpc) {
-        var jsonrpc = settings.middlewares.jsonrpc;
-        if (Array.isArray(jsonrpc.providers)) {
-          jsonrpc.providers = jsonrpc.providers.concat(jsonrpcProviders);
-        } else {
-          jsonrpc.providers = jsonrpcProviders;
-        }
-      }
-    }
   }
 }
 

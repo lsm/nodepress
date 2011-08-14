@@ -2,7 +2,9 @@ var path = require('path'),
 genji = require('genji');
 var settings = {
     db: {
-        servers: 'mongo://127.0.0.1:27017/nodepress',
+        host: '127.0.0.1',
+      port: '27017',
+      name: 'nodepress',
         poolSize: 5
     },
     client: {
@@ -26,7 +28,7 @@ var settings = {
         'error-handler': {uncaughtException: true},
         'logger': {level: 'info'},
         'conditional-get': {},
-        'router': {handler: genji.web.handler.SimpleCookieHandler}
+        'router': {handler: genji.handler.Handler}
     }
 };
 

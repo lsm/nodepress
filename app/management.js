@@ -1,13 +1,13 @@
-var core = np,
-db = core.db,
-auth = core.auth,
-factory = core.factory,
+var db = np.db,
+auth = np.auth,
 checkLogin = require('./account').checkLogin,
-Collection = db.Collection,
 tracker;
 
-factory.register('setting', function(name) {return new Collection(name)}, ['settings'], true);
-var setting = factory.setting;
+var api = np.genji.app('api', {root: '^/_api/'});
+
+var setting = db.collection('settings');
+
+
 
 function getTracker(handler, callback) {
     function send(tracker) {
@@ -32,7 +32,7 @@ function getTracker(handler, callback) {
 }
 
 function saveTracker(handler) {
-    handler.on('end', function(params, buff) {
+    handler.on('data', function(buff) {
         var data = buff.toString('utf8');
         setting.save({
             _id: 'defaultTracker',
@@ -48,11 +48,10 @@ function saveTracker(handler) {
 }
 
 function saveSetting(handler) {
-    handler.on('end', function(params, data) {
-        data = JSON.parse(data);
-        setting.save(data).then(function() {
+    handler.on('json', function(json) {
+        setting.save(json).then(function() {
             handler.send('Setting saved');
-            core.emit('management.api.saveSetting', data);
+            np.emit('management.api.saveSetting', json);
         });
     });
 }
@@ -60,9 +59,8 @@ function saveSetting(handler) {
 // get tracker code from db
 getTracker(null, function() {});
 
-var api = [
-    [
-        'management/',
+api.mount([
+    ['management/',
         [
             ['tracker/get/$', getTracker, 'get'],
             ['tracker/save/$', saveTracker, 'post'],
@@ -70,7 +68,9 @@ var api = [
         ],
         {pre: [checkLogin]}
     ]
-]
+]);
+
+
 
 // client side code
 function management($) {
@@ -149,17 +149,14 @@ np.on('management.api.saveTracker', function(data) {
 });
 
 module.exports = {
-    db: {
-        setting: setting
-    },
     client: {
-        'user.js': {
+        '/js/user.js': {
             'app.management': {
                 weight: 100,
                 code: management
             }
         },
-        'initUser.js': {
+        '/js/initUser.js': {
             'app.management': {
                 weight: 100,
                 code: function($) {
@@ -178,6 +175,5 @@ module.exports = {
             }
         }
     },
-    api: api,
     getTracker: getTracker
 }

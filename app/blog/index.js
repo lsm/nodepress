@@ -1,13 +1,8 @@
-var core = np,
 fs = require('fs'),
 Path = require('path'),
-Collection = core.db.Collection,
-factory = core.factory,
-md5 = np.genji.util.crypto.md5;
+md5 = np.genji.md5;
 
-
-factory.register('post', function(name) {return new Collection(name)}, ['posts'], true);
-var post = factory.post;
+var post = np.db.collection('posts');
 
 post.extend({
     save: function(data, author) {
@@ -82,15 +77,11 @@ fs.readFile(Path.join(core.view.viewRoot, '/share/posts.html'), 'utf8', function
 });
 
 
-
+require('./api');
+require('./view');
 
 module.exports = {
     ctx: defaultContext,
-    db: {
-        post: post
-    },
     client: require('./client'),
-    api: require('./api'),
-    view: require('./view'),
     DEFAULT_POST_NUM: 20
 }

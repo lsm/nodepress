@@ -1,9 +1,8 @@
-var core = np,
-account = require('../account'),
-auth = core.auth,
-view = core.view,
-factory = core.factory,
-post = factory.post;
+var account = require('../account'),
+auth = np.auth,
+view = np.view;
+
+var api = np.genji.app('api', {root: '^/_api/'});
 
 function save(handler) {
     handler.on('end', function(params, raw) {
@@ -72,13 +71,11 @@ function byId(handler, id) {
     });
 }
 
-var api = [
+api.mount([
 ['blog/save/$', [account.checkLogin, save], 'post'],
 ['blog/remove/$', [account.checkLogin, remove], 'post'],
 ['blog/list/([0-9]+)/([0-9]+)/(.*)/$', list, 'get'],
 ['blog/list/([0-9]+)/([0-9]+)/$', list, 'get'],
 ['blog/list/$', list, 'get'],
 ['blog/id/([0-9a-fA-F]{24})/$', byId, 'get']
-];
-
-module.exports = api;
+]);

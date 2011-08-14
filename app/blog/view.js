@@ -1,27 +1,25 @@
-var core = np,
-auth = core.auth,
-view = core.view,
-client = core.client,
-factory = core.factory,
-post = factory.post,
-settings = core.settings;
+var auth = np.auth,
+view = np.view,
+client = np.client,
+settings = np.settings;
+
+var app = np.genji.app();
 
 
 function index(handler) {
     var user = auth.checkCookie(handler.getCookie(auth.cookieName), auth.cookieSecret)[0];
     var ctx = core.app.blog.ctx;
-    var scriptGroup = ["main"];
+    var scriptGroups = ["main"];
     var inDev = settings.env == "development";
     if (user) {
         ctx.is_owner = [{
             name: user
         }];
-        scriptGroup.push("user");
+        scriptGroups.push("user");
     } else {
         ctx.is_owner = undefined;
     }
-    // combine if not in dev model
-    ctx.scripts = [{js: client.getHeadJS(scriptGroup), css: client.getScripts("css", scriptGroup, !inDev)}];
+    ctx.scripts = [{js: client.getHeadJS(scriptGroups), css: client.getScripts("css", scriptGroups)}];
     // compress if not in dev model
     ctx.initJs = client.getCode('init.js', !inDev);
     ctx.initUserJs = client.getCode('initUser.js', !inDev);
@@ -91,7 +89,7 @@ function article(handler, id) {
     });
 }
 
-module.exports = [
+app.mount([
     ['^/$', index, 'get'],
     ['^/article/([0-9a-zA-Z]{24})/.*/$', article, 'get'],
     ['.*', function(handler) {
@@ -99,4 +97,4 @@ module.exports = [
             handler.error(404, html);
         })
     }, 'notfound']
-];
+]);

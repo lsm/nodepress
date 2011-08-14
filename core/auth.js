@@ -1,6 +1,6 @@
 var genji = require('genji'),
-    base64 = genji.util.base64,
-    auth = genji.web.auth;
+    base64 = genji.base64,
+    auth = genji.require('auth');
 
 function checkCookie(cookie) {
     if (cookie) {
@@ -23,4 +23,4 @@ module.exports = {
     makePassword: auth.makePassword,
     checkPassword: auth.checkPassword,
     signin: signin
-}
+};

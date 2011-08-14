@@ -1,15 +1,11 @@
-var core = np,
-db = core.db,
-auth = core.auth,
-factory = core.factory,
-Collection = db.Collection,
-settings = core.settings,
-cookieName = auth.cookieName,
-cookieSecret = auth.cookieSecret,
+var db = np.db,
+auth = np.auth,
+cookieName = np.cookieName,
+cookieSecret = np.cookieSecret,
 querystring = require("querystring");
+var app = np.genji.app();
 
-factory.register('user', function(name) {return new Collection(name)}, ['users'], true);
-var user = factory.user;
+var user = db.collection('users');
 
 // create an admin account if not exits
 process.nextTick(function() {
@@ -78,7 +74,9 @@ function signin(handler) {
     });
 }
 
-var _view = [['^/signin/$', signin, 'post']];
+app.mount([
+  ['^/signin/$', signin, 'post']
+]);
 
 function mainJs($) {
     var np = $.np;
@@ -140,9 +138,5 @@ module.exports = {
                 code: initJs
             }
         }
-    },
-    db: {
-        user: user
-    },
-    view: _view
+    }
 }

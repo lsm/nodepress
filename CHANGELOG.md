@@ -1,23 +1,10 @@
 
-0.1.10(?)
----------
-- account:
-    - password recovery, change password, user registration and information
-    - use form for login
-- core:
-    - run same code both on client/server side (jsdom)
 
-0.1.9 (?)
+0.3.0 (2011/08/?)
 ---------
-- project:
-    - support multi-process and daemonization
-- core:
-    - view/client: add timestamp for static resource (js/css) and etag for file-like resource
-    - introduce [head.js](http://github.com/headjs/headjs)
-    - db:
-        - set query options in chaining functions: find(query).limit(19).offset(10).fields({id: 1, name: 1})
-        - GridStore: `readFile`
-        - generate deferred version functions in constructor
+- `genji` upgrade to `0.2.1`
+- replace `core#db` by `mongodb-async`
+
 
 0.1.8 (2011/1/31)
 ---------

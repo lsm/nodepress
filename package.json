@@ -1,28 +1,23 @@
 {
     "name": "nodepress",
     "description": "High-level web framework, can be used as a blog by default",
-    "version": "0.1.8",
+    "version": "0.3.0",
     "homepage": "http://github.com/zir/nodepress",
     "author": "Senmiao Liu <zir.echo@gmail.com> http://vitecho.com",
     "repository" : {
         "type" : "git",
         "url" : "http://github.com/zir/nodepress.git"
     },
-    "bin": {
-        "nodepress": "./bin/nodepress.js"
-    },
     "main": "./index.js",
     "dependencies": {
-        "cluster": "0.2.3",
-        "nomnom": "0.4.8",
-        "mongodb": "0.9.6-1",
+        "mongodb-async": "0.0.1",
         "nunz": "0.1.13",
         "node-markdown": "0.1.0",
-        "genji": "0.0.3",
+        "genji": "0.2.1",
         "formidable": "1.0.2",
         "uglify-js": "1.0.1"
     },
     "engines": {
-        "node": ">=0.2.2"
+        "node": ">= 0.4.8 < 0.5"
     }
 }

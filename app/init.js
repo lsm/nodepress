@@ -1,10 +1,14 @@
 // views
-var _view = [
+var app = np.genji.app();
+
+var routes = [
     ['.*', function() {
             // default 404 handler
             this.error(404, '`' + this.request.url + '` not found');
     }, 'notfound']
-]
+];
+
+app.mount(routes);
 
 // This the clientside bootstrip script that all apps depend on.
 function mainInitJs($) {
@@ -40,13 +44,12 @@ function mainInitJs($) {
 
 module.exports = {
     client: {
-        "main.js": {
+        "/js/main.js": {
             "app.init": {
                 // run before other apps
                 weight: 0,
                 code: mainInitJs
             }
         }
-    },
-    view: _view
-}
+    }
+};

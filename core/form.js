@@ -1,7 +1,6 @@
 var formidable = require('formidable');
 var genji = require('genji');
-var Handler = genji.web.handler.Handler;
-var SimpleCookieHandler = genji.web.handler.SimpleCookieHandler;
+var Handler = genji.require('handler').Handler;
 var Path = require('path');
 var defaultExtentions = ['.png', '.jpg', '.jpeg'];
 var maxFieldsSize = 8*1024*1024;
@@ -63,17 +62,6 @@ var FormHandler = Handler({
 
     isAllowedExt: function(filename) {
         return this.exts.indexOf(Path.extname(filename)) > -1;
-    },
-
-    // we need instance methods of `Simple`/`Cookie` module except `init`
-    include: {
-        send: SimpleCookieHandler.prototype.send,
-        sendJSON: SimpleCookieHandler.prototype.sendJSON,
-        sendHTML: SimpleCookieHandler.prototype.sendHTML,
-        // allow it to parse cookies
-        setCookie: SimpleCookieHandler.prototype.setCookie,
-        getCookie: SimpleCookieHandler.prototype.getCookie,
-        clearCookie: SimpleCookieHandler.prototype.clearCookie
     }
 });
 
