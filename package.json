@@ -10,12 +10,12 @@
     },
     "main": "./index.js",
     "dependencies": {
-        "mongodb-async": "0.0.1",
+        "mongodb-async": "0.0.2",
         "nunz": "0.1.13",
         "node-markdown": "0.1.0",
         "genji": "0.2.1",
         "formidable": "1.0.2",
-        "uglify-js": "1.0.1"
+        "uglify-js": "1.0.6"
     },
     "engines": {
         "node": ">= 0.4.8 < 0.5"

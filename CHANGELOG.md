@@ -1,9 +1,14 @@
 
+0.3.1 (2011/08/?)
+- compress css by [sqwish](https://github.com/ded/sqwish)
+- ender.js
 
 0.3.0 (2011/08/?)
 ---------
 - `genji` upgrade to `0.2.1`
-- replace `core#db` by `mongodb-async`
+- replace `core/db.js` by `mongodb-async`
+- rewrite and replace `core/client.js` with `core/script.js`
+- remove `bin/`, use `nodemon` if you need similar functionalities
 
 
 0.1.8 (2011/1/31)
