@@ -43,8 +43,8 @@ function setupCore(settings) {
 
   // setup client
   if (settings.script) {
-    np.script = require('./core/script');
-    np.script.init({
+    var Script = require('./core/script').Script;
+    np.script = new Script({
       cache: np.cache,
       staticRoot: settings.script.staticRoot,
       staticUrl: settings.script.staticUrl
