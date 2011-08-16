@@ -1,6 +1,9 @@
 var Path = require('path');
 var fs = require('fs');
 var crypto = require('genji').require('crypto');
+var ugjs = require('uglify-js');
+var jsp = ugjs.parser;
+var pro = ugjs.uglify;
 
 
 /**
@@ -13,8 +16,6 @@ function Script(settings) {
   this.staticRoot = settings.staticRoot || Path.join(__dirname, '../static');
   this.scripts = {};
   this.scriptIndexes = [];
-  this.groups = {};
-  this.cssScripts = {};
 }
 
 Script.prototype = {
@@ -63,27 +64,49 @@ Script.prototype = {
   },
 
   /**
-   * Add a piece of source code to a url
+   * Add a piece of source code to a url (virtual)
    *
    * @param {String} url Relative url of the code
    * @param {String|Function} code Source code
+   * @param {String|Array} group Group(s) of this js
    */
-  addJsCode: function addJsCode(url, code) {
+  addJsCode: function addJsCode(url, code, group) {
+    var script = this.getScript(url) || {url: url};
+    script['code'] = script['code'] || '';
+    if (typeof code === 'string') {
+      script['code'] += code;
+    } else {
+      script['code'] += '\n;(' + code.toString() +')($);\n';
+    }
+    script['length'] = Buffer.byteLength(script['code']);
+    script['hash'] = crypto.md5(script['code']);
+    script['group'] = Array.isArray(group) ? group : [group];
+    script['type'] = 'js';
+    this.scripts[url] = script;
+    if (this.scriptIndexes.indexOf(url) === -1) {
+      this.scriptIndexes.push(url);
+    }
   },
 
   /**
-   * Get source code according to url
+   * Get source code according to url (virtual)
    *
    * @param {String} url Url of your script file relative to `staticUrl`
    * @param {Boolean} minify Minify source if `true`
    * @return {String} Source of the script
    */
   getJsCode: function getJsCode(url, minify) {
-
+    var script = this.getScript(url);
+    var code = '';
+    if (script) {
+      code = script['code'];
+      code = minify ? uglifyJs(code) : code;
+    }
+    return code;
   },
 
   /**
-   * Get script meta by url
+   * Get script object by url
    *
    * @param {String} url Url of your script file relative to `staticUrl`
    * @return {Object} Object with following format:
@@ -95,16 +118,16 @@ Script.prototype = {
    *     }
    * </code>
    */
-  getMeta: function getMeta(url) {
-
+  getScript: function getScript(url) {
+    return this.scripts[url];
   }
 };
 
 // private functions
 
 function addScript(url, group, path, type) {
-  if (this.staticUrl.slice(-1) === '/' && url.slice(0, 1) === '/') {
-    url = url.slice(1);
+  if (this.scriptIndexes.indexOf(url) > -1) {
+    throw new Error('Duplicated script url: ' + url);
   }
   var script = {
     url: url,
@@ -113,9 +136,6 @@ function addScript(url, group, path, type) {
     type: type
   };
   this.scripts[url] = script;
-  if (this.scriptIndexes.indexOf(url) > -1) {
-    throw new Error('Duplicated script url: ' + url);
-  }
   this.scriptIndexes.push(url);
 
   var self = this;
@@ -165,12 +185,20 @@ function getScriptTags(group, disableHeadJs, type) {
         return genScriptTag(makeUrl(scriptUrl), type);
       }).join('\n');
   } else if (type === 'js') {
-    return 'head.js(' + scripts.map(
+    var headjsTag = '<script src="'+this.staticUrl+'/js/head.min.js" type="text/javascript"></script>\n';
+    return headjsTag + '<script type="text/javascript">head.js(' + scripts.map(
       function(scriptUrl) {
         return '"' + makeUrl(scriptUrl) + '"';
-      }).join(',') + ');\n';
+      }).join(',') + ');</script>\n';
   }
   return '';
+}
+
+function uglifyJs(code) {
+  var ast = jsp.parse(code); // parse code and get the initial AST
+  ast = pro.ast_mangle(ast); // get a new AST with mangled names
+  ast = pro.ast_squeeze(ast); // get an AST with compression optimizations
+  return pro.gen_code(ast); // compressed code here
 }
 
 exports.Script = Script;

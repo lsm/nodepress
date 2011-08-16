@@ -155,5 +155,5 @@ function initJs($) {
   $.np.page == 'index' && $.np.api.getTagCloud();
 }
 
-np.script.addJsCode('/js/main.js', mainJs);
-np.script.addJsCode('/js/init.js', initJs);
+np.script.addJsCode('js/main.js', mainJs, 'main');
+np.script.addJsCode('js/init.js', initJs, 'main');

@@ -5,6 +5,8 @@ var auth = np.auth,
 
 var app = np.genji.app();
 
+var post = np.db.collection('posts');
+
 
 function index(handler) {
   var user = auth.checkCookie(handler.getCookie(auth.cookieName), auth.cookieSecret)[0];
@@ -21,12 +23,13 @@ function index(handler) {
   } else {
     ctx.is_owner = undefined;
   }
+
   ctx.scripts = [
-    {js: script.getHeadJS(scriptGroups), css: script.getScripts("css", scriptGroups)}
+    {js: script.getJsTags(scriptGroups), css: script.getCssTags(scriptGroups)}
   ];
   // compress if not in dev model
-  ctx.initJs = script.getCode('init.js', !inDev);
-  ctx.initUserJs = script.getCode('initUser.js', !inDev);
+  ctx.initJs = script.getJsCode('js/init.js', !inDev);
+  ctx.initUserJs = script.getJsCode('js/initUser.js', !inDev);
   post.count({}).then(function(num) {
     ctx.total = num;
     post.find({}, null, {

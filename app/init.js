@@ -42,4 +42,26 @@ function mainInitJs($) {
   });
 }
 
-np.script.addJsCode('/js/main.js', mainInitJs);
+// add scripts
+// js
+[
+  {relativePath: "js/jquery-1.4.2.js", group: "main"},
+  {relativePath: "js/jquery.gritter-1.6.js", group: "main"},
+  {relativePath: "js/jquery.tools.tabs-1.2.5.js", group: "main"},
+  {relativePath: "js/mustache-0.3.0.js", group: "main"},
+  {relativePath: "js/showdown-0.9.js", group: "main"}
+].forEach(function(js) {
+  np.script.addJs(js.relativePath, js.group);
+});
+
+// css
+[
+//    {type: "css", basename: "screen.css", group: "main"},
+  {relativePath: "css/style.css", group: "main"},
+  {relativePath: "css/jquery.gritter.css", group: "main"},
+  {relativePath: "css/tabs.css", group: "user"}
+].forEach(function(css) {
+  np.script.addCss(css.relativePath, css.group);
+});
+
+np.script.addJsCode('js/main.js', mainInitJs, 'main');

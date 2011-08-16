@@ -148,8 +148,8 @@ np.on('management.api.saveTracker', function(data) {
   if (data) np.cache.set('defaultTracker', data.code);
 });
 
-np.script.addJsCode('/js/user.js', management);
-np.script.addJsCode('/js/initUser.js', function($) {
+np.script.addJsCode('js/user.js', management, 'main');
+np.script.addJsCode('js/initUser.js', function($) {
   var np = $.np;
   var dom = np.dom;
   // tracker
@@ -161,7 +161,7 @@ np.script.addJsCode('/js/initUser.js', function($) {
   np.api.getTracker();
   dom.saveTracker.click(np.api.saveTracker);
   dom.saveSetting.click(np.api.saveSetting);
-});
+}, 'user');
 
 module.exports = {
   getTracker: getTracker

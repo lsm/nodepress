@@ -1,32 +1,5 @@
 var script = np.script;
 
-// add scripts
-// js
-[
-  {relativePath: "/js/jquery-1.4.2.js", group: "main"},
-  {relativePath: "/js/jquery.gritter-1.6.js", group: "main"},
-  {relativePath: "/js/jquery.tools.tabs-1.2.5.js", group: "main"},
-  {relativePath: "/js/mustache-0.3.0.js", group: "main"},
-  {relativePath: "/js/showdown-0.9.js", group: "main"}
-].forEach(function(js) {
-  script.addJs(js.relativePath, js.group);
-});
-[
-  {relativePath: "/js/main.js", group: "main"},
-  {relativePath: "/js/user.js", group: "user"}
-].forEach(function(js) {
-  script.addJs(js.relativePath, js.group);
-});
-// css
-[
-//    {type: "css", basename: "screen.css", group: "main"},
-  {relativePath: "/css/style.css", group: "main"},
-  {relativePath: "/css/jquery.gritter.css", group: "main"},
-  {relativePath: "/css/tabs.css", group: "user"}
-].forEach(function(css) {
-  script.addCss(css.relativePath, css.group);
-});
-
 // client side code
 function mainJs($) {
   var np = $.np;
@@ -329,7 +302,7 @@ function initJsBindEvents($) {
     np.emit('PostsRendered');
   }
 }
-;
+
 
 function initUserJs($) {
   var np = $.np;
@@ -385,10 +358,17 @@ function initUserJs($) {
     });
   });
 }
-;
 
-script.addJsCode('/js/main.js', mainJs);
-script.addJsCode('/js/user.js', userJs);
-script.addJsCode('/js/init.js', initJs);
-script.addJsCode('/js/init.js', initJsBindEvents);
-script.addJsCode('/js/initUser.js', initUserJs);
+
+script.addJsCode('js/main.js', mainJs, 'main');
+script.addJsCode('js/user.js', userJs, 'user');
+script.addJsCode('js/init.js', initJs, 'main');
+script.addJsCode('js/init.js', initJsBindEvents, 'main');
+script.addJsCode('js/initUser.js', initUserJs, 'user');
+
+//console.log(script.getJsCode('js/init.js', true));
+//setTimeout(function() {
+//  var tags = script.getJsTags('main', true);
+//  console.log(tags);
+//  console.log(script.getCssTags('main'));
+//}, 1000);
