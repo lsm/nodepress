@@ -1,10 +1,9 @@
 var db = np.db,
   auth = np.auth,
-  cookieName = np.cookieName,
-  cookieSecret = np.cookieSecret,
-  querystring = require("querystring");
-var app = np.genji.app();
+  cookieName = auth.cookieName,
+  cookieSecret = auth.cookieSecret;
 
+var app = np.genji.app();
 var user = db.collection('users');
 
 // create an admin account if not exits
@@ -49,7 +48,7 @@ function signin(handler) {
     handler.send("ok");
     return;
   }
-  handler.on('end', function(params) {
+  handler.on('params', function(params) {
     if (params.hasOwnProperty("username") && params.hasOwnProperty("password")) {
       user.findOne({
         username: params.username

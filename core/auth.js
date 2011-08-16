@@ -1,10 +1,10 @@
 var genji = require('genji'),
-  base64 = genji.base64,
+  crypto = genji.require('crypto'),
   auth = genji.require('auth');
 
 function checkCookie(cookie) {
   if (cookie) {
-    return auth.verify(base64.decode(cookie), module.exports.cookieSecret);
+    return auth.verify(crypto.base64Decode(cookie), module.exports.cookieSecret);
   }
   return false;
 }
@@ -12,7 +12,7 @@ function checkCookie(cookie) {
 function signin(user, credential, expire, data) {
   if (auth.checkPassword(credential, user["password"])) {
     var signed = auth.sign(user['username'], expire, data, module.exports.cookieSecret);
-    return signed ? base64.encode(signed) : false;
+    return signed ? crypto.base64Encode(signed) : false;
   }
   return false;
 }
