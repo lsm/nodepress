@@ -123,7 +123,7 @@ function initJs($) {
 }
 
 np.script.addJsCode('js/main.js', mainJs, 'main');
-np.script.addJsCode('js/init.js', initJs, 'main');
+np.script.addJsCode('js/init.js', initJs, 'inline');
 
 module.exports = {
   checkLogin: checkLogin

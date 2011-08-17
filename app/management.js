@@ -161,7 +161,7 @@ np.script.addJsCode('js/initUser.js', function($) {
   np.api.getTracker();
   dom.saveTracker.click(np.api.saveTracker);
   dom.saveSetting.click(np.api.saveSetting);
-}, 'user');
+}, 'inline');
 
 module.exports = {
   getTracker: getTracker

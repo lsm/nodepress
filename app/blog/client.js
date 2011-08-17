@@ -360,6 +360,6 @@ function initUserJs($) {
 
 script.addJsCode('js/main.js', mainJs, 'main');
 script.addJsCode('js/user.js', userJs, 'user');
-script.addJsCode('js/init.js', initJs, 'main');
-script.addJsCode('js/init.js', initJsBindEvents, 'main');
-script.addJsCode('js/initUser.js', initUserJs, 'user');
+script.addJsCode('js/init.js', initJs, 'inline');
+script.addJsCode('js/init.js', initJsBindEvents, 'inline');
+script.addJsCode('js/initUser.js', initUserJs, 'inline');
