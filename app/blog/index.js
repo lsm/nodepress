@@ -53,15 +53,15 @@ process.nextTick(function() {
       cache.set('intro', site.intro || 'a blogging tool built on top of nodejs');
     });
 
-  defaultContext.__defineGetter__('tracker', function() {
-    return cache.get('defaultTracker');
-  });
-  defaultContext.__defineGetter__('title', function() {
+  defaultContext.tracker = function(context) {
+    return context.is_owner ? '' : cache.get('defaultTracker');
+  };
+  defaultContext.title = function() {
     return cache.get('title');
-  });
-  defaultContext.__defineGetter__('intro', function() {
+  };
+  defaultContext.intro = function() {
     return cache.get('intro');
-  });
+  };
   // ensure indexes
   var postIndex = [
     ['published', -1],
