@@ -9,9 +9,8 @@ var post = np.db.collection('posts');
 
 function save(handler) {
   handler.on('json', function(doc, raw) {
-    console.log(raw);
-    post.save(doc, handler.username).then(
-      function(doc) {
+    post.save(doc, handler.username).and(
+      function(defer, doc) {
         handler.sendJSON({
           _id: doc._id
         });
@@ -37,11 +36,11 @@ function list(handler, skip, limit, tags) {
   limit = parseInt(limit, 10);
   limit = limit ? limit : np.app.blog.DEFAULT_POST_NUM;
   if (limit > 30 || limit < 1) limit = np.app.blog.DEFAULT_POST_NUM; // default
-  var query = {
-    published: {
-      $exists: true
-    }
-  };
+  var query = {};
+  account.checkLogin(handler, function() {
+    // not a logged in user
+    query.published = {$exists: true};
+  });
 
   if (tags) {
     tags = decodeURIComponent(tags).split(',');
@@ -54,7 +53,7 @@ function list(handler, skip, limit, tags) {
     sort:{"published": -1},
     limit:limit,
     skip: skip
-  }
+  };
 
   post.find(query, options).then(function(result) {
     handler.sendJSON({posts: result});

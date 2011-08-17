@@ -55,7 +55,12 @@ function mainJs($) {
       if (post.title) {
         tmp.title = post.title;
       }
-      tmp.published = np.formatDate(new Date(post.published));
+      if (post.published) {
+        tmp.published = np.formatDate(new Date(post.published));
+      } else {
+        tmp.draft = 'Draft: ' + new Date(post.created).toLocaleString();
+      }
+
       if (post.hasOwnProperty("tags")) {
         tmp.tags = [];
         $.each(post.tags, function(idx, tag) {
@@ -279,10 +284,11 @@ function initJsBindEvents($) {
   // bind events, insert date
   var np = $.np;
   $('.np-post-date').each(function(idx, npd) {
-    var date = new Date(npd.innerHTML);
-    $(this)
-      .attr('innerHTML', np.formatDate(date))
-      .removeClass('np-hide');
+    if (npd.innerHTML.length > 0) {
+      $(this)
+        .attr('innerHTML', np.formatDate(new Date(npd.innerHTML)))
+        .removeClass('np-hide');
+    }
   });
   if (np.page == 'index') {
     $('div.np-post-tags .np-post-tag').click(function(event) {

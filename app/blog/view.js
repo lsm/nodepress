@@ -30,7 +30,11 @@ function index(handler) {
   // compress if not in dev model
   ctx.initJs = script.getJsCode('js/init.js', !inDev);
   ctx.initUserJs = script.getJsCode('js/initUser.js', !inDev);
-  post.find({}, {
+  var query = {};
+  if (!ctx.is_owner) {
+    query.published = {$exists: true};
+  }
+  post.find(query, {
     limit: np.app.blog.DEFAULT_POST_NUM,
     sort:{"published": -1}
   }).then(function(posts) {
@@ -43,6 +47,9 @@ function index(handler) {
             };
           }
           item.tags = tags;
+          if (!item.published) {
+            item.draft = 'Draft: ' + new Date(item.created).toLocaleString();
+          }
           // render markdown on server side for first page load
           item.content = view.markdown(item.content);
         }
