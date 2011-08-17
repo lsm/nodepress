@@ -5,7 +5,7 @@ var EventEmitter = require('events').EventEmitter;
 
 function setupCore(settings) {
   // load dependences
-  var np = new EventEmitter;
+  var np = new EventEmitter();
   np.genji = genji;
 
   // setup cache, event emitter.
@@ -115,7 +115,13 @@ function createServer(settings, np) {
     np.settings = settings;
     setupApps(settings, np);
   }
-  var server = np.genji.createServer(settings.middlewares);
+  var genji = np.genji;
+  if (settings.middlewares) {
+    Object.keys(settings.middlewares).forEach(function(name) {
+      genji.use(name, settings.middlewares[name]);
+    });
+  }
+  var server = np.genji.createServer();
   return settings.cluster ? setupCluster(settings.cluster, server) : server;
 }
 
