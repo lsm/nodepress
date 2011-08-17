@@ -17,12 +17,12 @@ post.extend({
         var postId = new ObjectID(data._id);
         data.modified = new Date();
         delete data._id;
-        return this.update({_id: postId}, {$set: data});
+        return this.update({_id: postId}, {$set: data}, {safe: true});
       } else {
         // new post
         data.created = new Date();
         data.author = author;
-        return this._super(data);
+        return this._super(data, {safe: true});
       }
     } else {
       throw new Error('invalid data');
