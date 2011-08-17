@@ -1,6 +1,5 @@
-var path = require('path');
-var genji = require('genji').short();
 var nodepress = require('nodepress');
+var genji = nodepress.genji;
 
 
 var settings = {
@@ -18,17 +17,16 @@ var settings = {
     cookieName: '_npc_dev'
   },
   view: {
-    compress: false,
-    cache: false
+    compress: true,
+    cache: true
   }
-  ,env: 'development'
-  ,appRoot: __dirname
+  ,env: 'production'
   ,host: '127.0.0.1'
   ,port: 8000
-  ,installedApps: ['init', 'account', 'blog', 'management', 'static', 'tag']
+  ,apps: ['init', 'account', 'blog', 'management', 'static', 'tag']
   ,middlewares: {
     'response-time': {},
-    'error-handler': {uncaughtException: false},
+    'error-handler': {uncaughtException: true},
     'logger': {level: 'info'},
     'conditional-get': {}
   }

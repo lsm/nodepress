@@ -61,7 +61,7 @@ function setupCore(settings) {
 }
 
 function setupApps(settings, np) {
-  var apps = settings.installedApps;
+  var apps = settings.apps;
   if (Array.isArray(apps) && apps.length > 0) {
     np.app = {};
     apps.forEach(function(app) {
