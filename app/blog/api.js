@@ -7,8 +7,8 @@ var api = np.genji.app('api', {root: '^/_api/'});
 var post = np.db.collection('posts');
 
 function save(handler) {
-  handler.on('end', function(params, raw) {
-    var doc = JSON.parse(raw);
+  handler.on('json', function(doc, raw) {
+    console.log(raw);
     post.save(doc, handler.username).then(
       function(doc) {
         handler.sendJSON({
@@ -22,8 +22,7 @@ function save(handler) {
 }
 
 function remove(handler) {
-  handler.on('end', function(params, data) {
-    var doc = JSON.parse(data);
+  handler.on('json', function(doc, data) {
     post.remove({_id: new mongodb.ObjectID(doc._id)}).then(function(doc) {
       handler.sendJSON({});
       np.emit('blog.api.remove', doc);
