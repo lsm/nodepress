@@ -2,7 +2,7 @@ var script = np.script,
   view = np.view,
   settings = np.settings,
   Path = require('path'),
-  compress = settings.env === "production";
+  minify = settings.env === "production";
 
 var app = np.genji.app();
 
@@ -12,13 +12,13 @@ function getAbsPath(path) {
 }
 
 function handleScript(handler, type, basename, etag) {
-  var path = type + '/';
-  var scriptObj = script.getScript(path + basename);
+  var path = type + '/' + basename;
+  var scriptObj = script.getScript(path, minify);
   if (scriptObj.code) {
-    var code = script.getJsCode(scriptObj.url, compress);
-    handler.sendAsFile(code, {'type': 'application/javascript', etag: etag || scriptObj.hash, length: Buffer.byteLength(code)});
+    var meta = {type: scriptObj.contentType, etag: etag || scriptObj.hash, length: scriptObj.length};
+    handler.sendAsFile(scriptObj.code, meta);
   } else {
-    handler.staticFile(getAbsPath(path + basename), etag);
+    handleFile(handler, path);
   }
 }
 
@@ -29,8 +29,9 @@ function handleFile(handler, path) {
 function buildjs(handler, groupName, etag) {
   groupName = groupName + '.js';
   var tplName = 'js/' + groupName + '.mu';
-  view.render(tplName, {code: script.getJsCode('js/' + groupName, compress)}, null, function(js) {
-    handler.sendAsFile(js, {'type': 'application/javascript', etag: etag});
+  var scriptObj = script.getScript('js/' + groupName, minify);
+  view.render(tplName, {code: scriptObj.code}, null, function(js) {
+    handler.sendAsFile(js, {'type': 'application/javascript', etag: etag || script.hash});
   });
 }
 

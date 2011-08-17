@@ -71,12 +71,12 @@ Script.prototype = {
    * @param {String|Array} group Group(s) of this js
    */
   addJsCode: function addJsCode(url, code, group) {
-    var script = this.getScript(url) || {url: url};
+    var script = this.scripts[url] || {url: url};
     script['code'] = script['code'] || '';
     if (typeof code === 'string') {
       script['code'] += code;
     } else {
-      script['code'] += '\n;(' + code.toString() +')($);\n';
+      script['code'] += '\n(' + code.toString() +')($);\n';
     }
     script['length'] = Buffer.byteLength(script['code']);
     script['hash'] = crypto.md5(script['code']);
@@ -89,37 +89,30 @@ Script.prototype = {
   },
 
   /**
-   * Get source code according to url (virtual)
+   * Get source code according to url
    *
    * @param {String} url Url of your script file relative to `staticUrl`
    * @param {Boolean} minify Minify source if `true`
    * @return {String} Source of the script
    */
-  getJsCode: function getJsCode(url, minify) {
-    var script = this.getScript(url);
-    var code = '';
-    if (script) {
-      code = script['code'];
-      code = minify ? uglifyJs(code) : code;
+  getScript: function getScript(url, minify) {
+    var script = this.scripts[url];
+    if (minify && script.code) {
+      if (!script.minifiedLength) {
+        script = minifyJs(script);
+        this.scripts[url] = script;
+      }
+      return {
+        url: script.url,
+        path: script.path,
+        code: script.minified,
+        length: script.minifiedLength,
+        hash: script.hash,
+        group: script.group,
+        type: script.type
+      };
     }
-    return '\n' + code;
-  },
-
-  /**
-   * Get script object by url
-   *
-   * @param {String} url Url of your script file relative to `staticUrl`
-   * @return {Object} Object with following format:
-   * <code>
-   *     {
-   *         hash: '6626c831d24487114195050769e4691b', // md5 hash of the script content before minified
-   *         length: 1250, // length of the content before minified
-   *         lengthMinified: 368, // length of the content after minified
-   *     }
-   * </code>
-   */
-  getScript: function getScript(url) {
-    return this.scripts[url];
+    return script;
   }
 };
 
@@ -139,11 +132,22 @@ function addScript(url, group, path, type) {
   this.scriptIndexes.push(url);
 
   var self = this;
-  crypto.md5file(Path.join(this.staticRoot, script.path), 'hex', function(err, hexHash) {
-    if (err) throw err;
-    script['hash'] = hexHash;
-    self.scripts[url] = script;
-  });
+  if (type === 'js') {
+    fs.readFile(Path.join(this.staticRoot, script.path), 'utf8', function(err, code) {
+      if (err) throw err;
+      script.code = code;
+      script.length = Buffer.byteLength(code);
+      script.hash = crypto.md5(code, 'hex');
+      script = minifyJs(script);
+      self.scripts[url] = script;
+    });
+  } else {
+    crypto.md5file(Path.join(this.staticRoot, script.path), 'hex', function(err, hexHash) {
+      if (err) throw err;
+      script.hash = hexHash;
+      self.scripts[url] = script;
+    });
+  }
 }
 
 function genScriptTag(url, type) {
@@ -199,6 +203,13 @@ function uglifyJs(code) {
   ast = pro.ast_mangle(ast); // get a new AST with mangled names
   ast = pro.ast_squeeze(ast); // get an AST with compression optimizations
   return pro.gen_code(ast); // compressed code here
+}
+
+function minifyJs(script) {
+  script.minified = '\n' + uglifyJs(script.code);
+  script.minifiedLength = Buffer.byteLength(script.minified);
+  script.contentType = 'application/javascript';
+  return script;
 }
 
 exports.Script = Script;

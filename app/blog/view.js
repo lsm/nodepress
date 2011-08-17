@@ -28,8 +28,8 @@ function index(handler) {
     {js: script.getJsTags(scriptGroups), css: script.getCssTags(scriptGroups)}
   ];
   // compress if not in dev model
-  ctx.initJs = script.getJsCode('js/init.js', !inDev);
-  ctx.initUserJs = script.getJsCode('js/initUser.js', !inDev);
+  ctx.initJs = script.getScript('js/init.js', !inDev).code;
+  ctx.initUserJs = script.getScript('js/initUser.js', !inDev).code;
   var query = {};
   if (!ctx.is_owner) {
     query.published = {$exists: true};

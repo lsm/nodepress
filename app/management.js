@@ -149,12 +149,12 @@ np.on('management.api.saveTracker', function(data) {
 });
 
 np.script.addJsCode('js/user.js', management, 'main');
-np.script.addJsCode('js/initUser.js', function($) {
+np.script.addJsCode('js/initUser.js', function initUserDomJs($) {
   var np = $.np;
   var dom = np.dom;
   // tracker
-  dom.tracker = $('#np-tracker'),
-    dom.saveSetting = $('#np-save-setting');
+  dom.tracker = $('#np-tracker');
+  dom.saveSetting = $('#np-save-setting');
   dom.saveTracker = $('#np-save-tracker');
   dom.siteTitle = $('#np-siteTitle');
   dom.siteIntro = $('#np-siteIntro');
