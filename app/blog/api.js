@@ -4,6 +4,7 @@ var account = require('../account'),
 var mongodb = require('mongodb-async').mongodb;
 
 var api = np.genji.app('api', {root: '^/_api/'});
+var post = np.db.collection('posts');
 
 function save(handler) {
   handler.on('end', function(params, raw) {
@@ -31,9 +32,11 @@ function remove(handler) {
 }
 
 function list(handler, skip, limit, tags) {
-  skip = parseInt(skip) ? skip : 0;
-  limit = parseInt(limit) ? limit : core.blog.DEFAULT_POST_NUM;
-  if (limit > 30 || limit < 1) limit = core.blog.DEFAULT_POST_NUM; // default
+  skip = parseInt(skip, 10);
+  skip = skip ? skip : 0;
+  limit = parseInt(limit, 10);
+  limit = limit ? limit : np.app.blog.DEFAULT_POST_NUM;
+  if (limit > 30 || limit < 1) limit = np.app.blog.DEFAULT_POST_NUM; // default
   var query = {
     published: {
       $exists: true
@@ -43,26 +46,19 @@ function list(handler, skip, limit, tags) {
   if (tags) {
     tags = decodeURIComponent(tags).split(',');
     query.tags = {
-      $all: tags
+      $in: tags
     };
   }
 
   var options = {
-    sort:[
-      ["published", -1]
-    ],
+    sort:{"published": -1},
     limit:limit,
     skip: skip
   }
 
-  post.count(query).then(function(num) {
-    post.find(query, null, options).then(function(result) {
-      handler.sendJSON({
-        posts: result,
-        total: num
-      });
-      np.emit('blog.api.list', query, options, result);
-    });
+  post.find(query, options).then(function(result) {
+    handler.sendJSON({posts: result});
+    np.emit('blog.api.list', query, options, result);
   });
 }
 

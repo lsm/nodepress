@@ -116,8 +116,8 @@ function mainJs($) {
   // build pager
   np.on('@ApiList', buildPager);
   function buildPager(event, data, params) {
-    var total = data.total;
-    if (params.skip + params.limit < total) {
+    var postNum  = data.posts.length;
+    if (postNum === params.limit) {
       dom.nextPage.unbind('click');
       dom.nextPage.bind('click', function() {
         params.skip += params.limit;
@@ -291,16 +291,14 @@ function initJsBindEvents($) {
       np.emit('TagSelected');
     });
   }
-  if (np.totalPosts != '') {
-    // mustache and markdown rendered by server
-    np.buildPager(null, {
-      total: parseInt(np.totalPosts)
-    }, {
-      limit: 20,
-      skip: 0
-    });
-    np.emit('PostsRendered');
-  }
+  // mustache and markdown rendered by server
+  np.buildPager(null, {
+    posts: {length: np.postsCount}
+  }, {
+    limit: 20,
+    skip: 0
+  });
+  np.emit('PostsRendered');
 }
 
 
@@ -365,10 +363,3 @@ script.addJsCode('js/user.js', userJs, 'user');
 script.addJsCode('js/init.js', initJs, 'main');
 script.addJsCode('js/init.js', initJsBindEvents, 'main');
 script.addJsCode('js/initUser.js', initUserJs, 'user');
-
-//console.log(script.getJsCode('js/init.js', true));
-//setTimeout(function() {
-//  var tags = script.getJsTags('main', true);
-//  console.log(tags);
-//  console.log(script.getCssTags('main'));
-//}, 1000);

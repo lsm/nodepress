@@ -15,9 +15,7 @@ function index(handler) {
   var inDev = settings.env == "development";
   if (user) {
     ctx.is_owner = [
-      {
-        name: user
-      }
+      {name: user}
     ];
     scriptGroups.push("user");
   } else {
@@ -30,34 +28,30 @@ function index(handler) {
   // compress if not in dev model
   ctx.initJs = script.getJsCode('js/init.js', !inDev);
   ctx.initUserJs = script.getJsCode('js/initUser.js', !inDev);
-  post.count({}).then(function(num) {
-    ctx.total = num;
-    post.find({}, null, {
-      limit: np.app.blog.DEFAULT_POST_NUM,
-      sort:[
-        ["published", -1]
-      ]
-    }).then(function(posts) {
-        posts.forEach(function(item) {
-          if (item.hasOwnProperty("tags")) {
-            var tags = [];
-            for (var i = 0; i < item.tags.length; i++) {
-              tags[i] = {
-                name: item.tags[i]
-              };
-            }
-            item.tags = tags;
-            // render markdown on server side for first page load
-            item.content = view.markdown(item.content);
+  post.find({}, {
+    limit: np.app.blog.DEFAULT_POST_NUM,
+    sort:{"published": -1}
+  }).then(function(posts) {
+      posts.forEach(function(item) {
+        if (item.hasOwnProperty("tags")) {
+          var tags = [];
+          for (var i = 0; i < item.tags.length; i++) {
+            tags[i] = {
+              name: item.tags[i]
+            };
           }
-        });
-        ctx.posts = posts;
-        ctx.page = 'index';
-        view.render('index.html', ctx, function(html) {
-          handler.sendHTML(html);
-        });
+          item.tags = tags;
+          // render markdown on server side for first page load
+          item.content = view.markdown(item.content);
+        }
       });
-  });
+      ctx.posts = posts;
+      ctx.page = 'index';
+      ctx.postsCount = posts.length;
+      view.render('index.html', ctx, function(html) {
+        handler.sendHTML(html);
+      });
+    });
 }
 
 function article(handler, id) {
@@ -72,39 +66,36 @@ function article(handler, id) {
   } else {
     ctx.is_owner = undefined;
   }
-  post.count({}).then(function(num) {
-    ctx.total = num;
-    post.findOne({
-      _id: new mongodb.ObjectID(id)
-    }).then(function(post) {
-        if (post) {
-          if (post.hasOwnProperty("tags")) {
-            var tags = [];
-            for (var i = 0; i < post.tags.length; i++) {
-              tags[i] = {
-                name: post.tags[i]
-              };
-            }
-            post.tags = tags;
-            post.content = view.markdown(post.content);
+  post.findOne({
+    _id: new mongodb.ObjectID(id)
+  }).then(function(post) {
+      if (post) {
+        if (post.hasOwnProperty("tags")) {
+          var tags = [];
+          for (var i = 0; i < post.tags.length; i++) {
+            tags[i] = {
+              name: post.tags[i]
+            };
           }
-          ctx.posts = [post];
-          ctx.page = 'article';
-          view.render('article.html', ctx, null, function(html) {
-            handler.sendHTML(html);
-          });
-        } else {
-          handler.error(404, 'Article not found');
+          post.tags = tags;
+          post.content = view.markdown(post.content);
         }
-      });
-  });
+        ctx.posts = [post];
+        ctx.page = 'article';
+        view.render('article.html', ctx, null, function(html) {
+          handler.sendHTML(html);
+        });
+      } else {
+        handler.error(404, 'Article not found');
+      }
+    });
 }
 
 app.mount([
   ['^/$', index, 'get'],
   ['^/article/([0-9a-zA-Z]{24})/.*/$', article, 'get'],
   ['.*', function(handler) {
-    view.render('error/404.html', {url: handler.request.url}, function(html) {
+    view.render('error/404.html', {url: this.request.url}, function(html) {
       handler.error(404, html);
     })
   }, 'notfound']
