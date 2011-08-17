@@ -3,9 +3,9 @@
 {{/scripts}}
 
 <script type="text/javascript" language="javascript">
-    (head ? head.ready : $)(function() {
+    (window.head ? head.ready : $)(function() {
         $.np.cookieName = '{{cookieName}}';
-        $.np.totalPosts = '{{total}}';
+        $.np.postsCount = parseInt('{{postsCount}}', 10);
         $.np.page = '{{page}}';
         $.np.postTpl = '{{&postTpl}}';
 
