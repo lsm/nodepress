@@ -1,20 +1,28 @@
 ## About
 
-## Install
+## Install and run
 
-`git clone git://github.com/zir/nodepress.git nodepress`
+make a dir for your blog
+
+`mkdir nodepress`
 
 `cd nodepress`
 
-wait a moment for installing the depedences
+install from the master tarball
 
-`npm install`
+`npm install https://github.com/zir/nodepress/tarball/master`
 
-start the server, this assume you've mongodb listened on 127.0.0.1:27017
+wait a moment for fetching tarball and installing the depedences
 
-`./bin/nodepress/nodepress.js start skeletons/blog/blog.js`
+copy an example bootstrap file for your blog
 
-open http://127.0.0.1:8000 in your browser
+`cp ./node_modules/nodepress/skeletons/blog/server.js ./`
 
+start the server (assume your mongodb is listening on `127.0.0.1:27017`)
 
-Check the [running example](http://vitecho.com)
+`node server.js`
+
+open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser
+
+## Live demo (read only)
+[vitecho.com](http://vitecho.com)
