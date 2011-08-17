@@ -9,6 +9,8 @@
 - replace `core/db.js` by `mongodb-async`
 - rewrite and replace `core/client.js` with `core/script.js`
 - remove `bin/`, use `nodemon` if you need similar functionalities
+- upgrade jquery-gritter to v1.7, fix css 404 bug
+- show draft for logged in user
 
 
 0.1.8 (2011/1/31)
