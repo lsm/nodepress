@@ -2,7 +2,7 @@ var script = np.script,
   view = np.view,
   settings = np.settings,
   Path = require('path'),
-  compress = settings.env === "development";
+  compress = settings.env === "production";
 
 var app = np.genji.app();
 
