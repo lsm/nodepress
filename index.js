@@ -25,9 +25,9 @@ function setupCore(settings) {
     var db = dbServer.db(dbSettings.name);
     var collections = {};
     var getCollection = db.collection;
-    db.collection = function(collectionName) {
+    db.collection = function(collectionName, options) {
       if (!collections.hasOwnProperty(collectionName)) {
-        collections[collectionName] = getCollection.call(db, collectionName);
+        collections[collectionName] = getCollection.call(db, collectionName, options);
       }
       return collections[collectionName];
     };
