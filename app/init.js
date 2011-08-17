@@ -46,7 +46,7 @@ function mainInitJs($) {
 // js
 [
   {relativePath: "js/jquery-1.4.2.js", group: "main"},
-  {relativePath: "js/jquery.gritter-1.6.js", group: "main"},
+  {relativePath: "js/jquery.gritter-1.7.js", group: "main"},
   {relativePath: "js/jquery.tools.tabs-1.2.5.js", group: "main"},
   {relativePath: "js/mustache-0.3.0.js", group: "main"},
   {relativePath: "js/showdown-0.9.js", group: "main"}
