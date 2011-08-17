@@ -2,6 +2,8 @@ var auth = np.auth,
   view = np.view,
   script = np.script,
   settings = np.settings;
+var mongodb = require('mongodb-async').mongodb;
+var ObjectID = mongodb.BSONPure.ObjectID;
 
 var app = np.genji.app();
 
@@ -67,7 +69,7 @@ function article(handler, id) {
     ctx.is_owner = undefined;
   }
   post.findOne({
-    _id: new mongodb.ObjectID(id)
+    _id: new ObjectID(id)
   }).then(function(post) {
       if (post) {
         if (post.hasOwnProperty("tags")) {

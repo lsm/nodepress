@@ -2,6 +2,7 @@ var account = require('../account'),
   auth = np.auth,
   view = np.view;
 var mongodb = require('mongodb-async').mongodb;
+var ObjectID = mongodb.BSONPure.ObjectID;
 
 var api = np.genji.app('api', {root: '^/_api/'});
 var post = np.db.collection('posts');
@@ -23,7 +24,7 @@ function save(handler) {
 
 function remove(handler) {
   handler.on('json', function(doc, data) {
-    post.remove({_id: new mongodb.ObjectID(doc._id)}).then(function(doc) {
+    post.remove({_id: new ObjectID(doc._id)}).then(function(docRemoved) {
       handler.sendJSON({});
       np.emit('blog.api.remove', doc);
     });
@@ -63,7 +64,7 @@ function list(handler, skip, limit, tags) {
 
 function byId(handler, id) {
   post.findOne({
-    _id: new mongodb.ObjectID(id)
+    _id: new ObjectID(id)
   }).then(function(data) {
       handler.sendJSON(data);
       np.emit('blog.api.id', id, data);

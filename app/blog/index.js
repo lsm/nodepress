@@ -2,6 +2,7 @@ var fs = require('fs'),
   Path = require('path'),
   md5 = np.genji.md5;
 var mongodb = require('mongodb-async').mongodb;
+var ObjectID = mongodb.BSONPure.ObjectID;
 
 var post = np.db.collection('posts');
 
@@ -13,7 +14,7 @@ post.extend({
       }
       if (data.hasOwnProperty('_id')) {
         // old post
-        var postId = new mongodb.ObjectID(data._id);
+        var postId = new ObjectID(data._id);
         data.modified = new Date();
         delete data._id;
         return this.update({_id: postId}, {$set: data});
