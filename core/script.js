@@ -102,7 +102,7 @@ Script.prototype = {
       code = script['code'];
       code = minify ? uglifyJs(code) : code;
     }
-    return code;
+    return '\n' + code;
   },
 
   /**
