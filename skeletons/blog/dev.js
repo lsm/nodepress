@@ -14,19 +14,19 @@ var settings = {
   },
   auth: {
     cookieSecret: 'c00kie-key-4-hmac',
-    cookieName: '_npc'
+    cookieName: '_npc_dev'
   },
   view: {
-    compress: true,
-    cache: true
+    compress: false,
+    cache: false
   }
-  ,env: 'production'
+  ,env: 'development'
   ,host: '127.0.0.1'
   ,port: 8000
   ,apps: ['init', 'account', 'blog', 'management', 'static', 'tag']
   ,middlewares: {
     'response-time': {},
-    'error-handler': {uncaughtException: true},
+    'error-handler': {uncaughtException: false},
     'logger': {level: 'info'},
     'conditional-get': {}
   }
