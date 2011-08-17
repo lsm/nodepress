@@ -108,18 +108,17 @@ function setupCluster(settings, server) {
 }
 
 function createServer(settings, np) {
+  if (settings.middlewares) {
+    Object.keys(settings.middlewares).forEach(function(name) {
+      genji.use(name, settings.middlewares[name]);
+    });
+  }
   if (!np) {
     // construct the nodepress core if not setted
     var np = setupCore(settings);
     global.np = np;
     np.settings = settings;
     setupApps(settings, np);
-  }
-  var genji = np.genji;
-  if (settings.middlewares) {
-    Object.keys(settings.middlewares).forEach(function(name) {
-      genji.use(name, settings.middlewares[name]);
-    });
   }
   var server = np.genji.createServer();
   return settings.cluster ? setupCluster(settings.cluster, server) : server;
@@ -152,3 +151,4 @@ exports.createServer = createServer;
 exports.startServer = startServer;
 exports.setupCore = setupCore;
 exports.setupApps = setupApps;
+exports.genji = genji;
