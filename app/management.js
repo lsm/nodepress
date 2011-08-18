@@ -1,7 +1,7 @@
-var db = np.db,
-  auth = np.auth,
-  checkLogin = require('./account').checkLogin,
-  tracker;
+var db = np.db;
+var auth = np.auth;
+var checkLogin = np.app.account.checkLogin;
+var tracker;
 
 var api = np.genji.app('api', {root: '^/_api/'});
 

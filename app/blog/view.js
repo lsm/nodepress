@@ -4,6 +4,7 @@ var auth = np.auth,
   settings = np.settings;
 var mongodb = require('mongodb-async').mongodb;
 var ObjectID = mongodb.BSONPure.ObjectID;
+var checkLogin = np.app.account.checkLogin;
 
 var app = np.genji.app();
 
@@ -11,13 +12,12 @@ var post = np.db.collection('posts');
 
 
 function index(handler) {
-  var user = auth.checkCookie(handler.getCookie(auth.cookieName), auth.cookieSecret)[0];
   var ctx = np.app.blog.ctx;
   var scriptGroups = ["main"];
-  var inDev = settings.env == "development";
-  if (user) {
+  var inDev = settings.env === "development";
+  if (checkLogin(handler, null)) {
     ctx.is_owner = [
-      {name: user}
+      {name: handler.username}
     ];
     scriptGroups.push("user");
   } else {
@@ -64,16 +64,11 @@ function index(handler) {
 }
 
 function article(handler, id) {
-  var user = auth.checkCookie(handler.getCookie(auth.cookieName), auth.cookieSecret)[0];
   var ctx = np.app.blog.ctx;
-  if (user) {
+  if (checkLogin(handler, null)) {
     ctx.is_owner = [
-      {
-        name: user
-      }
+      {name: handler.username}
     ];
-  } else {
-    ctx.is_owner = undefined;
   }
   post.findOne({
     _id: new ObjectID(id)

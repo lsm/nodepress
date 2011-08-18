@@ -1,10 +1,11 @@
-var genji = require('genji'),
-  crypto = genji.require('crypto'),
-  auth = genji.require('auth');
+var genji = require('genji');
+var crypto = genji.require('crypto');
+var auth = genji.require('auth');
 
-function checkCookie(cookie) {
-  if (cookie) {
-    return auth.verify(crypto.base64Decode(cookie), module.exports.cookieSecret);
+function checkCookie(handler) {
+  if (handler) {
+    var cookie = handler.getCookie(module.exports.cookieName);
+    return cookie ? auth.verify(crypto.base64Decode(cookie), module.exports.cookieSecret) : false;
   }
   return false;
 }

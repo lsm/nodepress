@@ -1,8 +1,8 @@
-var account = require('../account'),
-  auth = np.auth,
-  view = np.view;
+var account = require('../account');
+var auth = np.auth;
 var mongodb = require('mongodb-async').mongodb;
 var ObjectID = mongodb.BSONPure.ObjectID;
+var checkLogin = np.app.account.checkLogin;
 
 var api = np.genji.app('api', {root: '^/_api/'});
 var post = np.db.collection('posts');
@@ -37,10 +37,9 @@ function list(handler, skip, limit, tags) {
   limit = limit ? limit : np.app.blog.DEFAULT_POST_NUM;
   if (limit > 30 || limit < 1) limit = np.app.blog.DEFAULT_POST_NUM; // default
   var query = {};
-  account.checkLogin(handler, function() {
-    // not a logged in user
+  if (checkLogin(handler, null)) {
     query.published = {$exists: true};
-  });
+  }
 
   if (tags) {
     tags = decodeURIComponent(tags).split(',');

@@ -19,9 +19,18 @@ process.nextTick(function() {
   });
 });
 
-
-function checkLogin(handler, failure) {
-  var validCookie = auth.checkCookie(handler.getCookie(cookieName), cookieSecret);
+/**
+ * Check if current session is logged in.
+ *
+ * @param {Object} handler Handler object passed to your request handling function
+ * @param {Function|String} failHandler When session is not valid, you can set `failHandler` to :
+ *  - {Function} your customized function to handle the failure.
+ *  - {String} error message or html which will display to user.
+ *  - {null} do nothing just return false.
+ *  - send default message with status code 401 if this argument is ignored.
+ */
+function checkLogin(handler, failHandler) {
+  var validCookie = auth.checkCookie(handler);
   if (validCookie) {
     // valid user
     handler.username = validCookie[0];
@@ -30,20 +39,21 @@ function checkLogin(handler, failure) {
     return true;
   }
   // not a logged in user
-  switch (typeof failure) {
+  if (failHandler === null) return false;
+  switch (typeof failHandler) {
     case 'function':
-      failure();
+      failHandler();
       break;
     case 'string':
     case 'undefined':
-      handler.error(401, failure || 'Login failed');
+      handler.error(401, failHandler || 'Login failed');
       break;
   }
   return false;
 }
 
 function signin(handler) {
-  if (checkLogin(handler, false)) {
+  if (checkLogin(handler, null)) {
     // already logged in
     handler.send("ok");
     return;
