@@ -125,8 +125,8 @@ a.u:hover{text-decoration:none}
 .tag .t,.tag .f{background:url("../images/bx2.gif") no-repeat}
 
 .tag{background:url("../images/bg_y.gif") repeat-y}
-.tag .t{background-position:0px 0px}
-.tag .f{width:176px;padding:16px 15px 20px;line-height:24px;background-position:-206px 100%;overflow:hidden}
+.tag .t{background-position:0px 0px;}
+.tag .f{width:176px;padding:16px 15px 20px;line-height:24px;background-position:-206px 100%;overflow:hidden; min-height: 48px;}
 .tag .f a{float:left;margin-right:10px;white-space:nowrap}
 .tag .f a.f18{font-size:18px}
 .tag .f a.f16{font-size:16px}
