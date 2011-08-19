@@ -1,23 +1,9 @@
-var db = np.db,
-  auth = np.auth,
-  cookieName = auth.cookieName,
-  cookieSecret = auth.cookieSecret;
+var db = np.db;
+var auth = np.auth;
+var cookieName = auth.cookieName;
 
 var app = np.genji.app();
 var user = db.collection('users');
-
-// create an admin account if not exits
-process.nextTick(function() {
-  user.findOne({username: 'admin'}).then(function(doc) {
-    if (!doc) {
-      user.save({username: 'admin', password: auth.makePassword('1')}).then(function(result) {
-        if (result._id) {
-          console.log('Your account created, \nusername: admin, \npassword: 1');
-        }
-      });
-    }
-  });
-});
 
 /**
  * Check if current session is logged in.

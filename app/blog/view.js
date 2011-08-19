@@ -9,9 +9,53 @@ var checkLogin = np.app.account.checkLogin;
 var app = np.genji.app();
 
 var post = np.db.collection('posts');
+var user = np.db.collection('users');
 
+
+var hasUser = false;
+
+user.findOne({}).then(function(doc) {
+  hasUser = !!doc;
+});
+
+function install(handler) {
+  if (hasUser) return;
+  handler.on('params', function(params) {
+    if (params.username && params.password) {
+      user
+        .insert({username: params.username, password: np.auth.makePassword(params.password)})
+        .then(function(userDocs) {
+          if (Array.isArray(userDocs) && userDocs[0]._id) {
+            hasUser = true;
+            handler.redirect('/', false);
+          }
+        });
+    } else {
+      handler.error(200, 'Please fill username and password');
+    }
+  });
+}
+
+app.post('^/blog/install$', install);
+
+
+function installed(handler) {
+  if (!hasUser) {
+    var ctx = np.app.blog.ctx;
+    var scriptGroups = ["main"];
+    ctx.scripts = [
+      {js: script.getJsTags(scriptGroups), css: script.getCssTags(scriptGroups)}
+    ];
+    view.render('installation.html', ctx, function(html) {
+      handler.sendHTML(html);
+    });
+  }
+  return hasUser;
+}
 
 function index(handler) {
+  if (!installed(handler)) return;
+
   var ctx = np.app.blog.ctx;
   var scriptGroups = ["main"];
   var inDev = settings.env === "development";

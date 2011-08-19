@@ -1,0 +1,36 @@
+{{> share/header.html}}
+<body>
+<!-- header -->
+{{> share/top.html}}
+
+<div class="w mat">
+  <div class="l w724">
+    <div class="mat"
+         style="border-color: #aaa; border-width: 1px; border-style: solid; height: 361px;width: 650px; padding: 36px;">
+      <h1 style="width: 100%; text-align: center;">Congratulations! Your Nodepress is up and running.</h1>
+
+      <h2 style="width: 100%; text-align: center; padding-top: 36px;">Please fill the form below to create your
+        account:</h2>
+      <ul style="width: 100px; list-style-type: none; float: left; margin-top: 60px; margin-left: 160px; padding-left: 0px;">
+        <li style="margin-top: 5px;">
+          <label for="username">Username: </label>
+        </li>
+        <li style="margin-top: 40px;">
+          <label for="password">Password: </label>
+        </li>
+      </ul>
+      <form id="np-reg-form" method="post" action="/blog/install" name="regForm">
+        <ul style="width: 200px; list-style-type: none; float: left; margin-top: 60px; padding-left: 0px;">
+          <li><input type="text" id="username" name="username" class="txt"/></li>
+          <li style="margin-top: 30px;"><input type="password" id="password" name="password" class="txt"/></li>
+          <input class="hand" type="submit" value="Submit" style="width: 171px; margin-top: 32px; height: 24px;">
+        </ul>
+      </form>
+    </div>
+  </div>
+  <div class="r w206">
+    <div class="copy mat">&copy; Copyright 2010-2011</div>
+  </div>
+</div>
+{{> share/script.html}}
+{{> share/end.html}}
