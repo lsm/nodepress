@@ -10,7 +10,7 @@ make a dir for your blog
 
 install from the master tarball
 
-`npm install https://github.com/zir/nodepress/tarball/master`
+`npm install nodepress`
 
 wait a moment for fetching tarball and installing the depedences
 
