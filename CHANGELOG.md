@@ -3,15 +3,16 @@
 - compress css by [sqwish](https://github.com/ded/sqwish)
 - ender.js
 
-0.3.0 (2011/08/?)
+0.3.0 (2011/08/19)
 ---------
-- `genji` upgrade to `0.2.1`
-- replace `core/db.js` by `mongodb-async`
-- rewrite and replace `core/client.js` with `core/script.js`
-- remove `bin/`, use `nodemon` if you need similar functionalities
-- upgrade jquery-gritter to v1.7, fix css 404 bug
+- `genji` upgraded to `0.2.1`
+- Replaced `core/db.js` by `mongodb-async`
+- Rewrited and replaced `core/client.js` with `core/script.js`
+- Removed `bin/`, use `nodemon` if you need similar functionalities
+- Upgraded jquery-gritter to v1.7, fix css 404 bug
 - show draft for logged in user
 - hide tracking code for logged in user
+- Added a simple page for creating account
 
 0.1.8 (2011/1/31)
 ---------

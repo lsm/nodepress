@@ -1,6 +1,6 @@
 {
     "name": "nodepress",
-    "description": "High-level web framework, can be used as a blog by default",
+    "description": "A nodejs micro-blog engine",
     "version": "0.3.0",
     "homepage": "http://github.com/zir/nodepress",
     "author": "Senmiao Liu <zir.echo@gmail.com> http://vitecho.com",
