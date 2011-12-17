@@ -8,11 +8,11 @@ make a dir for your blog
 
 `cd nodepress`
 
-install from the master tarball
+install to current dir
 
 `npm install nodepress`
 
-wait a moment for fetching tarball and installing the depedences
+wait a moment for installation
 
 copy an example bootstrap file for your blog
 
