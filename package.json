@@ -1,7 +1,7 @@
 {
     "name": "nodepress",
     "description": "A nodejs micro-blog engine",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "homepage": "http://github.com/zir/nodepress",
     "author": "Senmiao Liu <zir.echo@gmail.com> http://vitecho.com",
     "repository" : {
@@ -10,14 +10,14 @@
     },
     "main": "./index.js",
     "dependencies": {
-        "mongodb-async": "0.0.2",
-        "nunz": "0.1.13",
+        "mongodb-async": "0.1.2",
+        "nunz": "0.2.0",
         "node-markdown": "0.1.0",
-        "genji": "0.2.1",
+        "genji": "0.2.x",
         "formidable": "1.0.2",
         "uglify-js": "1.0.6"
     },
     "engines": {
-        "node": ">= 0.4.8 < 0.5"
+        "node": ">= 0.4.8"
     }
 }
