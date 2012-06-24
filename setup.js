@@ -1,5 +1,5 @@
 var settings = require('./settings'),
-sys = require('sys'),
+util = require('util'),
 mkpass = require('./lib/genji/lib/genji/web/auth').makePassword,
 mongo = require('./lib/node-mongodb-native/lib/mongodb');
 
@@ -14,11 +14,11 @@ mongo.connect(settings.db, function(err, db) {
                         username: 'admin',
                         password: mkpass('1')
                         }, function(err, doc) {
-                        sys.debug(sys.inspect(doc));
+                        util.debug(util.inspect(doc));
                         db.close();
                     });
                 } else {
-                    sys.puts("user 'admin' already exists");
+                    util.puts("user 'admin' already exists");
                     db.close();
                 }
             });
